@@ -1,3 +1,4 @@
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -8,28 +9,14 @@
     html, body { height: 100%; margin: 0; }
     body { background: #00F; overflow: hidden; }
     canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
-    /* brand overlay */
-    #brand {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      color: #FFF;
-      font-family: 'Times New Roman', Times, serif;
-      font-weight: bold;
-      font-size: clamp(40px, 12vw, 160px);
-      line-height: 1.05;
-      text-align: center;
-      z-index: 2;
-      pointer-events: none;
-      text-shadow: 0 2px 0 rgba(0,0,0,0.15);
-    }
+    /* brand overlay (removed in favor of canvas-rendered warp) */
+    /* kept empty in case of future reuse */
+    #brand { display: none; }
     /* optional debug overlay toggle with "d" key */
     #debug { position: fixed; inset: auto 8px 8px auto; color: #FFF; font: 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity: .55; }
   </style>
 </head>
 <body>
-<div id="brand" aria-hidden="true">b i r d s o n g</div>
 <canvas id="c"></canvas>
 <div id="debug" hidden></div>
 <script>
@@ -65,6 +52,76 @@
   let DPR = Math.max(1, Math.min(3, self.devicePixelRatio || 1));
   let W = 0, H = 0;
 
+  // === Brand text rendered on canvas with cylindrical warp ===
+  const BRAND_TEXT = 'b i r d s o n g';
+  const BRAND_FONT_FAMILY = `"Times New Roman", Times, serif`;
+  let brandBuf = null; // offscreen canvas
+  let brandCtx = null;
+  let brandMetrics = { w: 0, h: 0, ascent: 0, descent: 0, fontPx: 0 };
+  let brandTargetWidth = 0;
+  let brandBendAngle = 1.0; // radians for max column (0.2..0.8 looks good)
+  let brandDepthAmp = 1.0; // vertical scale boost at center (0..0.5)
+  let brandY = 0;            // centerline Y for brand
+
+  function ensureBrandBuffer() {
+    if (!brandBuf) {
+      brandBuf = document.createElement('canvas');
+      brandCtx = brandBuf.getContext('2d');
+    }
+
+    // Target width relative to viewport (leave margins). Scale by DPR inside buffer.
+    const vw = W / DPR;
+    const vh = H / DPR;
+    brandTargetWidth = Math.max(320, Math.min(vw * 0.82, 1400));
+
+    // Pick a font size so the measured width ~ target width
+    // Start with a guess and refine once using measured width ratio.
+    let fontPx = Math.max(40, Math.min(vh * 0.18, 180));
+    brandCtx.setTransform(1,0,0,1,0,0);
+    brandCtx.font = `bold ${fontPx}px ${BRAND_FONT_FAMILY}`;
+    let tm = brandCtx.measureText(BRAND_TEXT);
+    if (tm.width > 0) {
+      const scale = brandTargetWidth / tm.width;
+      fontPx = Math.max(24, Math.min(220, fontPx * scale));
+      brandCtx.font = `bold ${fontPx}px ${BRAND_FONT_FAMILY}`;
+      tm = brandCtx.measureText(BRAND_TEXT);
+    }
+
+    // Compute buffer size at device pixels
+    const textW = Math.ceil(tm.width);
+    const textH = Math.ceil((tm.actualBoundingBoxAscent || fontPx * 0.8) + (tm.actualBoundingBoxDescent || fontPx * 0.2));
+    const pad = Math.ceil(fontPx * 0.3);
+    const bw = (textW + pad * 2);
+    const bh = (textH + pad * 2);
+    brandBuf.width = Math.max(2, Math.floor(bw * DPR));
+    brandBuf.height = Math.max(2, Math.floor(bh * DPR));
+
+    // Draw crisp text into buffer at DPR scale
+    brandCtx.setTransform(DPR,0,0,DPR,0,0);
+    brandCtx.clearRect(0, 0, bw, bh);
+    brandCtx.fillStyle = '#FFF';
+    brandCtx.textBaseline = 'alphabetic';
+    brandCtx.textAlign = 'left';
+    brandCtx.font = `bold ${fontPx}px ${BRAND_FONT_FAMILY}`;
+    brandCtx.shadowColor = 'rgba(0,0,0,0.15)';
+    brandCtx.shadowOffsetY = 2;
+    brandCtx.shadowBlur = 0;
+    const baseline = pad + (tm.actualBoundingBoxAscent || fontPx * 0.8);
+    brandCtx.fillText(BRAND_TEXT, pad, baseline);
+
+    // Cache metrics
+    brandMetrics = {
+      w: bw * DPR,           // buffer px
+      h: bh * DPR,
+      ascent: (tm.actualBoundingBoxAscent || fontPx * 0.8) * DPR,
+      descent: (tm.actualBoundingBoxDescent || fontPx * 0.2) * DPR,
+      fontPx: fontPx * DPR,
+    };
+
+    // Position brand vertically (canvas pixels)
+    brandY = Math.floor(H * 0.5);
+  }
+
   function resize() {
     DPR = Math.max(1, Math.min(3, self.devicePixelRatio || 1));
     W = Math.floor(innerWidth * DPR);
@@ -75,6 +132,7 @@
     canvas.style.height = '100vh';
     ctx.setTransform(1,0,0,1,0,0);
     ctx.imageSmoothingEnabled = false;
+    ensureBrandBuffer();
   }
   addEventListener('resize', resize);
   resize();
@@ -215,6 +273,51 @@
   let last = performance.now();
   let perfNow = last;
 
+  function drawBentBrand() {
+    if (!brandBuf) return;
+
+    // Source in buffer pixels
+    const srcW = brandMetrics.w;
+    const srcH = brandMetrics.h;
+    // Cylindrical mapping parameters
+    const bend = brandBendAngle;
+    const halfSrc = srcW / 2;
+    const cx = Math.floor(W / 2);
+
+    // Radius so that R * sin(bend) = halfSrc (in buffer pixels mapped 1:1)
+    const R = halfSrc / Math.max(0.0001, Math.sin(bend));
+
+    // Enable smoothing for warped draw only
+    const prevSmooth = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = true;
+
+    // Iterate columns and map to destination
+    const sy = 0;
+    const sh = srcH;
+    for (let sx = 0; sx < srcW - 1; sx++) {
+      const nx = (sx - halfSrc) / halfSrc; // -1..1
+      const nx2 = ((sx + 1) - halfSrc) / halfSrc;
+      const th0 = nx * bend;
+      const th1 = nx2 * bend;
+      const dx0 = cx + R * Math.sin(th0);
+      const dx1 = cx + R * Math.sin(th1);
+      const colW = Math.max(1, (dx1 - dx0));
+
+      // Depth cue: make center vertically taller than edges
+      const nxAbs = Math.abs(nx);
+      const scaleY = 1 + brandDepthAmp * (1 - nxAbs); // 1+amp at center -> 1.0 at edges
+      const dh = sh * scaleY;
+      const dy = Math.floor(brandY - dh / 2);
+
+      ctx.drawImage(brandBuf,
+        sx, sy, 1, sh,                 // src 1px column
+        dx0, dy, colW, dh               // dest column with mapping
+      );
+    }
+
+    ctx.imageSmoothingEnabled = prevSmooth;
+  }
+
   function frame(now) {
     perfNow = now;
     const dt = clamp((now - last) / 1000, 0, 0.033); // cap dt
@@ -328,6 +431,9 @@
 
     // Update + draw using computed steering
     for (const b of birds) { b.update(dt); b.draw(ctx, now); }
+
+    // Draw brand warp over the scene
+    drawBentBrand();
 
     // Debug overlay
     if (!dbg.hidden) {
