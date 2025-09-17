@@ -30,7 +30,15 @@
   const lerp = (a,b,t)=>a+(b-a)*t;
 
   const qs = new URLSearchParams(location.search);
-  const MAX_BIRDS = clamp(+qs.get('n') || 36, 1, 300);
+  // Scale birds with CSS pixel area; baseline 36 birds at 1280x800.
+  const BASE_AREA = 1280 * 800;
+  const BASE_COUNT = clamp(+qs.get('n') || 36, 1, 300);
+  const computeBirdCount = () => {
+    const vw = Math.max(1, innerWidth);
+    const vh = Math.max(1, innerHeight);
+    const area = vw * vh; // CSS pixels, not DPR-scaled
+    return clamp(Math.round(BASE_COUNT * (area / BASE_AREA)), 1, 300);
+  };
   const TORUS = true; // wrap world like a torus
 
   // Boids tuning (units are roughly px/sec and px)
@@ -137,7 +145,7 @@
     ctx.imageSmoothingEnabled = false;
     ensureBrandBuffer();
   }
-  addEventListener('resize', resize);
+  addEventListener('resize', () => { resize(); resizeBirds(); });
   resize();
 
   // === Musical Notes Palette ===
@@ -270,8 +278,19 @@
     }
   }
 
-  // Build flock
-  const birds = Array.from({ length: MAX_BIRDS }, () => new Bird());
+  // Build flock (resizes with viewport area)
+  let birds = [];
+  function resizeBirds() {
+    const target = computeBirdCount();
+    const cur = birds.length;
+    if (cur < target) {
+      for (let i = 0; i < target - cur; i++) birds.push(new Bird());
+    } else if (cur > target) {
+      birds.length = target; // truncate extras
+    }
+  }
+  // Initialize flock now that initial resize() has set W/H
+  resizeBirds();
 
   let last = performance.now();
   let perfNow = last;
