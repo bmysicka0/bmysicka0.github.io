@@ -4,10 +4,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Birdsong</title>
   <style>
-:root { color-scheme: dark light; }
-    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+    :root { color-scheme: dark light; }
+    html, body { height: 100%; margin: 0; }
     body { background: #00F; overflow: hidden; }
-    canvas { position: fixed; inset: 0; display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+    canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
     /* brand overlay */
     #brand {
       position: fixed;
@@ -26,7 +26,7 @@
     }
     /* optional debug overlay toggle with "d" key */
     #debug { position: fixed; inset: auto 8px 8px auto; color: #FFF; font: 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity: .55; }
-</style>
+  </style>
 </head>
 <body>
 <div id="brand" aria-hidden="true">b i r d s o n g</div>
@@ -47,10 +47,10 @@
   const BOIDS = {
     perception: 300,   // neighbor radius
     separation: 150,   // too-close radius
-    maxSpeed: 250,    // speed clamp
-    maxForce: 160,    // steering clamp (accel)
-    edgeMargin: 80,   // border avoid band
-    edgeForce: 1.0,   // border steering multiplier
+    maxSpeed: 250,     // speed clamp
+    maxForce: 160,     // steering clamp (accel)
+    edgeMargin: 80,    // border avoid band
+    edgeForce: 1.0,    // border steering multiplier
     weights: {
       alignment: 0.1,
       cohesion: 0.1,
@@ -71,25 +71,26 @@
     H = Math.floor(innerHeight * DPR);
     canvas.width = W;
     canvas.height = H;
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
     ctx.setTransform(1,0,0,1,0,0);
     ctx.imageSmoothingEnabled = false;
   }
   addEventListener('resize', resize);
   resize();
 
-  // ASCII palette for strokes based on local slope
-  const GLYPHS = ['_', '-', '-', '-', '.', '/', '\\', '^'];
+  // === Musical Notes Palette ===
+  // Using Unicode musical symbols (not strictly ASCII) for nicer results.
+  // If you *must* use ASCII-only, change GLYPHS to something like: ['o', '*', '+', '.']
+  const GLYPHS = ['♩', '♪', '♫', '♬'];
 
-  // Convert slope -> glyph
+  // Map local slope -> a note glyph (calmer slopes = simple notes, steeper = busier glyphs)
   function glyphForSlope(m) {
     const a = Math.abs(m);
-    if (a < 0.2) return GLYPHS[0];
-    if (a < 0.4) return GLYPHS[1];
-    if (a < 0.7) return m > 0 ? '/' : '\\';
-    if (a < 1.2) return m > 0 ? '/' : '\\';
-    return '^';
+    if (a < 0.25) return GLYPHS[0];    // ♩ quarter note
+    if (a < 0.6)  return GLYPHS[1];    // ♪ eighth note
+    if (a < 1.2)  return GLYPHS[2];    // ♫ beamed eighth notes
+    return GLYPHS[3];                  // ♬ beamed sixteenth notes
   }
 
   // Bird built from y(x) = cos(1.2 * t * x) * t for x in [-2,2]
@@ -104,9 +105,9 @@
       this.ay = 0;
 
       // intrinsic parameters
-      this.t = lerp(0.5, 1.0, Math.random()); // 0.5..1 as requested
+      this.t = lerp(0.5, 1.0, Math.random()); // 0.5..1
       this.k = 1.2; // multiplier inside cos
-      this.scale = rand(10, 22) * DPR; // cell size for ASCII grid
+      this.scale = rand(10, 22) * DPR; // cell size for ASCII/notes grid
       this.cols = 9; // columns sampling x in [-2,2]
       this.rows = 5; // vertical cells used to place chars
 
@@ -157,7 +158,7 @@
     }
 
     draw(ctx, time) {
-      // Monospace text settings (FFF on 00F)
+      // Text settings (FFF on 00F)
       const fontPx = Math.max(10, (this.scale * 0.9) | 0);
       ctx.font = `${fontPx}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
       ctx.textBaseline = 'middle';
