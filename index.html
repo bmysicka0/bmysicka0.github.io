@@ -24,6 +24,10 @@
 <div id="debug" hidden></div>
 <script>
 (() => {
+  // === Musical Notes Palette ===
+  // Using Unicode musical symbols (not strictly ASCII) for nicer results.
+  // If you *must* use ASCII-only, change GLYPHS to something like: ['o', '*', '+', '.']
+  const GLYPHS = ['♩', '♪', '♫', '♬'];
   const TAU = Math.PI * 2;
   const rand = (a=0, b=1) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -73,6 +77,8 @@
   let brandBendAngle = 1.0; // radians for max column (0.2..0.8 looks good)
   let brandDepthAmp = 1.0; // vertical scale boost at center (0..0.5)
   let brandY = 0;            // centerline Y for brand
+  // Try brand text built from musical GLYPHS; use ?brand=solid to revert
+  const BRAND_STYLE = (qs.get('brand') || 'notes'); // 'notes' | 'solid'
 
   function ensureBrandBuffer() {
     if (!brandBuf) {
@@ -118,7 +124,47 @@
     brandCtx.shadowOffsetY = 2;
     brandCtx.shadowBlur = 0;
     const baseline = pad + (tm.actualBoundingBoxAscent || fontPx * 0.8);
-    brandCtx.fillText(BRAND_TEXT, pad, baseline);
+    if (BRAND_STYLE === 'solid') {
+      brandCtx.fillText(BRAND_TEXT, pad, baseline);
+    } else {
+      // Build a mask by drawing solid text, then repaint with GLYPHS on a grid
+      brandCtx.fillText(BRAND_TEXT, pad, baseline);
+      const wDev = brandBuf.width;
+      const hDev = brandBuf.height;
+      const img = brandCtx.getImageData(0, 0, wDev, hDev);
+      const data = img.data;
+
+      // Clear and prepare to draw glyph mosaic in CSS px space
+      brandCtx.setTransform(DPR,0,0,DPR,0,0);
+      brandCtx.clearRect(0, 0, bw, bh);
+      brandCtx.textAlign = 'center';
+      brandCtx.textBaseline = 'middle';
+      // Cell size scales with the chosen text size
+      const cell = Math.max(8, Math.round(fontPx * 0.01));
+      const glyphPx = Math.floor(cell);
+      brandCtx.font = `${glyphPx}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      brandCtx.fillStyle = '#FFF';
+
+      const sampleA = (xCss, yCss) => {
+        const xi = Math.max(0, Math.min(wDev - 1, Math.floor(xCss * DPR)));
+        const yi = Math.max(0, Math.min(hDev - 1, Math.floor(yCss * DPR)));
+        return data[(yi * wDev + xi) * 4 + 3];
+      };
+
+      const brandGlyphs = (typeof GLYPHS !== 'undefined') ? GLYPHS : ['♩', '♪', '♫', '♬'];
+
+      for (let y = cell * 0.5; y < bh - cell * 0.5; y += cell) {
+        for (let x = cell * 0.5; x < bw - cell * 0.5; x += cell) {
+          const xx = x + ((Math.floor(y / cell) % 2) ? cell * 0.15 : 0);
+          const a = sampleA(xx, y);
+          if (a < 40) continue;
+          let gi = 0;
+          if (a > 220) gi = 3; else if (a > 160) gi = 2; else if (a > 100) gi = 1; else gi = 0;
+          const ch = brandGlyphs[gi] || brandGlyphs[brandGlyphs.length - 1];
+          brandCtx.fillText(ch, xx, y);
+        }
+      }
+    }
 
     // Cache metrics
     brandMetrics = {
@@ -148,10 +194,7 @@
   addEventListener('resize', () => { resize(); resizeBirds(); });
   resize();
 
-  // === Musical Notes Palette ===
-  // Using Unicode musical symbols (not strictly ASCII) for nicer results.
-  // If you *must* use ASCII-only, change GLYPHS to something like: ['o', '*', '+', '.']
-  const GLYPHS = ['♩', '♪', '♫', '♬'];
+
 
   // Map local slope -> a note glyph (calmer slopes = simple notes, steeper = busier glyphs)
   function glyphForSlope(m) {
