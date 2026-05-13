@@ -278,6 +278,34 @@
       box-shadow: 0 4px 0 0 rgba(0,0,0,0.22);
     }
 
+    .content-pane[data-section="contact"] .contact-body {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .content-pane[data-section="contact"] .contact-list {
+      flex: 0 0 auto;
+      width: max-content;
+      max-width: 100%;
+    }
+    .content-pane[data-section="contact"] .phone-wrap {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone {
+      display: block;
+      max-width: 100%;
+      width: clamp(120px, 100%, 220px);
+      height: auto;
+      filter: grayscale(1) contrast(1000%);
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+
     @media (max-width: 600px) {
       #menu-frame {
         grid-template-columns: 1fr;
@@ -324,6 +352,12 @@
       #menu-content { min-height: 220px; padding: 16px 18px; }
       /* Dropdown already shows the section name — drop the redundant h2 on mobile. */
       .content-pane h2 { display: none; }
+      .content-pane[data-section="contact"] .contact-body {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .content-pane[data-section="contact"] .contact-list { width: auto; }
+      .phone { width: clamp(160px, 60%, 240px); margin: 6px auto 0; }
     }
   </style>
 </head>
@@ -383,17 +417,24 @@
 
       <div class="content-pane" data-section="contact">
         <h2>* contact</h2>
-        <div class="opt">
-          <a class="rpg-btn" href="mailto:hello@brand0.world">email</a>
-          <p class="opt-desc">hello@brand0.world</p>
-        </div>
-        <div class="opt">
-          <a class="rpg-btn" href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a>
-          <p class="opt-desc">@brand0music</p>
-        </div>
-        <div class="opt">
-          <a class="rpg-btn" href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a>
-          <p class="opt-desc">@brand0m</p>
+        <div class="contact-body">
+          <div class="contact-list">
+            <div class="opt">
+              <a class="rpg-btn" href="mailto:hello@brand0.world">email</a>
+              <p class="opt-desc">hello@brand0.world</p>
+            </div>
+            <div class="opt">
+              <a class="rpg-btn" href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a>
+              <p class="opt-desc">@brand0music</p>
+            </div>
+            <div class="opt">
+              <a class="rpg-btn" href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a>
+              <p class="opt-desc">@brand0m</p>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <img class="phone" src="resources/phone.png" alt="" />
+          </div>
         </div>
       </div>
     </div>
