@@ -727,6 +727,41 @@
     };
   }
 
+  // Mouse click: scare existing nearby notes radially outward, then spawn a burst
+  // of new notes flying out from the click point in random directions.
+  function shootAndScare(cx, cy) {
+    const scareR = lineSpacing * 6;
+    const scareR2 = scareR * scareR;
+    for (const n of notes) {
+      const dx = n.x - cx;
+      const dy = n.y - cy;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < scareR2 && d2 > 1) {
+        const d = Math.sqrt(d2);
+        const strength = 1 - d / scareR;
+        const v = (200 + strength * 500) * DPR;
+        n.vx = (dx / d) * v;
+        n.vy = (dy / d) * v;
+        n.knocked = true;
+      }
+    }
+    const count = 10 + ((Math.random() * 6) | 0);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = (180 + Math.random() * 320) * DPR;
+      notes.push({
+        glyph: GLYPHS[(Math.random() * GLYPHS.length) | 0],
+        x: cx,
+        y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: lineSpacing * (1.6 + Math.random() * 0.8),
+        alpha: 1.0,
+        knocked: true,
+      });
+    }
+  }
+
   let spawnAcc = 0;
   // Knock speed is derived from mouse speed; clamp to a comfortable visual range.
   const KNOCK_FACTOR = 2.0;             // multiplier on mouse speed
@@ -993,14 +1028,17 @@
     startSweep();
   }, true);
 
-  // Mobile equivalent: tap anywhere except the press-start button to fire a sweep.
-  // Restricted to touch so desktop clicks don't accidentally trigger this.
+  // Touch tap → sweep. Mouse/pen click → burst of notes + scare nearby ones.
+  // Both ignore taps on the press-start button and while the menu is open.
   addEventListener('pointerdown', (e) => {
-    if (e.pointerType !== 'touch') return;
     if (!overlayClosed()) return;
     const tgt = e.target;
     if (tgt && tgt.nodeType === 1 && tgt.closest('#menu-trigger')) return;
-    startSweep();
+    if (e.pointerType === 'touch') {
+      startSweep();
+    } else if (e.button === 0) {
+      shootAndScare(e.clientX * DPR, e.clientY * DPR);
+    }
   });
 
   addEventListener('keydown', (e) => {
