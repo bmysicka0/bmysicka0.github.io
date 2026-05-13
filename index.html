@@ -64,6 +64,15 @@
       pointer-events: none;
       text-shadow:
         0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF;
+      transform: translateX(0.04em);
+    }
+    #brand .flat {
+      display: inline-block;
+      line-height: 0.85;
+      vertical-align: baseline;
+      margin-left: -0.25em;
+      margin-right: -0.25em;
+      transform: translateY(-0.04em);
     }
 
     #debug {
@@ -376,7 +385,7 @@
 <div id="debug" hidden></div>
 
 <div id="hero">
-  <div id="brand">brand0</div>
+  <div id="brand" aria-label="brand0"><span class="flat">♭</span>rand0</div>
   <div id="menu-trigger" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="menu-overlay">press start</div>
 </div>
 
