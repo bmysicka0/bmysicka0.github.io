@@ -141,9 +141,11 @@
       opacity: 1;
       animation: ptr-blink 0.55s steps(2, end) infinite;
     }
-    .menu-item:hover {
-      background: #000;
-      color: #FFF;
+    @media (hover: hover) {
+      .menu-item:hover {
+        background: #000;
+        color: #FFF;
+      }
     }
     @keyframes ptr-blink { 0%, 55% { opacity: 1 } 56%, 100% { opacity: 0.25 } }
 
@@ -169,44 +171,96 @@
     .content-pane .opt-desc { margin: 6px 0 0; opacity: 0.8; }
 
     .rpg-btn {
+      /* Pokémon-style double border via inset shadows, color-flippable via CSS vars */
+      --bd-inner: #FFF;
+      --bd-line: #000;
+      --drop: 3px;
       display: inline-block;
       margin-top: 10px;
-      padding: 10px 18px;
+      padding: 12px 24px;
       border: 3px solid #000;
-      border-radius: 10px;
+      border-radius: 14px;
       color: #000;
       text-decoration: none;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       font-weight: bold;
       background: #FFF;
-      box-shadow: 0 3px 0 0 rgba(0,0,0,0.2);
+      box-shadow:
+        inset 0 0 0 2px var(--bd-inner),
+        inset 0 0 0 3px var(--bd-line),
+        0 var(--drop) 0 0 rgba(0,0,0,0.22);
       transition: background 80ms, color 80ms, transform 80ms, box-shadow 80ms;
     }
-    .rpg-btn:hover, .rpg-btn:focus { background: #000; color: #FFF; outline: none; }
-    .rpg-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 0 rgba(0,0,0,0.2); }
-    .rpg-btn::before { content: "\25B6  "; }
+    .rpg-btn:hover, .rpg-btn:focus {
+      background: #000;
+      color: #FFF;
+      outline: none;
+      --bd-inner: #000;
+      --bd-line: #FFF;
+    }
+    .rpg-btn:active { transform: translateY(2px); --drop: 1px; }
+    .rpg-btn::before {
+      content: "";
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      margin-right: 0.55em;
+      vertical-align: -0.18em;
+      background-color: currentColor;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72'/%3E%3C/svg%3E") no-repeat center / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72'/%3E%3C/svg%3E") no-repeat center / contain;
+    }
 
     .spotify-wrap { margin-top: 6px; }
     .spotify-wrap iframe { display: block; width: 100%; border: 0; background: transparent; }
 
-    #menu-help {
-      grid-column: 1 / -1;
-      border-top: 3px solid #000;
-      margin-top: 10px;
-      padding: 10px 14px;
-      font-size: 12px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      opacity: 0.85;
-      text-align: center;
-    }
-
     @media (max-width: 600px) {
-      #menu-frame { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
-      #menu-list { flex-direction: row; flex-wrap: wrap; gap: 4px 10px; border-right: 0; border-bottom: 2px solid #000; }
-      .menu-item { padding-left: 18px; }
-      #menu-content { min-height: 240px; }
+      #menu-frame {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      /* Mobile: menu-list collapses into a dropdown */
+      #menu-list {
+        position: relative;
+        flex-direction: column;
+        gap: 2px;
+        padding: 14px 14px 6px;
+        border-right: 0;
+        border-bottom: 0;
+        overflow: visible;
+      }
+      /* Collapsed: only the selected item shows, styled like a button */
+      #menu-list:not(.open) .menu-item:not(.selected) { display: none; }
+      #menu-list:not(.open) .menu-item.selected {
+        padding: 12px 40px 12px 30px;
+        border: 3px solid #000;
+        border-radius: 10px;
+        background: #FFF;
+        box-shadow: 0 3px 0 0 rgba(0,0,0,0.2);
+      }
+      #menu-list:not(.open) .menu-item.selected::after {
+        content: "\25BE"; /* ▾ */
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        line-height: 1;
+      }
+      /* Expanded: full dropdown panel */
+      #menu-list.open {
+        margin: 14px 14px 6px;
+        padding: 6px;
+        border: 3px solid #000;
+        border-radius: 10px;
+        background: #FFF;
+        box-shadow: 0 8px 0 0 rgba(0,0,0,0.18), 0 14px 28px rgba(0,0,0,0.18);
+        z-index: 6;
+      }
+      #menu-list.open .menu-item { padding: 12px 12px 12px 30px; border-radius: 8px; }
+      #menu-content { min-height: 220px; padding: 16px 18px; }
+      /* Dropdown already shows the section name — drop the redundant h2 on mobile. */
+      .content-pane h2 { display: none; }
     }
   </style>
 </head>
@@ -232,7 +286,7 @@
     <div id="menu-content">
       <div class="content-pane" data-section="about" data-active="true">
         <h2>* about</h2>
-        <p>hi i'm brandon. i'm primarily a music producer that also dabbles in making plugins. i also enjoy birdwatching. you can find most of my work on this website.</p>
+        <p>hi i'm brandon. i'm primarily a music producer that also dabbles in making plugins. i also enjoy birdwatching. you can find most of my work on this website. based in nyc.</p>
       </div>
 
       <div class="content-pane" data-section="plugins">
@@ -269,10 +323,12 @@
           <a class="rpg-btn" href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a>
           <p class="opt-desc">@brand0music</p>
         </div>
+        <div class="opt">
+          <a class="rpg-btn" href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a>
+          <p class="opt-desc">@brand0m</p>
+        </div>
       </div>
     </div>
-
-    <div id="menu-help">[ &#8593;/&#8595; select ]&nbsp;&nbsp;[ enter confirm ]&nbsp;&nbsp;[ esc close ]</div>
   </div>
 </div>
 
@@ -298,6 +354,7 @@
   let notes = [];       // per-note state with own vx
   let trail = [];
   let spawnInterval = 0.4; // recomputed in layout() so steady state matches prefill
+  let densityDivisor = 80; // smaller = denser. Adjustable via +/- keys.
   let bird = null;      // rare flyby (every few minutes)
   let nextBirdAt = 0;
 
@@ -332,7 +389,7 @@
     notes = notes.filter(n => n.y > -50 && n.y < H + 50);
 
     // Prefill so the screen is populated from frame 1.
-    const target = staves.length * Math.max(10, Math.floor(W / (80 * DPR)));
+    const target = staves.length * Math.max(10, Math.floor(W / (densityDivisor * DPR)));
     while (notes.length < target) {
       spawnOne(-30 * DPR + Math.random() * (W + 70 * DPR));
     }
@@ -361,6 +418,25 @@
       alpha: 0.85 + Math.random() * 0.15,
       knocked: false,
     });
+  }
+
+  function applyDensity() {
+    if (staves.length === 0) return;
+    const target = staves.length * Math.max(10, Math.floor(W / (densityDivisor * DPR)));
+    while (notes.length < target) {
+      spawnOne(-30 * DPR + Math.random() * (W + 70 * DPR));
+    }
+    while (notes.length > target) {
+      notes.splice(Math.floor(Math.random() * notes.length), 1);
+    }
+    const avgSpeed = 43 * DPR;
+    spawnInterval = target > 0 ? (W / avgSpeed / target) : 1.0;
+  }
+
+  function adjustDensity(direction) {
+    const step = 12;
+    densityDivisor = Math.max(8, Math.min(400, densityDivisor - direction * step));
+    applyDensity();
   }
 
   layout();
@@ -636,7 +712,11 @@
   requestAnimationFrame(frame);
 
   addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'd' && overlayClosed()) dbg.hidden = !dbg.hidden;
+    if (!overlayClosed()) return;
+    const k = e.key;
+    if (k.toLowerCase() === 'd') dbg.hidden = !dbg.hidden;
+    else if (k === '+' || k === '=') adjustDensity(+1); // more notes
+    else if (k === '-' || k === '_') adjustDensity(-1); // fewer notes
   });
   function overlayClosed() {
     const o = document.getElementById('menu-overlay');
@@ -681,15 +761,28 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
   });
 
+  const menuList = document.getElementById('menu-list');
+  const mobileMQ = window.matchMedia('(max-width: 600px)');
+
   items.forEach((el, i) => {
     el.addEventListener('click', () => {
+      // On mobile, tapping the collapsed button just expands the dropdown.
+      if (mobileMQ.matches && !menuList.classList.contains('open')) {
+        menuList.classList.add('open');
+        return;
+      }
       select(i);
       if (el.dataset.section === 'close') close();
+      if (mobileMQ.matches) menuList.classList.remove('open');
     });
   });
 
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) close();
+    if (e.target === overlay) { close(); return; }
+    // Tap outside the dropdown (anywhere in the frame except the list) collapses it.
+    if (mobileMQ.matches && !menuList.contains(e.target)) {
+      menuList.classList.remove('open');
+    }
   });
 
   addEventListener('keydown', (e) => {
@@ -703,7 +796,15 @@
     }
     if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); select(idx + 1); }
     else if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); select(idx - 1); }
-    else if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); close(); }
+    else if (e.key === 'Escape' || e.key === 'Backspace') {
+      e.preventDefault();
+      // First Escape collapses the open dropdown; otherwise closes the menu.
+      if (mobileMQ.matches && menuList.classList.contains('open')) {
+        menuList.classList.remove('open');
+      } else {
+        close();
+      }
+    }
     else if (e.key === 'Enter') {
       e.preventDefault();
       if (items[idx].dataset.section === 'close') close();
