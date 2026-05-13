@@ -3,473 +3,711 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Birdsong</title>
-  <!-- Favicon: musical note (♫) as SVG data URI -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='52' font-family='system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'%3E%E2%99%AB%3C/text%3E%3C/svg%3E">
-  <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: dark)" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='52' fill='%23fff' font-family='system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif'%3E%E2%99%AB%3C/text%3E%3C/svg%3E">
+  <title>brand0</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='52' font-family='Times New Roman, serif'%3E%E2%99%AB%3C/text%3E%3C/svg%3E">
   <style>
-    :root { color-scheme: dark light; }
-    html, body { height: 100%; margin: 0; }
-    body { background: #00F; overflow: hidden; }
-    canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
-    /* brand overlay (removed in favor of canvas-rendered warp) */
-    /* kept empty in case of future reuse */
-    #brand { display: none; }
-    /* optional debug overlay toggle with "d" key */
-    #debug { position: fixed; inset: auto 8px 8px auto; color: #FFF; font: 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity: .55; }
+    :root { color-scheme: light; }
+    html, body { height: 100%; margin: 0; background: #FFF; color: #000; }
+    body {
+      font: 15px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow: hidden;
+    }
+    canvas { display: block; width: 100vw; height: 100vh; position: fixed; inset: 0; z-index: 0; }
+
+    /* Centered hero stack: wordmark above, press-start button below */
+    #hero {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(2px, 0.6vh, 10px);
+      z-index: 2;
+      pointer-events: none; /* let the canvas receive mousemove for note knocks */
+    }
+
+    /* Wordmark: large centered serif, with halo so staff lines don't run through it */
+    #brand {
+      font: 400 clamp(72px, 15vw, 240px) / 0.85 "Times New Roman", Times, serif;
+      letter-spacing: -0.01em;
+      color: #000;
+      pointer-events: none;
+      text-shadow:
+        0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF;
+    }
+
+    #debug {
+      position: fixed; inset: auto 8px 8px auto;
+      color: #000;
+      font: 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      opacity: .55;
+      z-index: 4;
+    }
+
+    /* ============ RPG pause menu (B&W) ============ */
+    /* Press-start button: opaque, sits inside #hero under the wordmark */
+    #menu-trigger {
+      pointer-events: auto;
+      color: #FFF;
+      background: #000;
+      border: 3px solid #000;
+      border-radius: 12px;
+      padding: 12px 26px;
+      font: bold 14px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 4px 0 0 rgba(0,0,0,0.25);
+      animation: ps-blink 1.1s steps(2, end) infinite;
+      transition: background 80ms, color 80ms, transform 80ms;
+    }
+    #menu-trigger:active { transform: translateY(2px); box-shadow: 0 2px 0 0 rgba(0,0,0,0.25); }
+    #menu-trigger:hover, #menu-trigger:focus {
+      animation: none;
+      opacity: 1;
+      background: #FFF;
+      color: #000;
+      outline: none;
+    }
+    @keyframes ps-blink { 0%, 55% { opacity: 1 } 56%, 100% { opacity: 0.25 } }
+
+    #menu-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255, 255, 255, 0.82);
+      display: none;
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    #menu-overlay[data-open="true"] {
+      display: flex;
+      animation: menu-pop 160ms ease-out;
+    }
+    @keyframes menu-pop { from { opacity: 0; transform: scale(0.97) } to { opacity: 1; transform: scale(1) } }
+
+    #menu-frame {
+      width: min(760px, 100%);
+      max-height: 92vh;
+      background: #FFF;
+      color: #000;
+      font: 15px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      border: 4px solid #000;
+      border-radius: 16px;
+      box-shadow:
+        inset 0 0 0 3px #FFF,
+        inset 0 0 0 5px #000,
+        0 10px 0 0 rgba(0,0,0,0.18),
+        0 18px 36px rgba(0,0,0,0.18);
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      grid-template-rows: 1fr auto;
+      gap: 0;
+      overflow: hidden;
+    }
+    #menu-list {
+      border-right: 3px solid #000;
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .menu-item {
+      cursor: pointer;
+      padding: 10px 10px 10px 30px;
+      position: relative;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      user-select: none;
+      font-weight: bold;
+      color: #000;
+      border-radius: 8px;
+      transition: background 80ms, color 80ms;
+    }
+    .menu-item::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0;
+    }
+    .menu-item.selected::before {
+      content: "\25B6";
+      opacity: 1;
+      animation: ptr-blink 0.55s steps(2, end) infinite;
+    }
+    .menu-item:hover {
+      background: #000;
+      color: #FFF;
+    }
+    @keyframes ptr-blink { 0%, 55% { opacity: 1 } 56%, 100% { opacity: 0.25 } }
+
+    #menu-content {
+      padding: 20px 22px;
+      overflow: auto;
+      min-height: 360px;
+    }
+    .content-pane { display: none; }
+    .content-pane[data-active="true"] { display: block; }
+    .content-pane h2 {
+      margin: 0 0 14px;
+      font: bold 15px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+    }
+    .content-pane p { margin: 0 0 12px; }
+    .content-pane pre { margin: 0 0 12px; font: inherit; white-space: pre-wrap; }
+    .content-pane .sig { opacity: 0.6; margin-top: 18px; text-align: right; font-style: italic; }
+    .content-pane .opt { margin-bottom: 18px; }
+    .content-pane .opt-desc { margin: 6px 0 0; opacity: 0.8; }
+
+    .rpg-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 18px;
+      border: 3px solid #000;
+      border-radius: 10px;
+      color: #000;
+      text-decoration: none;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: bold;
+      background: #FFF;
+      box-shadow: 0 3px 0 0 rgba(0,0,0,0.2);
+      transition: background 80ms, color 80ms, transform 80ms, box-shadow 80ms;
+    }
+    .rpg-btn:hover, .rpg-btn:focus { background: #000; color: #FFF; outline: none; }
+    .rpg-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 0 rgba(0,0,0,0.2); }
+    .rpg-btn::before { content: "\25B6  "; }
+
+    .spotify-wrap { margin-top: 6px; }
+    .spotify-wrap iframe { display: block; width: 100%; border: 0; background: transparent; }
+
+    #menu-help {
+      grid-column: 1 / -1;
+      border-top: 3px solid #000;
+      margin-top: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      #menu-frame { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+      #menu-list { flex-direction: row; flex-wrap: wrap; gap: 4px 10px; border-right: 0; border-bottom: 2px solid #000; }
+      .menu-item { padding-left: 18px; }
+      #menu-content { min-height: 240px; }
+    }
   </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <div id="debug" hidden></div>
+
+<div id="hero">
+  <div id="brand">brand0</div>
+  <div id="menu-trigger" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="menu-overlay">&#9654; press start</div>
+</div>
+
+<div id="menu-overlay" data-open="false" aria-hidden="true">
+  <div id="menu-frame" role="dialog" aria-modal="true" aria-label="brand0 menu">
+    <div id="menu-list" role="menu" aria-label="Sections">
+      <div class="menu-item selected" data-section="about" role="menuitem" tabindex="-1">about</div>
+      <div class="menu-item" data-section="music" role="menuitem" tabindex="-1">music</div>
+      <div class="menu-item" data-section="plugins" role="menuitem" tabindex="-1">plugins</div>
+      <div class="menu-item" data-section="contact" role="menuitem" tabindex="-1">contact</div>
+      <div class="menu-item" data-section="close" role="menuitem" tabindex="-1">close</div>
+    </div>
+
+    <div id="menu-content">
+      <div class="content-pane" data-section="about" data-active="true">
+        <h2>* about</h2>
+        <p>hi i'm brandon. i'm primarily a music producer that also dabbles in making plugins. i also enjoy birdwatching. you can find most of my work on this website.</p>
+      </div>
+
+      <div class="content-pane" data-section="plugins">
+        <h2>* plugins</h2>
+        <div class="opt">
+          <a class="rpg-btn" href="https://www.birdsong.nyc" target="_blank" rel="noopener">birdsong</a>
+          <p class="opt-desc">new company with nathan blair</p>
+        </div>
+        <div class="opt">
+          <a class="rpg-btn" href="https://brand0.gumroad.com/" target="_blank" rel="noopener">gumroad</a>
+          <p class="opt-desc">get gooper here</p>
+        </div>
+      </div>
+
+      <div class="content-pane" data-section="music">
+        <h2>* music</h2>
+        <p>music i've contributed to. press play.</p>
+        <div class="spotify-wrap">
+          <iframe id="spotify-embed"
+                  src="https://open.spotify.com/embed/playlist/0TuQrG6ttGKuI6cAWvabNj?utm_source=generator&amp;theme=0"
+                  width="100%" height="352"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"></iframe>
+        </div>
+      </div>
+
+      <div class="content-pane" data-section="contact">
+        <h2>* contact</h2>
+        <div class="opt">
+          <a class="rpg-btn" href="mailto:hello@brand0.world">email</a>
+          <p class="opt-desc">hello@brand0.world</p>
+        </div>
+        <div class="opt">
+          <a class="rpg-btn" href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a>
+          <p class="opt-desc">@brand0music</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="menu-help">[ &#8593;/&#8595; select ]&nbsp;&nbsp;[ enter confirm ]&nbsp;&nbsp;[ esc close ]</div>
+  </div>
+</div>
+
 <script>
+/* ============================================================
+   Sheet music canvas: horizontal 5-line staves + drifting notes.
+   Pure black on white. No external assets.
+   ============================================================ */
 (() => {
-  const TAU = Math.PI * 2;
-  const rand = (a=0, b=1) => a + Math.random() * (b - a);
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  const lerp = (a,b,t)=>a+(b-a)*t;
-
-  const qs = new URLSearchParams(location.search);
-  // Scale birds with CSS pixel area; baseline 36 birds at 1280x800.
-  const BASE_AREA = 1280 * 800;
-  const BASE_COUNT = clamp(+qs.get('n') || 36, 1, 300);
-  const computeBirdCount = () => {
-    const vw = Math.max(1, innerWidth);
-    const vh = Math.max(1, innerHeight);
-    const area = vw * vh; // CSS pixels, not DPR-scaled
-    return clamp(Math.round(BASE_COUNT * (area / BASE_AREA)), 1, 300);
-  };
-  const TORUS = true; // wrap world like a torus
-
-  // Boids tuning (units are roughly px/sec and px)
-  const BOIDS = {
-    perception: 300,   // neighbor radius
-    separation: 150,   // too-close radius
-    maxSpeed: 250,     // speed clamp
-    maxForce: 160,     // steering clamp (accel)
-    edgeMargin: 80,    // border avoid band
-    edgeForce: 1.0,    // border steering multiplier
-    weights: {
-      alignment: 0.1,
-      cohesion: 0.1,
-      separation: 1.0,
-    },
-  };
-
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
   const dbg = document.getElementById('debug');
 
-  let DPR = Math.max(1, Math.min(3, self.devicePixelRatio || 1));
-  let W = 0, H = 0;
-
-  // === Brand text rendered on canvas with cylindrical warp ===
-  const BRAND_TEXT = 'b i r d s o n g';
-  const BRAND_FONT_FAMILY = `"Times New Roman", Times, serif`;
-  let brandBuf = null; // offscreen canvas
-  let brandCtx = null;
-  let brandMetrics = { w: 0, h: 0, ascent: 0, descent: 0, fontPx: 0 };
-  let brandTargetWidth = 0;
-  let brandBendAngle = 1.3; // radians for max column (0.2..0.8 looks good)
-  let brandDepthAmp = 1.3; // vertical scale boost at center (0..0.5)
-  let brandY = 0;            // centerline Y for brand
-
-  function ensureBrandBuffer() {
-    if (!brandBuf) {
-      brandBuf = document.createElement('canvas');
-      brandCtx = brandBuf.getContext('2d');
-    }
-
-    // Target width relative to viewport (leave margins). Scale by DPR inside buffer.
-    const vw = W / DPR;
-    const vh = H / DPR;
-    brandTargetWidth = Math.max(320, Math.min(vw * 0.82, 1400));
-
-    // Pick a font size so the measured width ~ target width
-    // Start with a guess and refine once using measured width ratio.
-    let fontPx = Math.max(40, Math.min(vh * 0.18, 180));
-    brandCtx.setTransform(1,0,0,1,0,0);
-    brandCtx.font = `bold ${fontPx}px ${BRAND_FONT_FAMILY}`;
-    let tm = brandCtx.measureText(BRAND_TEXT);
-    if (tm.width > 0) {
-      const scale = brandTargetWidth / tm.width;
-      fontPx = Math.max(24, Math.min(220, fontPx * scale));
-      brandCtx.font = `bold ${fontPx}px ${BRAND_FONT_FAMILY}`;
-      tm = brandCtx.measureText(BRAND_TEXT);
-    }
-
-    // Compute buffer size at device pixels
-    const textW = Math.ceil(tm.width);
-    const textH = Math.ceil((tm.actualBoundingBoxAscent || fontPx * 0.8) + (tm.actualBoundingBoxDescent || fontPx * 0.2));
-    const pad = Math.ceil(fontPx * 0.3);
-    const bw = (textW + pad * 2);
-    const bh = (textH + pad * 2);
-    brandBuf.width = Math.max(2, Math.floor(bw * DPR));
-    brandBuf.height = Math.max(2, Math.floor(bh * DPR));
-
-    // Draw crisp text into buffer at DPR scale
-    brandCtx.setTransform(DPR,0,0,DPR,0,0);
-    brandCtx.clearRect(0, 0, bw, bh);
-    brandCtx.fillStyle = '#FFF';
-    brandCtx.textBaseline = 'alphabetic';
-    brandCtx.textAlign = 'left';
-    brandCtx.font = `bold ${fontPx}px ${BRAND_FONT_FAMILY}`;
-    brandCtx.shadowColor = 'rgba(0,0,0,0.15)';
-    brandCtx.shadowOffsetY = 2;
-    brandCtx.shadowBlur = 0;
-    const baseline = pad + (tm.actualBoundingBoxAscent || fontPx * 0.8);
-    brandCtx.fillText(BRAND_TEXT, pad, baseline);
-
-    // Cache metrics
-    brandMetrics = {
-      w: bw * DPR,           // buffer px
-      h: bh * DPR,
-      ascent: (tm.actualBoundingBoxAscent || fontPx * 0.8) * DPR,
-      descent: (tm.actualBoundingBoxDescent || fontPx * 0.2) * DPR,
-      fontPx: fontPx * DPR,
-    };
-
-    // Position brand vertically (canvas pixels)
-    brandY = Math.floor(H * 0.5);
-  }
-
-  function resize() {
-    DPR = Math.max(1, Math.min(3, self.devicePixelRatio || 1));
-    W = Math.floor(innerWidth * DPR);
-    H = Math.floor(innerHeight * DPR);
-    canvas.width = W;
-    canvas.height = H;
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.imageSmoothingEnabled = false;
-    ensureBrandBuffer();
-  }
-  addEventListener('resize', () => { resize(); resizeBirds(); });
-  resize();
-
-  // === Musical Notes Palette ===
-  // Using Unicode musical symbols (not strictly ASCII) for nicer results.
-  // If you *must* use ASCII-only, change GLYPHS to something like: ['o', '*', '+', '.']
   const GLYPHS = ['♩', '♪', '♫', '♬'];
 
-  // Map local slope -> a note glyph (calmer slopes = simple notes, steeper = busier glyphs)
+  // Background opacity for staves + drifting notes. Mouse trail stays at full strength.
+  const STAFF_ALPHA = 0.3;
+  const NOTE_ALPHA  = 0.55;
+
+  let DPR = 1, W = 0, H = 0;
+  let staves = [];      // { y }
+  let lineSpacing = 0;
+  let notes = [];       // per-note state with own vx
+  let trail = [];
+  let spawnInterval = 0.4; // recomputed in layout() so steady state matches prefill
+  let bird = null;      // rare flyby (every few minutes)
+  let nextBirdAt = 0;
+
   function glyphForSlope(m) {
     const a = Math.abs(m);
-    if (a < 0.25) return GLYPHS[0];    // ♩ quarter note
-    if (a < 0.6)  return GLYPHS[1];    // ♪ eighth note
-    if (a < 1.2)  return GLYPHS[2];    // ♫ beamed eighth notes
-    return GLYPHS[3];                  // ♬ beamed sixteenth notes
+    if (a < 0.25) return GLYPHS[0];
+    if (a < 0.60) return GLYPHS[1];
+    if (a < 1.20) return GLYPHS[2];
+    return GLYPHS[3];
   }
 
-  // Bird built from y(x) = cos(1.2 * t * x) * t for x in [-2,2]
-  class Bird {
-    constructor(seed = Math.random()) {
-      // world position (pixels, DPI scaled)
-      this.x = rand(0, W);
-      this.y = rand(0, H);
-      this.vx = rand(-30, 60); // px/sec at DPR=1, scaled later
-      this.vy = rand(-20, 20);
-      this.ax = 0; // steering accel from boids
-      this.ay = 0;
+  function layout() {
+    DPR = Math.max(1, Math.min(2, self.devicePixelRatio || 1));
+    W = canvas.width = Math.floor(innerWidth * DPR);
+    H = canvas.height = Math.floor(innerHeight * DPR);
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
 
-      // intrinsic parameters
-      this.t = lerp(0.5, 1.0, Math.random()); // 0.5..1
-      this.k = 1.2; // multiplier inside cos
-      this.scale = rand(10, 22) * DPR; // cell size for ASCII/notes grid
-      this.cols = 9; // columns sampling x in [-2,2]
-      this.rows = 5; // vertical cells used to place chars
+    lineSpacing = Math.max(10, Math.min(18, innerHeight / 44)) * DPR;
 
-      this.phase = rand(0, TAU);
-      this.flap = rand(0.4, 1.0); // animation speed factor
-      this.alpha = rand(0.6, 1);
+    const staffHeight = lineSpacing * 4;
+    const gap = staffHeight * 1.9;
+    const topPad = Math.max(60, innerHeight * 0.08) * DPR;
 
-      // trail jitter so instances look distinct
-      this.wobble = rand(0.6, 2.0);
+    staves = [];
+    let y = topPad + staffHeight / 2;
+    while (y + staffHeight / 2 < H - topPad) {
+      staves.push({ y });
+      y += gap;
     }
 
-    update(dt) {
-      // subtle flutter as a small vertical accel
-      const flutter = 10 * DPR;
-      const wob = Math.sin(perfNow * 0.001 * this.wobble + this.phase) * flutter;
-      const ax = this.ax;
-      const ay = this.ay + wob;
+    notes = notes.filter(n => n.y > -50 && n.y < H + 50);
 
-      // integrate velocity from accel
-      this.vx += ax * dt;
-      this.vy += ay * dt;
-
-      // clamp speed
-      const maxSpeed = BOIDS.maxSpeed * DPR;
-      const sp = Math.hypot(this.vx, this.vy);
-      if (sp > maxSpeed && sp > 0) {
-        const s = maxSpeed / sp;
-        this.vx *= s; this.vy *= s;
-      }
-
-      // position integration (already in px/sec)
-      this.x += this.vx * dt;
-      this.y += this.vy * dt;
-
-      // toroidal wrap
-      if (TORUS) {
-        if (this.x < 0) this.x += W; else if (this.x >= W) this.x -= W;
-        if (this.y < 0) this.y += H; else if (this.y >= H) this.y -= H;
-      }
-
-      // keep within bounds softly; exact clamping avoids drifting offscreen
-      this.x = clamp(this.x, 0, W);
-      this.y = clamp(this.y, 0, H);
-
-      // subtle flapping by varying t in [0.5, 1]
-      const flapAmt = 0.12; // keep within range
-      this.t = clamp(this.t + Math.sin(perfNow * 0.002 * this.flap + this.phase) * flapAmt * dt, 0.5, 1.0);
+    // Prefill so the screen is populated from frame 1.
+    const target = staves.length * Math.max(10, Math.floor(W / (80 * DPR)));
+    while (notes.length < target) {
+      spawnOne(-30 * DPR + Math.random() * (W + 70 * DPR));
     }
 
-    draw(ctx, time) {
-      // Text settings (FFF on 00F)
-      const fontPx = Math.max(10, (this.scale * 0.9) | 0);
-      ctx.font = `${fontPx}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#FFF';
-      ctx.globalAlpha = this.alpha;
+    // Calibrate spawn rate so steady-state density ≈ prefill density.
+    const avgSpeed = 43 * DPR; // midpoint of the 22..64 px/s range below
+    const avgLife = W / avgSpeed;
+    spawnInterval = target > 0 ? (avgLife / target) : 1.0;
+  }
+  addEventListener('resize', layout);
 
-      const cols = this.cols;
-      const rows = this.rows;
-      const cell = this.scale;
-      const halfW = ((cols - 1) / 2) * cell;
-      const halfH = ((rows - 1) / 2) * cell;
+  function spawnOne(atX) {
+    if (staves.length === 0) return;
+    const s = staves[Math.floor(Math.random() * staves.length)];
+    // Pitch snapped to one of the 9 line/space positions inside the staff.
+    const step = Math.floor(Math.random() * 9) - 4; // -4..+4 half-steps
+    const y = s.y + step * (lineSpacing / 2);
+    const x = (atX !== undefined) ? atX : (W + 40 * DPR);
 
-      // Determine wrap draw offsets for seamless rendering near edges
-      const offsX = [0];
-      const offsY = [0];
-      if (TORUS) {
-        if (this.x < halfW) offsX.push(W);
-        if (this.x > W - halfW) offsX.push(-W);
-        if (this.y < halfH) offsY.push(H);
-        if (this.y > H - halfH) offsY.push(-H);
-      }
-
-      for (const ox of offsX) for (const oy of offsY) {
-        // sample x in [-2,2]
-        for (let ci = 0; ci < cols; ci++) {
-          const u = ci / (cols - 1);           // 0..1
-          const x = -2 + u * 4;                // -2..2
-          const px = this.x + ox + (ci - (cols-1)/2) * cell; // pixel x
-
-          // animated phase shifts position a bit => bird "flaps"
-          const tt = this.t * (1 + 0.15 * Math.sin(time * 0.0015 + this.phase));
-          const y = Math.cos(this.k * tt * x) * tt; // -1..1-ish
-
-          // derivative for slope -> glyph
-          const dy = - this.k * tt * tt * Math.sin(this.k * tt * x);
-          const ch = glyphForSlope(dy);
-
-          // map y ∈ [-1,1] into row indices ~ [-2,2]
-          const r = Math.round(lerp(-(rows-1)/2, (rows-1)/2, (y + 1) * 0.5));
-          const py = this.y + oy + r * cell;
-
-          ctx.fillText(ch, px, py);
-        }
-      }
-
-      ctx.globalAlpha = 1;
-    }
+    notes.push({
+      glyph: GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
+      x, y,
+      vx: -(22 + Math.random() * 42) * DPR,
+      vy: 0,
+      size: lineSpacing * (2.0 + Math.random() * 0.6),
+      alpha: 0.85 + Math.random() * 0.15,
+      knocked: false,
+    });
   }
 
-  // Build flock (resizes with viewport area)
-  let birds = [];
-  function resizeBirds() {
-    const target = computeBirdCount();
-    const cur = birds.length;
-    if (cur < target) {
-      for (let i = 0; i < target - cur; i++) birds.push(new Bird());
-    } else if (cur > target) {
-      birds.length = target; // truncate extras
-    }
-  }
-  // Initialize flock now that initial resize() has set W/H
-  resizeBirds();
+  layout();
+  // Bird shows up every 30–60s.
+  nextBirdAt = performance.now() + (30 + Math.random() * 30) * 1000;
 
-  let last = performance.now();
-  let perfNow = last;
-
-  function drawBentBrand() {
-    if (!brandBuf) return;
-
-    // Source in buffer pixels
-    const srcW = brandMetrics.w;
-    const srcH = brandMetrics.h;
-    // Cylindrical mapping parameters
-    const bend = brandBendAngle;
-    const halfSrc = srcW / 2;
-    const cx = Math.floor(W / 2);
-
-    // Radius so that R * sin(bend) = halfSrc (in buffer pixels mapped 1:1)
-    const R = halfSrc / Math.max(0.0001, Math.sin(bend));
-
-    // Enable smoothing for warped draw only
-    const prevSmooth = ctx.imageSmoothingEnabled;
-    ctx.imageSmoothingEnabled = true;
-
-    // Iterate columns and map to destination
-    const sy = 0;
-    const sh = srcH;
-    for (let sx = 0; sx < srcW - 1; sx++) {
-      const nx = (sx - halfSrc) / halfSrc; // -1..1
-      const nx2 = ((sx + 1) - halfSrc) / halfSrc;
-      const th0 = nx * bend;
-      const th1 = nx2 * bend;
-      const dx0 = cx + R * Math.sin(th0);
-      const dx1 = cx + R * Math.sin(th1);
-      const colW = Math.max(1, (dx1 - dx0));
-
-      // Depth cue: make center vertically taller than edges
-      const nxAbs = Math.abs(nx);
-      const scaleY = 1 + brandDepthAmp * (1 - nxAbs); // 1+amp at center -> 1.0 at edges
-      const dh = sh * scaleY;
-      const dy = Math.floor(brandY - dh / 2);
-
-      ctx.drawImage(brandBuf,
-        sx, sy, 1, sh,                 // src 1px column
-        dx0, dy, colW, dh               // dest column with mapping
-      );
-    }
-
-    ctx.imageSmoothingEnabled = prevSmooth;
+  function spawnBird() {
+    const fromLeft = Math.random() < 0.5;
+    const speed = (320 + Math.random() * 220) * DPR; // CSS-px/s × DPR
+    const angle = (Math.random() - 0.5) * 0.4;       // ≈ ±11° drift
+    const dirX = fromLeft ? 1 : -1;
+    // Keep the bird in the top/bottom thirds so the wordmark's halo doesn't hide it.
+    const topBand = Math.random() < 0.7;
+    const y = topBand
+      ? (0.08 + Math.random() * 0.20) * H  // sky band: 8..28% from top
+      : (0.74 + Math.random() * 0.18) * H; // ground band: 74..92%
+    bird = {
+      x: fromLeft ? -180 * DPR : W + 180 * DPR,
+      y,
+      vx: dirX * speed * Math.cos(angle),
+      vy: speed * Math.sin(angle),
+      t: 0.6 + Math.random() * 0.4,    // birdsong cosine amplitude
+      k: 1.2,
+      cell: lineSpacing * 1.7,         // glyph grid cell
+      cols: 9,
+      rows: 5,
+      phase: Math.random() * Math.PI * 2,
+      flap: 0.5 + Math.random() * 0.6,
+      hitR: lineSpacing * 4.5,
+    };
   }
 
-  function frame(now) {
-    perfNow = now;
-    const dt = clamp((now - last) / 1000, 0, 0.033); // cap dt
-    last = now;
+  // Mouse position + smoothed velocity (canvas px and px/s)
+  let mouseX = -1, mouseY = -1;
+  let mouseVX = 0, mouseVY = 0;
+  let lastMoveX = -1, lastMoveY = -1, lastMoveT = 0;
+  let lastTrailX = -1, lastTrailY = -1, lastTrailT = 0;
 
-    // Clear (00F)
-    ctx.save();
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle = '#00F';
-    ctx.fillRect(0, 0, W, H);
+  addEventListener('mousemove', (e) => {
+    const x = e.clientX * DPR;
+    const y = e.clientY * DPR;
+    const now = performance.now();
 
-    // mild starfield dots to accent motion (still #FFF at low alpha)
-    ctx.globalAlpha = 0.04;
-    ctx.fillStyle = '#FFF';
-    for (let i = 0; i < 40; i++) {
-      const x = (Math.random() * W) | 0;
-      const y = (Math.random() * H) | 0;
-      ctx.fillRect(x, y, 1, 1);
+    if (lastMoveX >= 0) {
+      const dt = (now - lastMoveT) / 1000;
+      if (dt > 0.0005 && dt < 0.2) {
+        const ivx = (x - lastMoveX) / dt;
+        const ivy = (y - lastMoveY) / dt;
+        // EMA smoothing so a single jittery sample doesn't dominate
+        const a = 0.55;
+        mouseVX = mouseVX * (1 - a) + ivx * a;
+        mouseVY = mouseVY * (1 - a) + ivy * a;
+      }
     }
-    ctx.globalAlpha = 1;
+    lastMoveX = x; lastMoveY = y; lastMoveT = now;
+    mouseX = x; mouseY = y;
 
-    // Boids steering pass (O(n^2))
-    const perception = BOIDS.perception * DPR;
-    const sepR = BOIDS.separation * DPR;
-    const maxForce = BOIDS.maxForce * DPR;
-    const maxSpeed = BOIDS.maxSpeed * DPR;
-    const margin = BOIDS.edgeMargin * DPR;
-    for (let i = 0; i < birds.length; i++) {
-      const b = birds[i];
-      let count = 0;
-      let avgVX = 0, avgVY = 0; // alignment
-      let offSumX = 0, offSumY = 0; // cohesion via avg offset (torus safe)
-      let sepX = 0, sepY = 0;   // separation (away from neighbors)
+    const dist = (lastTrailX < 0) ? Infinity : Math.hypot(x - lastTrailX, y - lastTrailY);
+    if (dist < 16 * DPR && now - lastTrailT < 50) return;
+    lastTrailX = x; lastTrailY = y; lastTrailT = now;
+    trail.push({
+      glyph: GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
+      x, y,
+      vx: (Math.random() - 0.5) * 40 * DPR,
+      vy: -(15 + Math.random() * 35) * DPR,
+      size: lineSpacing * (1.4 + Math.random() * 0.7),
+      age: 0,
+      life: 0.7 + Math.random() * 0.5,
+    });
+    if (trail.length > 200) trail.shift();
+  });
+  addEventListener('mouseout', (e) => {
+    // When the cursor leaves the document, stop hitting notes.
+    if (!e.relatedTarget) { mouseX = -1; mouseY = -1; mouseVX = 0; mouseVY = 0; }
+  });
 
-      // neighbor accumulation
-      for (let j = 0; j < birds.length; j++) {
-        if (i === j) continue;
-        const o = birds[j];
-        let dx = o.x - b.x;
-        let dy = o.y - b.y;
-        if (TORUS) {
-          if (dx > W*0.5) dx -= W; else if (dx < -W*0.5) dx += W;
-          if (dy > H*0.5) dy -= H; else if (dy < -H*0.5) dy += H;
-        }
-        const d2 = dx*dx + dy*dy;
-        if (d2 <= perception * perception) {
-          count++;
-          avgVX += o.vx; avgVY += o.vy;
-          offSumX += dx; offSumY += dy;
-          if (d2 <= sepR * sepR) {
-            const d = Math.sqrt(d2) || 1;
-            // push directly away (normalized)
-            sepX -= dx / d;
-            sepY -= dy / d;
+  let spawnAcc = 0;
+  // Knock speed is derived from mouse speed; clamp to a comfortable visual range.
+  const KNOCK_FACTOR = 2.0;             // multiplier on mouse speed
+  const KNOCK_MIN = 300;                // CSS px/s — gentle bump if barely moving
+  const KNOCK_MAX = 4000;               // CSS px/s — cap so it never feels absurd
+  const MOTION_THRESHOLD = 60;          // CSS px/s — below this, use radial direction
+
+  function tick(dt) {
+    spawnAcc += dt;
+    while (spawnAcc > spawnInterval) {
+      spawnAcc -= spawnInterval;
+      spawnOne();
+    }
+
+    // Decay mouse velocity each frame so a stale fast swipe doesn't keep launching notes.
+    const decay = Math.exp(-dt * 7);
+    mouseVX *= decay;
+    mouseVY *= decay;
+
+    const menuOpen = !overlayClosed();
+
+    // ===== Bird flyby =====
+    const nowMs = performance.now();
+    if (!bird && nowMs >= nextBirdAt) spawnBird();
+    if (bird) {
+      bird.x += bird.vx * dt;
+      bird.y += bird.vy * dt;
+
+      // Notes within bird's hit radius get launched along its heading + radially outward.
+      const bSpeed = Math.hypot(bird.vx, bird.vy);
+      if (bSpeed > 0) {
+        const bdirX = bird.vx / bSpeed;
+        const bdirY = bird.vy / bSpeed;
+        const knockV = bSpeed * 1.7;
+        const hitR2 = bird.hitR * bird.hitR;
+        for (const n of notes) {
+          if (n.knocked) continue;
+          const dx = n.x - bird.x;
+          const dy = n.y - bird.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < hitR2) {
+            const d = Math.sqrt(Math.max(d2, 1));
+            const rx = dx / d, ry = dy / d;
+            const mx = 0.6 * bdirX + 0.5 * rx;
+            const my = 0.6 * bdirY + 0.5 * ry;
+            const ml = Math.hypot(mx, my) || 1;
+            n.vx = (mx / ml) * knockV;
+            n.vy = (my / ml) * knockV;
+            n.knocked = true;
           }
         }
       }
 
-      let ax = 0, ay = 0;
-      if (count > 0) {
-        // Alignment: steer towards average velocity direction
-        avgVX /= count; avgVY /= count;
-        let len = Math.hypot(avgVX, avgVY) || 1;
-        let desiredX = (avgVX / len) * maxSpeed;
-        let desiredY = (avgVY / len) * maxSpeed;
-        let steerX = desiredX - b.vx;
-        let steerY = desiredY - b.vy;
-        let steerLen = Math.hypot(steerX, steerY) || 1;
-        if (steerLen > maxForce) { steerX = (steerX / steerLen) * maxForce; steerY = (steerY / steerLen) * maxForce; }
-        ax += steerX * BOIDS.weights.alignment;
-        ay += steerY * BOIDS.weights.alignment;
+      // Cull when fully past, schedule the next visit.
+      const margin = 220 * DPR;
+      if (bird.x < -margin || bird.x > W + margin || bird.y < -margin || bird.y > H + margin) {
+        bird = null;
+        nextBirdAt = nowMs + (30 + Math.random() * 30) * 1000; // 30–60s until next
+      }
+    }
 
-        // Cohesion: steer toward average offset (torus-friendly)
-        let toCtrX = offSumX / count; let toCtrY = offSumY / count;
-        len = Math.hypot(toCtrX, toCtrY) || 1;
-        desiredX = (toCtrX / len) * maxSpeed;
-        desiredY = (toCtrY / len) * maxSpeed;
-        steerX = desiredX - b.vx;
-        steerY = desiredY - b.vy;
-        steerLen = Math.hypot(steerX, steerY) || 1;
-        if (steerLen > maxForce) { steerX = (steerX / steerLen) * maxForce; steerY = (steerY / steerLen) * maxForce; }
-        ax += steerX * BOIDS.weights.cohesion;
-        ay += steerY * BOIDS.weights.cohesion;
+    // Mouse knock collisions — disabled while the menu is open.
+    if (mouseX >= 0 && !menuOpen) {
+      const hitR = lineSpacing * 1.8;
+      const hitR2 = hitR * hitR;
+      const mSpeed = Math.hypot(mouseVX, mouseVY);                 // canvas px/s
+      const mSpeedCss = mSpeed / DPR;                              // CSS px/s for threshold compare
+      const knockV = Math.max(KNOCK_MIN, Math.min(KNOCK_MAX, mSpeedCss * KNOCK_FACTOR)) * DPR;
+      const useMotion = mSpeedCss > MOTION_THRESHOLD && mSpeed > 0;
+      const mDirX = useMotion ? (mouseVX / mSpeed) : 0;
+      const mDirY = useMotion ? (mouseVY / mSpeed) : 0;
 
-        // Separation: steer away from close neighbors
-        if (sepX !== 0 || sepY !== 0) {
-          len = Math.hypot(sepX, sepY) || 1;
-          desiredX = (sepX / len) * maxSpeed;
-          desiredY = (sepY / len) * maxSpeed;
-          steerX = desiredX - b.vx;
-          steerY = desiredY - b.vy;
-          steerLen = Math.hypot(steerX, steerY) || 1;
-          if (steerLen > maxForce) { steerX = (steerX / steerLen) * maxForce; steerY = (steerY / steerLen) * maxForce; }
-          ax += steerX * BOIDS.weights.separation;
-          ay += steerY * BOIDS.weights.separation;
+      for (const n of notes) {
+        if (n.knocked) continue;
+        const dx = n.x - mouseX;
+        const dy = n.y - mouseY;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < hitR2) {
+          let ux, uy;
+          if (useMotion) {
+            ux = mDirX; uy = mDirY;
+          } else if (d2 < 1) {
+            const a = Math.random() * Math.PI * 2;
+            ux = Math.cos(a); uy = Math.sin(a);
+          } else {
+            const d = Math.sqrt(d2);
+            ux = dx / d; uy = dy / d;
+          }
+          n.vx = ux * knockV;
+          n.vy = uy * knockV;
+          n.knocked = true;
         }
       }
+    }
 
-      // Edge behavior (disabled for TORUS)
-      if (!TORUS) {
-        const turn = maxForce * BOIDS.edgeForce;
-        if (b.x < margin) ax += turn;
-        else if (b.x > W - margin) ax -= turn;
-        if (b.y < margin) ay += turn;
-        else if (b.y > H - margin) ay -= turn;
+    // Advance notes; cull anything off any edge (knocked notes can exit any side).
+    for (const n of notes) {
+      n.x += n.vx * dt;
+      n.y += n.vy * dt;
+    }
+    const m = 80 * DPR;
+    notes = notes.filter(n =>
+      n.x > -m && n.x < W + m && n.y > -m && n.y < H + m
+    );
+
+    for (const t of trail) {
+      t.x += t.vx * dt;
+      t.y += t.vy * dt;
+      t.age += dt;
+    }
+    trail = trail.filter(t => t.age < t.life);
+  }
+
+  function drawStaves() {
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = Math.max(1, DPR * 0.9);
+    ctx.globalAlpha = STAFF_ALPHA;
+    for (const s of staves) {
+      for (let i = -2; i <= 2; i++) {
+        const yy = Math.round(s.y + i * lineSpacing) + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(0, yy);
+        ctx.lineTo(W, yy);
+        ctx.stroke();
       }
-
-      b.ax = ax;
-      b.ay = ay;
     }
+    ctx.globalAlpha = 1;
+  }
 
-    // Update + draw using computed steering
-    for (const b of birds) { b.update(dt); b.draw(ctx, now); }
+  function drawNotes() {
+    ctx.fillStyle = '#000';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    for (const n of notes) {
+      ctx.globalAlpha = n.knocked ? 1 : (n.alpha * NOTE_ALPHA);
+      ctx.font = `${n.size | 0}px "Times New Roman", Times, serif`;
+      ctx.fillText(n.glyph, n.x, n.y);
+    }
+    ctx.globalAlpha = 1;
+  }
 
-    // Draw brand warp over the scene
-    drawBentBrand();
+  function drawTrail() {
+    for (const t of trail) {
+      const k = 1 - t.age / t.life;
+      ctx.globalAlpha = Math.max(0, k);
+      ctx.font = `${t.size | 0}px "Times New Roman", Times, serif`;
+      ctx.fillText(t.glyph, t.x, t.y);
+    }
+    ctx.globalAlpha = 1;
+  }
 
-    // Debug overlay
+  function drawBird() {
+    if (!bird) return;
+    const fontPx = Math.max(10, (bird.cell * 0.9) | 0);
+    ctx.font = `${fontPx}px "Times New Roman", Times, serif`;
+    ctx.fillStyle = '#000';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    ctx.globalAlpha = 1;
+
+    const tt = bird.t * (1 + 0.15 * Math.sin(performance.now() * 0.003 * bird.flap + bird.phase));
+    const colsHalf = (bird.cols - 1) / 2;
+    const rowsHalf = (bird.rows - 1) / 2;
+
+    for (let ci = 0; ci < bird.cols; ci++) {
+      const u = ci / (bird.cols - 1);
+      const x = -2 + u * 4;                                  // -2..2
+      const y = Math.cos(bird.k * tt * x) * tt;              // -1..1
+      const dyd = -bird.k * tt * tt * Math.sin(bird.k * tt * x);
+      const ch = glyphForSlope(dyd);
+      const r = Math.round(-rowsHalf + (y + 1) * 0.5 * (bird.rows - 1));
+      const px = bird.x + (ci - colsHalf) * bird.cell;
+      const py = bird.y + r * bird.cell;
+      ctx.fillText(ch, px, py);
+    }
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+
+    ctx.fillStyle = '#FFF';
+    ctx.fillRect(0, 0, W, H);
+
+    drawStaves();
+    tick(dt);
+    drawNotes();
+    drawBird();
+    drawTrail();
+
     if (!dbg.hidden) {
-      dbg.textContent = `birds: ${birds.length}\nDPR: ${DPR.toFixed(2)}\nFPS: ${(1/dt).toFixed(0)}`;
+      dbg.textContent = `staves: ${staves.length}\nnotes: ${notes.length}\ntrail: ${trail.length}\nspawn/s: ${(1/spawnInterval).toFixed(2)}\nDPR: ${DPR.toFixed(2)}\nFPS: ${(1/dt).toFixed(0)}`;
     }
-
-    ctx.restore();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 
-  // Toggle debug with "d"
   addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'd') dbg.hidden = !dbg.hidden;
+    if (e.key.toLowerCase() === 'd' && overlayClosed()) dbg.hidden = !dbg.hidden;
+  });
+  function overlayClosed() {
+    const o = document.getElementById('menu-overlay');
+    return !o || o.dataset.open !== 'true';
+  }
+})();
+</script>
+
+<script>
+/* ============================================================
+   RPG menu logic: open/close, keyboard nav, section switching.
+   ============================================================ */
+(() => {
+  const trigger = document.getElementById('menu-trigger');
+  const overlay = document.getElementById('menu-overlay');
+  const items = Array.from(document.querySelectorAll('.menu-item'));
+  const panes = Array.from(document.querySelectorAll('.content-pane'));
+  let idx = 0;
+
+  function select(i) {
+    idx = (i + items.length) % items.length;
+    items.forEach((el, k) => el.classList.toggle('selected', k === idx));
+    const section = items[idx].dataset.section;
+    panes.forEach(p => p.dataset.active = (p.dataset.section === section) ? 'true' : 'false');
+  }
+
+  function open() {
+    overlay.dataset.open = 'true';
+    overlay.setAttribute('aria-hidden', 'false');
+    select(0);
+    trigger.style.visibility = 'hidden';
+  }
+
+  function close() {
+    overlay.dataset.open = 'false';
+    overlay.setAttribute('aria-hidden', 'true');
+    trigger.style.visibility = 'visible';
+  }
+
+  trigger.addEventListener('click', open);
+  trigger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+  });
+
+  items.forEach((el, i) => {
+    el.addEventListener('click', () => {
+      select(i);
+      if (el.dataset.section === 'close') close();
+    });
+  });
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+
+  addEventListener('keydown', (e) => {
+    const isOpen = overlay.dataset.open === 'true';
+    if (!isOpen) {
+      if ((e.key === 'Enter' || e.key === ' ') && document.activeElement !== trigger) {
+        e.preventDefault();
+        open();
+      }
+      return;
+    }
+    if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); select(idx + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); select(idx - 1); }
+    else if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); close(); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (items[idx].dataset.section === 'close') close();
+    }
   });
 })();
 </script>
