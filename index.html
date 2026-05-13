@@ -640,6 +640,93 @@
     if (!e.relatedTarget) { mouseX = -1; mouseY = -1; mouseVX = 0; mouseVY = 0; }
   });
 
+  // ===== Easter egg: spacebar sweep that plays a note for each glyph it touches =====
+  let sweep = null;
+  let audioCtx = null;
+  // Pre-baked piano harmonic spectrum + hammer-noise buffer, built once per AudioContext.
+  let pianoWave = null;
+  let noiseBuf = null;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      const Ctor = window.AudioContext || window.webkitAudioContext;
+      if (!Ctor) return;
+      audioCtx = new Ctor();
+      // Piano-like harmonic series. Index 0 is DC; index k is amplitude of the k-th harmonic.
+      const real = new Float32Array([0, 1.0, 0.42, 0.22, 0.14, 0.08, 0.05, 0.03, 0.02]);
+      const imag = new Float32Array(real.length);
+      pianoWave = audioCtx.createPeriodicWave(real, imag);
+      // 40ms decaying-white-noise hammer transient, shared across all notes.
+      const sr = audioCtx.sampleRate;
+      const len = (sr * 0.04) | 0;
+      noiseBuf = audioCtx.createBuffer(1, len, sr);
+      const d = noiseBuf.getChannelData(0);
+      const invLen = 1 / len;
+      for (let i = 0; i < len; i++) {
+        const k = 1 - i * invLen;
+        d[i] = (Math.random() * 2 - 1) * k * k;
+      }
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  // Random chromatic note from A2 (MIDI 45) to C7 (MIDI 96), precomputed to skip Math.pow.
+  const PITCHES = (() => {
+    const arr = new Float32Array(52);
+    for (let i = 0; i < arr.length; i++) arr[i] = 440 * Math.pow(2, (45 + i - 69) / 12);
+    return arr;
+  })();
+  function randomPitch() {
+    return PITCHES[(Math.random() * 52) | 0];
+  }
+
+  // One oscillator + PeriodicWave gives the harmonic spectrum; the lowpass closing
+  // during decay handles "high partials fade faster". Shared noise buffer = no per-note alloc.
+  function playTone(freq) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+
+    // Clamp decay to [0.7, 2.4] without Math.min/max chains.
+    let dec = 900 / freq;
+    if (dec < 0.7) dec = 0.7; else if (dec > 2.4) dec = 2.4;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.Q.value = 0.6;
+    const f12 = freq * 12, f2 = freq * 2;
+    filter.frequency.setValueAtTime(f12 > 8000 ? 8000 : f12, t);
+    filter.frequency.exponentialRampToValueAtTime(f2 < 300 ? 300 : f2, t + 1.2);
+
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.4, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+
+    const osc = audioCtx.createOscillator();
+    osc.setPeriodicWave(pianoWave);
+    osc.frequency.value = freq;
+    osc.connect(filter).connect(gain).connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + dec + 0.05);
+
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuf;
+    const nGain = audioCtx.createGain();
+    nGain.gain.value = 0.08;
+    noise.connect(nGain).connect(filter);
+    noise.start(t);
+  }
+
+  function startSweep() {
+    if (sweep) return;
+    ensureAudio();
+    sweep = {
+      x: -4 * DPR,
+      speed: W / 1.6,    // ~1.6s to cross the screen
+      hit: new WeakSet(),
+    };
+  }
+
   let spawnAcc = 0;
   // Knock speed is derived from mouse speed; clamp to a comfortable visual range.
   const KNOCK_FACTOR = 2.0;             // multiplier on mouse speed
@@ -735,6 +822,47 @@
       }
     }
 
+    // ===== Sweep bar: play a note for each glyph it crosses this frame =====
+    if (sweep) {
+      const prevX = sweep.x;
+      sweep.x += sweep.speed * dt;
+      for (const n of notes) {
+        if (sweep.hit.has(n)) continue;
+        if (n.x >= prevX && n.x < sweep.x) {
+          playTone(randomPitch());
+          sweep.hit.add(n);
+          n.knocked = true;
+          // Gentle upward bounce for visual feedback.
+          n.vy = -(70 + Math.random() * 50) * DPR;
+          n.vx = (n.vx * 0.4) + 30 * DPR;
+        }
+      }
+      // Bird columns count too — each glyph of the bird plays its own note.
+      if (bird) {
+        if (sweep.birdRef !== bird) {
+          sweep.birdRef = bird;
+          sweep.birdHit = new Set();
+        }
+        const colsHalf = (bird.cols - 1) / 2;
+        const rowsHalf = (bird.rows - 1) / 2;
+        const dxBird = bird.vx * dt;
+        const tt = bird.t * (1 + 0.15 * Math.sin(performance.now() * 0.003 * bird.flap + bird.phase));
+        for (let ci = 0; ci < bird.cols; ci++) {
+          if (sweep.birdHit.has(ci)) continue;
+          const cx = bird.x + (ci - colsHalf) * bird.cell;
+          const cxPrev = cx - dxBird;
+          const a = cxPrev - prevX;
+          const b = cx - sweep.x;
+          // Sign change between frames means the sweep and glyph crossed paths.
+          if ((a >= 0 && b <= 0) || (a <= 0 && b >= 0)) {
+            playTone(randomPitch());
+            sweep.birdHit.add(ci);
+          }
+        }
+      }
+      if (sweep.x > W + 40 * DPR) sweep = null;
+    }
+
     // Advance notes; cull anything off any edge (knocked notes can exit any side).
     for (const n of notes) {
       n.x += n.vx * dt;
@@ -817,6 +945,21 @@
     }
   }
 
+  function drawSweep() {
+    if (!sweep) return;
+    const w = Math.max(1, Math.round(2 * DPR));
+    // Soft trail behind the bar.
+    for (let i = 6; i >= 1; i--) {
+      ctx.globalAlpha = 0.18 * (1 - i / 7);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(Math.round(sweep.x - i * 5 * DPR), 0, w, H);
+    }
+    ctx.globalAlpha = 0.75;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(Math.round(sweep.x), 0, w, H);
+    ctx.globalAlpha = 1;
+  }
+
   let last = performance.now();
   function frame(now) {
     const dt = Math.min((now - last) / 1000, 0.05);
@@ -828,6 +971,7 @@
     drawStaves();
     tick(dt);
     drawNotes();
+    drawSweep();
     drawBird();
     drawTrail();
 
@@ -837,6 +981,17 @@
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+
+  // Capture-phase listener so Space fires the sweep before the menu's open-on-Space handler.
+  addEventListener('keydown', (e) => {
+    if (e.key !== ' ' && e.code !== 'Space') return;
+    if (!overlayClosed()) return;
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    startSweep();
+  }, true);
 
   addEventListener('keydown', (e) => {
     if (!overlayClosed()) return;
@@ -934,7 +1089,7 @@
     }
     else if (e.key === 'Enter') {
       e.preventDefault();
-      if (items[idx].dataset.section === 'close') close();
+      close();
     }
   });
 })();
