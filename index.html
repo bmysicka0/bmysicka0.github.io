@@ -993,6 +993,16 @@
     startSweep();
   }, true);
 
+  // Mobile equivalent: tap anywhere except the press-start button to fire a sweep.
+  // Restricted to touch so desktop clicks don't accidentally trigger this.
+  addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'touch') return;
+    if (!overlayClosed()) return;
+    const tgt = e.target;
+    if (tgt && tgt.nodeType === 1 && tgt.closest('#menu-trigger')) return;
+    startSweep();
+  });
+
   addEventListener('keydown', (e) => {
     if (!overlayClosed()) return;
     const k = e.key;
