@@ -240,6 +240,10 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       background: #FFF;
+      width: 16em;
+      max-width: 100%;
+      box-sizing: border-box;
+      text-align: center;
       box-shadow:
         inset 0 0 0 2px var(--bd-inner),
         inset 0 0 0 3px var(--bd-line);
@@ -295,15 +299,39 @@
       image-rendering: crisp-edges;
     }
 
+    /* Plugins pane: fill the menu-content height and distribute h2 + opts evenly. */
+    .content-pane[data-section="plugins"][data-active="true"] {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 320px;
+      justify-content: space-evenly;
+    }
+    .content-pane[data-section="plugins"] .opt { margin: 0; text-align: center; }
+
+    /* Contact pane: stretch contact-body to fill, then space-evenly the opts inside contact-list. */
+    .content-pane[data-section="contact"][data-active="true"] {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 320px;
+    }
+    .content-pane[data-section="contact"] .opt { margin: 0; }
+
+    .content-pane[data-section="contact"] .rpg-btn { width: 19em; }
     .content-pane[data-section="contact"] .contact-body {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       gap: 12px;
+      flex: 1;
     }
     .content-pane[data-section="contact"] .contact-list {
       flex: 0 0 auto;
       width: max-content;
       max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
     }
     .content-pane[data-section="contact"] .phone-wrap {
       flex: 1 1 0;
@@ -879,9 +907,7 @@
           sweep.birdHit = new Set();
         }
         const colsHalf = (bird.cols - 1) / 2;
-        const rowsHalf = (bird.rows - 1) / 2;
         const dxBird = bird.vx * dt;
-        const tt = bird.t * (1 + 0.15 * Math.sin(performance.now() * 0.003 * bird.flap + bird.phase));
         for (let ci = 0; ci < bird.cols; ci++) {
           if (sweep.birdHit.has(ci)) continue;
           const cx = bird.x + (ci - colsHalf) * bird.cell;
