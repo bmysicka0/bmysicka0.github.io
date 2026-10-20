@@ -65,6 +65,32 @@
     #player { max-width: 560px; border: 3px outset #888; background: #FFF; }
     #player .np { background: #000; color: #FFF; font: bold 13px/1.4 "Courier New", monospace; padding: 4px 8px; text-align: left; }
     #pianoroll { display: block; width: 100%; height: 160px; }
+    /* Playable keyboard, C4..C6. Black keys sit inside the white key to their left, straddling its right edge. */
+    #keys { display: flex; width: fit-content; margin: 0 auto; padding: 6px 6px 0; background: #000; border: 3px outset #888;
+            user-select: none; -webkit-user-select: none; touch-action: none; }
+    #keys .w { position: relative; box-sizing: border-box; width: min(32px, calc((100vw - 52px) / 15)); height: 120px;
+               display: flex; align-items: flex-end; justify-content: center; background: #FFF; border: 1px solid #000;
+               border-radius: 0 0 3px 3px; font: 11px "Courier New", monospace; color: #888; }
+    #keys .b { position: absolute; z-index: 1; top: 0; right: -30%; width: 60%; height: 62%; background: #000; }
+    #keys :is(.on, .auto) { background: #0000EE; color: #FFF; }
+    /* Song of Storms easter egg: Guru-Guru pops up while the riff plays. */
+    #keys { position: relative; }
+    /* Out to the right, past the 600px staves and boxes below the keys so it covers nothing. */
+    #storms { position: absolute; left: calc(50% + 316px); bottom: 0; z-index: 2; border: 6px outset #888; pointer-events: none; }
+    @media (max-width: 1080px) { #storms { position: fixed; left: auto; top: auto; right: 8px; bottom: 48px; } } /* no room beside */
+    /* Catbird pacing the bottom edge: the box slides, the sprite flips at each end, the legs alternate. */
+    #catbird { position: fixed; bottom: 0; left: 0; z-index: 98; cursor: pointer; animation: pace 35s linear infinite alternate; }
+    #catbird svg { display: block; animation: face 70s steps(1) infinite; }
+    #catbird .legB { animation: legs .3s steps(1) infinite; }
+    #catbird .legA { animation: legs .3s steps(1) -.15s infinite; }
+    #catbird:is(:hover, .mew), #catbird:is(:hover, .mew) * { animation-play-state: paused; }
+    #catbird i { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap;
+                 padding: 2px 6px; background: #FFF; border: 2px solid #000; font: bold 14px "Comic Sans MS", "Comic Sans", cursive; }
+    #catbird.mew i { display: block; }
+    @keyframes pace { to { transform: translateX(calc(100vw - 64px)); } }
+    @keyframes face { 50% { transform: scaleX(-1); } }
+    @keyframes legs { 50% { visibility: hidden; } }
+    .fire { image-rendering: pixelated; vertical-align: bottom; margin: 0 4px; }
     .birds { overflow: hidden; margin: 0 -8px; } /* full bleed past body margin */
     .bird-track { display: flex; width: max-content; animation: birds var(--dur, 400s) linear infinite; }
     .birds:hover .bird-track { animation-play-state: paused; }
@@ -78,7 +104,7 @@
       .popup { top: 100%; left: 50%; transform: translateX(-50%); width: calc(100vw - 16px); }
       .popup::before { display: none; }
     }
-    .birds.deco { pointer-events: none; } /* top strip is decoration: no hover-pause */
+    .birds.deco { pointer-eventinsts: none; } /* top strip is decoration: no hover-pause */
     @keyframes birds { to { transform: translateX(-50%); } }
     .bird { display: inline-block; margin: 0 8px; text-align: center; font: 11px "Courier New", monospace; }
     .bird img { border: 3px double #000; }
@@ -167,7 +193,7 @@
     <span class="bird"><a href="https://www.instagram.com/reel/DHb2zHPS656/" target="_blank" rel="noopener"><img src="resources/insta/DHb2zHPS656.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
   </span></span></p>
   <p class="pop" id="lb"><a href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a><span class="birds popup"><span class="bird-track"></span></span></p>
-  <p class="pop" id="eb"><a href="https://ebird.org/profile/NTc5NTE5Mw" target="_blank" rel="noopener">ebird</a><span class="birds popup"><span class="bird-track">
+  <p class="pop" id="eb"><img class="fire" src="resources/fire.gif" width="32" height="48" alt=""><a href="https://ebird.org/profile/NTc5NTE5Mw" target="_blank" rel="noopener">ebird</a><img class="fire" src="resources/fire.gif" width="32" height="48" alt=""><span class="birds popup"><span class="bird-track">
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-rumped_warbler_singing_(41612)_(cropped).jpg" target="_blank" rel="noopener" title="Yellow-rumped Warbler — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/yellow-rumped-warbler.jpg" width="126" height="100" loading="lazy" alt="Yellow-rumped Warbler"></a></span>
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Song_sparrow_in_Prospect_Park_(93031).jpg" target="_blank" rel="noopener" title="Song Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/song-sparrow.jpg" width="143" height="100" loading="lazy" alt="Song Sparrow"></a></span>
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Zonotrichia_albicollis_CT1.jpg" target="_blank" rel="noopener" title="White-throated Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 3.0)"><img src="resources/birds/white-throated-sparrow.jpg" width="149" height="100" loading="lazy" alt="White-throated Sparrow"></a></span>
@@ -268,6 +294,11 @@
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Warbling_vireo_(82141).jpg" target="_blank" rel="noopener" title="Eastern Warbling Vireo — seen 04 May 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/eastern-warbling-vireo.jpg" width="131" height="100" loading="lazy" alt="Eastern Warbling Vireo"></a></span>
   </span></span></p>
 </div>
+
+<!-- ======== ??? ======== -->
+<h2 class="staff"><span>𝄆 ??? 𝄇</span></h2>
+<p style="max-width:500px; margin-inline:auto"><font size="2" face="Courier New">⛆⛆ 𖣘 ↻↻↻ ᴛʜᴇ ʙʟᴀᴅᴇꜱ ɴᴇᴠᴇʀ ꜱᴛᴏᴘ ⟳⟳ ☂ ╱╱╱╱ 7 ʏᴇᴀʀꜱ ᴀɢᴏ ᴛʜᴇ ᴡᴇʟʟ ᴡᴇɴᴛ ᴅʀʏ ✝ ◐◓◑◒ w̷̢i̴͝n̸d̵̗m̶͘i̷l̴̡l̸ ꙮ ☁︎☁︎☁︎ ᵈʳⁱᵖ ᵈʳⁱᵖ ᵈʳⁱᵖ ⛈ ✣✣ 𝔤𝔬 𝔞𝔯𝔬𝔲𝔫𝔡 𝔞𝔫𝔡 𝔞𝔯𝔬𝔲𝔫𝔡 ⟲ ☔︎ ¿ᴡʜᴏ ᴍᴀᴅᴇ ɪᴛ ʀᴀɪɴ? 𓂀 ╲╲╲╲ ▒▓░ ⛆</font></p>
+<div id="keys"><img id="storms" src="resources/storms.gif" width="194" height="295" alt="" loading="lazy" hidden></div>
 
 <h2 class="staff"><span>𝄐 THE END 𝄐</span></h2>
 
@@ -420,6 +451,8 @@
 </div></div>
 
 </center>
+
+<div id="catbird" title="gray catbird (click me)"><i></i></div>
 
 <script>
 (() => {
@@ -804,17 +837,19 @@
   let song = null, piano = null, ctx = null, out = null, timer = 0;
   const loadPiano = (c) => Promise.all(SAMPLES.map(m =>
     fetch(`resources/piano/${m}.mp3`).then(r => r.arrayBuffer()).then(b => c.decodeAudioData(b))));
-  const play = (n, t, bufs) => {
-    const k = Math.min(25, Math.max(0, Math.round((n.m - 27) / 3)));
-    const src = ctx.createBufferSource(), g = ctx.createGain(), end = t + Math.max(n.d, 0.05);
+  // One sampled note into `dst` starting at t; returns the voice so the caller can release it.
+  const voice = (dst, bufs, m, v, t) => {
+    const c = dst.context, k = Math.min(25, Math.max(0, Math.round((m - 27) / 3)));
+    const src = c.createBufferSource(), g = c.createGain();
     src.buffer = bufs[k];
-    src.playbackRate.value = 2 ** ((n.m - SAMPLES[k]) / 12);
-    g.gain.setValueAtTime(0.6 * n.v, t);
-    g.gain.setTargetAtTime(0, end, 0.08); // damper falls at note-off
-    src.connect(g).connect(out);
+    src.playbackRate.value = 2 ** ((m - SAMPLES[k]) / 12);
+    g.gain.setValueAtTime(0.6 * v, t);
+    src.connect(g).connect(dst);
     src.start(t);
-    src.stop(end + 0.5);
+    return { src, g };
   };
+  const release = ({ src, g }, t) => { g.gain.setTargetAtTime(0, t, 0.08); src.stop(t + 0.5); }; // damper falls
+  const play = (n, t, bufs) => release(voice(out, bufs, n.m, n.v, t), t + Math.max(n.d, 0.05));
   // Lookahead scheduler: queue only the next half second of notes, so stopping is instant.
   // The song loops every `period` seconds (1s breath at the end); `origin` is when loop 0 began.
   const start = (song, bufs) => {
@@ -835,7 +870,7 @@
   const player = document.getElementById('player');
   const cv = document.getElementById('pianoroll');
   const g = cv.getContext('2d');
-  const SPAN = 4, HEAD = 0.2;
+  const SPAN = 4, HEAD = 0.2, BLACK = 0b10101001010; // bit n set = pitch class n is a black key
   const roll = ({ notes, lo, hi }, origin, period, mine) => {
     const dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
     cv.width = W * dpr; cv.height = H * dpr;
@@ -846,7 +881,7 @@
       const pos = (ctx.currentTime - origin) % period;
       g.clearRect(0, 0, W, H);
       g.fillStyle = '#F2F2F2'; // black-key lanes
-      for (let m = lo - 1; m <= hi + 1; m++) if ((1 << (m % 12)) & 0b10101001010) g.fillRect(0, H - (m - lo + 2) * rh, W, rh);
+      for (let m = lo - 1; m <= hi + 1; m++) if ((1 << (m % 12)) & BLACK) g.fillRect(0, H - (m - lo + 2) * rh, W, rh);
       for (const n of notes) {
         const x = hx + (n.t - pos) * pxs;
         if (x > W) break;
@@ -886,6 +921,132 @@
       song = piano = null;
       if (ctx === mine) { stop(); btn.textContent = 'MIDI broke :( try again'; }
     }
+  });
+
+  // The keyboard's context lives for the page, apart from the MIDI player's,
+  // which is closed on stop. Created on first use, inside a click/keypress so autoplay rules allow it.
+  let toy = null, toyOut = null;
+  const toyCtx = () => {
+    if (!toy) {
+      toy = new (window.AudioContext || window.webkitAudioContext)();
+      toyOut = toy.createDynamicsCompressor();
+      toyOut.connect(toy.destination);
+    }
+    toy.resume();
+    return toy;
+  };
+
+  // Playable keyboard C4..C6 on the same piano samples. Mouse/touch can glissando across keys; the
+  // computer keyboard uses the DAW layout (A = C4, W = C♯4, ... ' = F5).
+  // held: midi -> voice, or a placeholder token while the samples are still loading.
+  const keys = document.getElementById('keys'), held = new Map(), KEYMAP = "awsedftgyhujkolp;'";
+  let white;
+  for (let m = 60; m <= 84; m++) {
+    const k = document.createElement('span');
+    k.dataset.m = m;
+    if ((1 << (m % 12)) & BLACK) { k.className = 'b'; white.append(k); }
+    else { k.className = 'w'; k.textContent = (KEYMAP[m - 60] ?? '').toUpperCase(); keys.append(white = k); }
+  }
+  const keyEl = (m) => keys.querySelector(`[data-m="${m}"]`);
+  const down = async (m) => {
+    if (!m || held.has(m)) return;
+    const tok = {};
+    held.set(m, tok);
+    keyEl(m).classList.add('on');
+    const c = toyCtx();
+    heard = [...heard.slice(-5), m % 12];
+    if (!storming && heard.join() === STORMS_CUE) songOfStorms();
+    try {
+      const bufs = await (piano ??= loadPiano(c));
+      const v = voice(toyOut, bufs, m, 0.8, c.currentTime);
+      if (held.get(m) === tok) held.set(m, v);
+      else release(v, c.currentTime + 0.3); // tapped and let go while loading: still sound it, briefly
+    } catch { piano = null; up(m); }
+  };
+  // Fetch + decode the samples as the keys scroll near, so the first press isn't spent loading.
+  // Decoding needs no user gesture, and the AudioBuffers play in any context.
+  new IntersectionObserver((es, io) => {
+    if (!es.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    const p = piano ??= loadPiano(new OfflineAudioContext(1, 1, 44100));
+    p.catch(() => { if (piano === p) piano = null; }); // retry on the next press
+    // Also wake the audio device now (or at the next click/keypress, if the page hasn't had one yet:
+    // browsers only start audio after a gesture), so the first note isn't late while it spins up.
+    if (navigator.userActivation?.hasBeenActive) toyCtx();
+    else for (const ev of ['pointerdown', 'keydown', 'touchend']) addEventListener(ev, toyCtx, { once: true, capture: true });
+  }, { rootMargin: '600px' }).observe(keys);
+
+  // Song of Storms: D F D D F D (any octave) and the keyboard plays the rest of the riff, lighting its keys,
+  // while Guru-Guru shows up. [midi, beats] in 3/4; starts after the half-note D the player just played.
+  const STORMS_CUE = '2,5,2,2,5,2', STORMS_BEAT = 0.35;
+  const STORMS = [[76, 1.5], [77, .5], [76, .5], [77, .5], [76, .5], [72, .5], [69, 2],
+    [69, 1], [62, 1], [65, .5], [67, .5], [69, 3], [69, 1], [62, 1], [65, .5], [67, .5], [64, 3],
+    [62, .5], [65, .5], [74, 2], [62, .5], [65, .5], [74, 2], [76, 1.5], [77, .5], [76, .5], [77, .5], [76, .5], [72, .5], [69, 2],
+    [69, 1], [62, 1], [65, .5], [67, .5], [69, 2], [69, 1], [62, 3]];
+  const storms = document.getElementById('storms');
+  let heard = [], storming = false;
+  const songOfStorms = async () => {
+    storming = true;
+    heard = [];
+    storms.src = storms.src; // restart the GIF from its first frame
+    storms.hidden = false;
+    let beat = 2;
+    try {
+      const bufs = await piano, t0 = toy.currentTime;
+      for (const [m, d] of STORMS) {
+        const t = t0 + beat * STORMS_BEAT, el = keyEl(m);
+        release(voice(toyOut, bufs, m, 0.7, t), t + d * STORMS_BEAT * 0.9);
+        setTimeout(() => el.classList.add('auto'), (t - t0) * 1000);
+        setTimeout(() => el.classList.remove('auto'), (t - t0 + d * STORMS_BEAT * 0.9) * 1000);
+        beat += d;
+      }
+    } catch { /* samples failed: just show Guru-Guru */ }
+    setTimeout(() => { storms.hidden = true; storming = false; }, (beat * STORMS_BEAT + 0.5) * 1000);
+  };
+  const up = (m) => {
+    const v = held.get(m);
+    if (!v) return;
+    held.delete(m);
+    keyEl(m).classList.remove('on');
+    if (v.src) release(v, toy.currentTime);
+  };
+  const at = (e) => +e.target.dataset.m || 0;
+  keys.addEventListener('pointerdown', (e) => { e.target.releasePointerCapture(e.pointerId); down(at(e)); }); // touch: let pointerover fire on the next key
+  keys.addEventListener('pointerover', (e) => { if (e.buttons) down(at(e)); });
+  keys.addEventListener('pointerout', (e) => up(at(e)));
+  keys.addEventListener('pointerup', (e) => up(at(e)));
+  const keyNote = (e) => {
+    const i = e.key.length === 1 && !(e.metaKey || e.ctrlKey || e.altKey) ? KEYMAP.indexOf(e.key.toLowerCase()) : -1;
+    return i < 0 ? 0 : 60 + i;
+  };
+  addEventListener('keydown', (e) => { if (!e.repeat) down(keyNote(e)); });
+  addEventListener('keyup', (e) => up(keyNote(e)));
+  addEventListener('blur', () => held.forEach((_, m) => up(m))); // no stuck notes after alt-tab
+
+  // Gray Catbird: pixel sprite pacing the bottom of the window. Click for a (silent) mew speech bubble.
+  const bird = document.getElementById('catbird');
+  const INK = { K: '#111', G: '#77777C', D: '#55555A', R: '#8B3A1A', L: '#222' };
+  const px = (rows, y0) => rows.map((r, y) => [...r].map((ch, x) =>
+    INK[ch] ? `<rect x="${x}" y="${y0 + y}" width="1" height="1" fill="${INK[ch]}"/>` : '').join('')).join('');
+  bird.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 16 12" width="48" height="36" shape-rendering="crispEdges">${px([
+    '..........KKK...',
+    '.........KKKKK..',
+    '.........GGGKGKK',
+    '........GGGGGG..',
+    'KK.....GGGGGGG..',
+    '.KKK.GGGGGGGGG..',
+    '..KKGGGDDDGGGG..',
+    '...KGGDDDDGGGG..',
+    '....RRGGGGGGG...',
+    '.....RRGGGGG....'], 0)}<g class="legA">${px(['.......L..L.....', '......LL.LL.....'], 10)
+    }</g><g class="legB">${px(['........L.L.....', '.......LL.LL....'], 10)}</g></svg>`);
+  const MEWS = ['mew!', 'MEOW', 'mew?', 'mrrp'];
+  let mewTimer = 0;
+  bird.addEventListener('click', () => {
+    bird.querySelector('i').textContent = MEWS[(Math.random() * MEWS.length) | 0];
+    bird.classList.add('mew');
+    clearTimeout(mewTimer);
+    mewTimer = setTimeout(() => bird.classList.remove('mew'), 1200);
   });
 })();
 </script>
