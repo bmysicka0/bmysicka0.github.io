@@ -23,7 +23,7 @@
       margin: 0 8px 8px; /* no top margin: the welcome banner touches the top edge */
       color: #000;
       font-family: "Times New Roman", Times, serif;
-      cursor: crosshair;
+      cursor: url(resources/cursor32.png) 3 29, crosshair; /* hotspot: the quill end of the wing */
     }
     a { font-weight: bold; }
     a:hover { background: #0000EE; color: #FFF; }
@@ -56,11 +56,52 @@
                     border-left: 2px solid #000; border-right: 6px double #000; }
     .logo .flat { display: inline-block; margin-left: -0.235em; margin-right: -0.215em; transform: translateY(-0.04em); }
     .counter { display: inline-block; background: #000; border: 3px inset #888; padding: 2px 4px; font: bold 20px "Courier New", monospace; color: #FFF; letter-spacing: 4px; }
-    .box { background: #FFF; max-width: 560px; }
+    /* Counter + MIDI button stay centered; the keyboard guy hangs off to their right. */
+    .intro { position: relative; width: fit-content; }
+    /* Exactly as tall as the counter + button block, so it never reaches the birds above or the player below.
+       The GIF has an opaque white background; multiply drops the white onto the page. */
+    .guy { position: absolute; left: calc(100% + 16px); top: 0; height: 100%; width: auto; mix-blend-mode: multiply; }
+    @media (max-width: 520px) { .guy { left: calc(100% + 4px); } }
+    /* Poem: blackletter title + capital, old-print serif verse, black only. */
+    .crypt { max-width: 600px; }
+    .crypt h3 { margin: 0; font: 400 clamp(30px, 7vw, 44px) "UnifrakturMaguntia", "Old English Text MT", serif; }
+    .crypt .by { margin: 6px 0 0; font: italic 16px "IM Fell English", "Times New Roman", serif; letter-spacing: .08em; }
+    .crypt .orn { margin: 12px 0; font-size: 20px; }
+    .crypt .verse { margin: 0; font: 18px/1.7 "IM Fell English", "Times New Roman", serif; }
+    .crypt .verse::first-letter { font: 400 42px/1 "UnifrakturMaguntia", serif; } /* inline: lines are centered */
+    /* Keats: romantic to contrast the Poe. Script title, italic serif, sonnet indents kept. */
+    .star { max-width: 600px; }
+    .star h3 { margin: 0; font: 400 clamp(22px, 5vw, 32px)/1.3 "Pinyon Script", cursive; text-wrap: balance; }
+    .star .by { margin: 8px 0 18px; font: italic 600 15px "Cormorant Garamond", serif; letter-spacing: .3em; text-transform: uppercase; }
+    .star .verse { display: inline-block; margin: 0; text-align: left; font: italic 500 19px/1.75 "Cormorant Garamond", "Times New Roman", serif; }
+    .star .in { padding-left: 2.2em; }
+    .twinkle { margin: 4px 0 20px; font-size: 22px; letter-spacing: .4em; }
+    .twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+    @keyframes twinkle { 50% { opacity: .35; } }
+    /* Donne: pirate broadside. Weathered pirate title, old-print verse, a rocking skull-and-anchor. */
+    .pirate { max-width: 600px; }
+    .pirate h3 { margin: 0; font: 400 clamp(36px, 8vw, 54px) "Pirata One", cursive; letter-spacing: .04em; }
+    .pirate .by { margin: 4px 0 18px; font: italic 17px "IM Fell English", "Times New Roman", serif; }
+    .pirate .verse { margin: 0; font: 19px/1.8 "IM Fell English", "Times New Roman", serif; }
+    .pirate .verse::first-letter { font: 400 44px/1 "Pirata One", cursive; }
+    .rock { display: inline-block; margin: 8px 0; font-size: 26px; animation: rock 2.6s ease-in-out infinite; }
+    @keyframes rock { 25% { transform: rotate(-7deg) translateY(2px); } 75% { transform: rotate(7deg) translateY(-2px); } }
+    /* POETRY is a dropdown: the staff heading is the toggle; its caret flips when open. */
+    .poetry summary { list-style: none; cursor: pointer; }
+    .poetry summary::-webkit-details-marker { display: none; }
+    .poetry .caret { display: inline-block; font-size: 18px; vertical-align: middle; transition: transform .2s; }
+    .poetry[open] .caret { transform: rotate(180deg); }
+    .poetry .tease { margin: -8px 0 16px; }
+    .poetry[open] .tease { display: none; } /* only invites while closed */
+    .poem-nav { font: bold 18px "Courier New", monospace; }
+    .poem-nav button { font-size: 20px; padding: 0 12px; cursor: pointer; }
+    .box { background: #FFF; max-width: 600px; }
+    .botm .prof-cell { position: relative; width: 280px; } /* photo fills the cell at whatever height the text sets */
+    .botm img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .bio { padding: 16px 22px; line-height: 1.6; text-align: left; } /* room to breathe beside the photo */
     .prof-cell { padding: 0; width: 240px; } /* photo fills the whole left cell */
     img.prof { display: block; width: 240px; height: 240px; object-fit: cover; }
-    .trail { position: fixed; pointer-events: none; font-size: 20px; z-index: 99; transform: translate(-50%, -50%); }
-    .still .trail { visibility: hidden; }
+    #fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
     #roll { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; }
     #player { max-width: 560px; border: 3px outset #888; background: #FFF; }
     #player .np { background: #000; color: #FFF; font: bold 13px/1.4 "Courier New", monospace; padding: 4px 8px; text-align: left; }
@@ -90,15 +131,18 @@
     @keyframes pace { to { transform: translateX(calc(100vw - 64px)); } }
     @keyframes face { 50% { transform: scaleX(-1); } }
     @keyframes legs { 50% { visibility: hidden; } }
-    .fire { image-rendering: pixelated; vertical-align: bottom; margin: 0 4px; }
+    /* Link decorations. Negative block margins keep any gif up to 64px tall from growing the line box,
+       so every link line is the same height whatever its gif. */
+    .gif { vertical-align: middle; margin: -18px 6px; }
+    .gif.fire { position: relative; top: -10px; } /* flame sits low in its frame: lift it onto the text */
     .birds { overflow: hidden; margin: 0 -8px; } /* full bleed past body margin */
     .bird-track { display: flex; width: max-content; animation: birds var(--dur, 400s) linear infinite; }
     .birds:hover .bird-track { animation-play-state: paused; }
     .pop { position: relative; width: fit-content; margin-inline: auto; } /* shrink to the link so the popup can sit beside it */
     /* Hover popups (latest films / insta posts / last-seen birds): to the right of the link, below it on phones. */
-    .popup { display: none; position: absolute; top: 50%; left: calc(50% + 140px); transform: translateY(-50%); z-index: 5;
-             width: min(560px, calc(50vw - 150px)); /* same x for every popup: clear of the widest contact link */ margin: 0; padding: 6px 0; background: #FFF; border: 3px outset #888; }
-    .popup::before { content: ""; position: absolute; right: 100%; top: 0; bottom: 0; width: 140px; } /* hover bridge from link to popup */
+    .popup { display: none; position: absolute; top: 50%; left: calc(50% + 160px); transform: translateY(-50%); z-index: 5;
+             width: min(560px, calc(50vw - 170px)); /* same x for every popup: clear of the widest contact link */ margin: 0; padding: 6px 0; background: #FFF; border: 3px outset #888; }
+    .popup::before { content: ""; position: absolute; right: 100%; top: 0; bottom: 0; width: 160px; } /* hover bridge from link to popup */
     .pop:hover .popup { display: block; }
     @media (max-width: 700px) {
       .popup { top: 100%; left: 50%; transform: translateX(-50%); width: calc(100vw - 16px); }
@@ -113,9 +157,11 @@
     .staff { display: flex; align-items: center; justify-content: center; height: 41px; max-width: 600px; margin: 32px auto 16px; font-size: 32px; line-height: 1;
              border-left: 2px solid #000; border-right: 6px double #000; background: repeating-linear-gradient(#000 0 1px, transparent 1px 10px); }
   </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IM+Fell+English:ital@0;1&family=Pinyon+Script&family=Pirata+One&family=UnifrakturMaguntia&display=swap">
 </head>
 <body link="#0000EE" vlink="#551A8B" alink="#FF0000">
 <canvas id="roll" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
 <center>
 
 <marquee scrollamount="8" behavior="alternate">𝄞 ♩ ♪ ♫ ♬ ♭ ♮ ♯ &nbsp; WELCOME 2 THE OFFICIAL HOMEPAGE OF brand0 &nbsp; ♯ ♮ ♭ ♬ ♫ ♪ ♩ 𝄇</marquee>
@@ -126,10 +172,13 @@
 <p class="welcome">Welcome to my Website :) </p>
 </header>
 
+<div class="intro">
 <p><font size="3">You are visitor number:</font><br>
 <span class="counter">000♭0♯7</span></p>
 
 <p><button id="midi" type="button">▶ MIDI player ♪</button></p>
+<img class="guy" src="resources/guy.gif" width="140" height="140" alt="">
+</div>
 <div id="player" hidden>
   <div class="np">NOW PLAYING : Maurice Ravel - Le Tombeau de Couperin, Suite (1917-1919) Prélude</div>
   <canvas id="pianoroll" aria-hidden="true"></canvas>
@@ -140,12 +189,12 @@
 <table class="box" border="4" cellpadding="10">
   <tr>
     <td class="prof-cell"><img class="prof" src="resources/prof_480.jpg" alt="portrait of brandon" /></td>
-    <td><font face="Courier New" size="3">hi i'm brandon. i'm a music producer who dabbles in audio plugin development. i also enjoy <b><u>birdwatching</u></b> and <b><u>movies</u></b>. currently based in <b>nyc</b>.</font></td>
+    <td class="bio"><font size="3">hi i'm brandon. i'm a music producer and songwriter who dabbles in audio plugin development. i also enjoy <b><u>birdwatching</u></b> and <b><u>movies</u></b>. currently based in <b>nyc</b>.</font></td>
   </tr>
 </table>
 
 <!-- ======== MUSIC ======== -->
-<h2 class="staff"><span><span class="bounce">♫</span> MY MUSIC <span class="bounce">♫</span></span></h2>
+<h2 class="staff"><span><span class="bounce">♫</span> <img src="resources/music.gif" width="162" height="69" alt="MY MUSIC" style="vertical-align: middle; position: relative; top: -6px"> <span class="bounce">♫</span></span></h2>
 <p><font size="2">music i've contributed to. press play!!!</font></p>
 <iframe src="https://open.spotify.com/embed/playlist/0TuQrG6ttGKuI6cAWvabNj?utm_source=generator&amp;theme=0"
         width="100%" height="352" style="max-width:560px; border:0" loading="lazy"
@@ -154,19 +203,19 @@
 <!-- ======== PLUGINS ======== -->
 <h2 class="staff"><span>♮ PLUGINS ♮</span></h2>
 <div class="huge">
-  <p><a href="https://www.birdsong.nyc" target="_blank" rel="noopener">&gt;&gt; BIRDSONG &lt;&lt;</a><b class="blink new">NEW!</b><br>
+  <p><img class="gif" src="resources/bird1.gif" width="60" height="48" alt=""><a href="https://www.birdsong.nyc" target="_blank" rel="noopener">&gt;&gt; BIRDSONG &lt;&lt;</a><img class="gif" src="resources/bird2.gif" width="60" height="48" alt=""><b class="blink new">NEW!</b><br>
   <font size="2">new company with nathan blair</font></p>
-  <p><a href="https://brand0.gumroad.com/" target="_blank" rel="noopener">&gt;&gt; GUMROAD &lt;&lt;</a><br>
+  <p><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><a href="https://brand0.gumroad.com/" target="_blank" rel="noopener">&gt;&gt; GUMROAD &lt;&lt;</a><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><br>
   <font size="2">get gooper here</font></p>
-  <p><a href="https://www.flickswitchaudio.com/product/liminal" target="_blank" rel="noopener">&gt;&gt; LIMINAL &lt;&lt;</a><br>
+  <p><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><a href="https://www.flickswitchaudio.com/product/liminal" target="_blank" rel="noopener">&gt;&gt; LIMINAL &lt;&lt;</a><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><br>
   <font size="2">built this cool device for FlickSwitch Audio</font></p>
 </div>
 
 <!-- ======== CONTACT ======== -->
 <h2 class="staff"><span>𝄪 CONTACT 𝄪</span></h2>
 <div class="huge">
-  <p><a href="mailto:hello@brand0.world?subject=i%20saw%20ur%20website">✉ E-MAIL ME!!!</a></p>
-  <p class="pop" id="ig"><a href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a><span class="birds popup"><span class="bird-track">
+  <p><img class="gif" src="resources/email.gif" width="48" height="48" alt=""><a href="mailto:hello@brand0.world?subject=i%20saw%20ur%20website">✉ E-MAIL ME!!! ✉</a><img class="gif" src="resources/email.gif" width="48" height="48" alt=""></p>
+  <p class="pop" id="ig"><img class="gif" src="resources/camera.gif" width="64" height="48" alt=""><a href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a><img class="gif" src="resources/camera.gif" width="64" height="48" alt=""><span class="birds popup"><span class="bird-track">
     <span class="bird"><a href="https://www.instagram.com/p/DeR_iFjBIQb/" target="_blank" rel="noopener"><img src="resources/insta/DeR_iFjBIQb.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
     <span class="bird"><a href="https://www.instagram.com/p/DdZb448lcwT/" target="_blank" rel="noopener"><img src="resources/insta/DdZb448lcwT.jpg" width="87" height="113" loading="lazy" alt=""></a></span>
     <span class="bird"><a href="https://www.instagram.com/p/DcbrfJdpD7I/" target="_blank" rel="noopener"><img src="resources/insta/DcbrfJdpD7I.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
@@ -192,8 +241,8 @@
     <span class="bird"><a href="https://www.instagram.com/p/DH_6Y2oyYJe/" target="_blank" rel="noopener"><img src="resources/insta/DH_6Y2oyYJe.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
     <span class="bird"><a href="https://www.instagram.com/reel/DHb2zHPS656/" target="_blank" rel="noopener"><img src="resources/insta/DHb2zHPS656.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
   </span></span></p>
-  <p class="pop" id="lb"><a href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a><span class="birds popup"><span class="bird-track"></span></span></p>
-  <p class="pop" id="eb"><img class="fire" src="resources/fire.gif" width="32" height="48" alt=""><a href="https://ebird.org/profile/NTc5NTE5Mw" target="_blank" rel="noopener">ebird</a><img class="fire" src="resources/fire.gif" width="32" height="48" alt=""><span class="birds popup"><span class="bird-track">
+  <p class="pop" id="lb"><img class="gif" src="resources/movie.gif" width="48" height="48" alt=""><a href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a><img class="gif" src="resources/movie.gif" width="48" height="48" alt=""><span class="birds popup"><span class="bird-track"></span></span></p>
+  <p class="pop" id="eb"><img class="gif fire" src="resources/fire.gif" width="32" height="48" alt=""><a href="https://ebird.org/profile/NTc5NTE5Mw" target="_blank" rel="noopener">ebird</a><img class="gif fire" src="resources/fire.gif" width="32" height="48" alt=""><span class="birds popup"><span class="bird-track">
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-rumped_warbler_singing_(41612)_(cropped).jpg" target="_blank" rel="noopener" title="Yellow-rumped Warbler — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/yellow-rumped-warbler.jpg" width="126" height="100" loading="lazy" alt="Yellow-rumped Warbler"></a></span>
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Song_sparrow_in_Prospect_Park_(93031).jpg" target="_blank" rel="noopener" title="Song Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/song-sparrow.jpg" width="143" height="100" loading="lazy" alt="Song Sparrow"></a></span>
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Zonotrichia_albicollis_CT1.jpg" target="_blank" rel="noopener" title="White-throated Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 3.0)"><img src="resources/birds/white-throated-sparrow.jpg" width="149" height="100" loading="lazy" alt="White-throated Sparrow"></a></span>
@@ -294,6 +343,96 @@
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Warbling_vireo_(82141).jpg" target="_blank" rel="noopener" title="Eastern Warbling Vireo — seen 04 May 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/eastern-warbling-vireo.jpg" width="131" height="100" loading="lazy" alt="Eastern Warbling Vireo"></a></span>
   </span></span></p>
 </div>
+
+<!-- ======== BIRD OF THE MONTH ======== -->
+<h2 class="staff"><span>★ BIRD OF THE MONTH ★</span></h2>
+<table class="box botm" border="4" cellpadding="10">
+  <tr>
+    <td class="prof-cell"><img src="https://travisaudubon.org/home/wp-content/uploads/2023/11/kinglet.png" width="280" height="208"
+         alt="Ruby-crowned Kinglet" loading="lazy" referrerpolicy="no-referrer"></td>
+    <td class="bio"><font size="4"><b>Ruby-crowned Kinglet</b></font><br><font size="2"><i>october 2026</i></font><br><br>
+      <font size="3">these little guys have been bringing me a lot of joy this month. i figured i would shout them out. as fall birding slowly creeps into full time sparrowing these guys hold it down. they are also super drippy when they get mad</font></td>
+  </tr>
+</table>
+
+<!-- ======== POEM ======== -->
+<details class="poetry">
+<summary><h2 class="staff"><span>✠ POETRY ✠ <span class="caret">▼</span></span></h2>
+<p class="tease"><font size="2">stay for a poem?</font></p></summary>
+<p class="poem-nav"><button type="button" data-step="-1" aria-label="previous poem">◄</button> <span id="poem-n"></span> <button type="button" data-step="1" aria-label="next poem">►</button></p>
+<div id="poems">
+<div class="crypt">
+  <h3>The Valley of Unrest</h3>
+  <p class="by">~ by Edgar Allan Poe ~<br><small>(published 1845)</small></p>
+  <p class="orn">✠ &nbsp;✟&nbsp; ✠</p>
+  <p class="verse">
+    Once it smiled a silent dell<br>
+    Where the people did not dwell;<br>
+    They had gone unto the wars,<br>
+    Trusting to the mild-eyed stars,<br>
+    Nightly, from their azure towers,<br>
+    To keep watch above the flowers,<br>
+    In the midst of which all day<br>
+    The red sun-light lazily lay.<br>
+    Now each visitor shall confess<br>
+    The sad valley&rsquo;s restlessness.<br>
+    Nothing there is motionless &mdash;<br>
+    Nothing save the airs that brood<br>
+    Over the magic solitude.<br>
+    Ah, by no wind are stirred those trees<br>
+    That palpitate like the chill seas<br>
+    Around the misty Hebrides!<br>
+    Ah, by no wind those clouds are driven<br>
+    That rustle through the unquiet Heaven<br>
+    Uneasily, from morn till even,<br>
+    Over the violets there that lie<br>
+    In myriad types of the human eye &mdash;<br>
+    Over the lilies there that wave<br>
+    And weep above a nameless grave!<br>
+    They wave: &mdash; from out their fragrant tops<br>
+    Eternal dews come down in drops.<br>
+    They weep: &mdash; from off their delicate stems<br>
+    Perennial tears descend in gems.
+  </p>
+  <p class="orn">✠ &nbsp;✟&nbsp; ✠</p>
+</div>
+<div class="star" hidden>
+  <p class="twinkle" aria-hidden="true">✦ ✧ ★ ✧ ✦</p>
+  <h3>&ldquo;Bright star, would I were stedfast as thou art&rdquo;</h3>
+  <p class="by">by John Keats</p>
+  <p class="verse">
+    Bright star, would I were stedfast as thou art&mdash;<br>
+    <span class="in">Not in lone splendour hung aloft the night</span><br>
+    And watching, with eternal lids apart,<br>
+    <span class="in">Like nature&rsquo;s patient, sleepless Eremite,</span><br>
+    The moving waters at their priestlike task<br>
+    <span class="in">Of pure ablution round earth&rsquo;s human shores,</span><br>
+    Or gazing on the new soft-fallen mask<br>
+    <span class="in">Of snow upon the mountains and the moors&mdash;</span><br>
+    No&mdash;yet still stedfast, still unchangeable,<br>
+    <span class="in">Pillow&rsquo;d upon my fair love&rsquo;s ripening breast,</span><br>
+    To feel for ever its soft fall and swell,<br>
+    <span class="in">Awake for ever in a sweet unrest,</span><br>
+    Still, still to hear her tender-taken breath,<br>
+    And so live ever&mdash;or else swoon to death.
+  </p>
+</div>
+<div class="pirate" hidden>
+  <p class="rock" aria-hidden="true">☠ ⚓︎ ☠</p>
+  <h3>A Burnt Ship</h3>
+  <p class="by">~ by John Donne ~</p>
+  <p class="verse">
+    Out of a fired ship, which by no way<br>
+    But drowning could be rescued from the flame,<br>
+    Some men leap&rsquo;d forth, and ever as they came<br>
+    Near the foes&rsquo; ships, did by their shot decay;<br>
+    So all were lost, which in the ship were found,<br>
+    They in the sea being burnt, they in the burnt ship drown&rsquo;d.
+  </p>
+  <p class="rock" aria-hidden="true">~ ~ ~ ~ ~ ~</p>
+</div>
+</div>
+</details>
 
 <!-- ======== ??? ======== -->
 <h2 class="staff"><span>𝄆 ??? 𝄇</span></h2>
@@ -747,37 +886,73 @@
   const JOKES = ['-00♭0♯03', '0♯000♭½', '♭♯♭♯♭♯♭', 'N♭a♯N', '3.1♯4♭…', '000♭♯01'];
   document.querySelector('.counter').textContent = Math.random() < 0.3 ? JOKES[rint(JOKES.length)] : digits.join('');
 
-  // Music-note cursor trail: fixed pool of spans that chase each other.
-  if (matchMedia('(pointer: fine)').matches) {
-    const GLYPHS = '♩♪♫♬♭♯';
-    const dots = Array.from(GLYPHS, (g) => {
-      const s = document.createElement('span');
-      s.className = 'trail';
-      s.textContent = g;
-      document.body.appendChild(s);
-      return { el: s, x: -99, y: -99 };
-    });
-    let mx = -99, my = -99, running = false, idle = 0;
-    const hide = () => document.body.classList.add('still');
-    const step = () => {
-      let x = mx, y = my, moving = false;
-      for (const d of dots) {
-        d.x += (x - d.x) * 0.35;
-        d.y += (y - d.y) * 0.35;
-        if (Math.abs(x - d.x) + Math.abs(y - d.y) > 0.5) moving = true;
-        d.el.style.left = d.x + 'px';
-        d.el.style.top = d.y + 'px';
-        x = d.x; y = d.y;
-      }
-      running = moving;
-      if (running) requestAnimationFrame(step);
+  // Mouse notes, ported from the old site: moving the mouse sheds notes that drift up and fade, and a
+  // left click (mouse/pen) bursts 10-15 notes out from the pointer. Drawn on a fixed overlay canvas at
+  // full device resolution so the glyphs stay sharp. The frame loop only runs while notes are on screen.
+  {
+    const fx = document.getElementById('fx'), c = fx.getContext('2d');
+    const GLYPHS = ['♩', '♪', '♫', '♬'];
+    const glyph = () => GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    let DPR = 1, W = 0, H = 0, lineSpacing = 0, trail = [], burst = [], running = false, last = 0;
+    let lastTrailX = -1, lastTrailY = -1, lastTrailT = 0;
+    const layout = () => {
+      DPR = devicePixelRatio || 1; // canvas px per CSS px; follows zoom / moving to another screen
+      W = fx.width = Math.floor(innerWidth * DPR);
+      H = fx.height = Math.floor(innerHeight * DPR);
+      lineSpacing = Math.max(10, Math.min(18, innerHeight / 44)) * DPR; // note sizes scale with it
+    };
+    layout();
+    addEventListener('resize', layout);
+    const draw = (n, alpha) => {
+      c.globalAlpha = alpha;
+      c.font = `${n.size | 0}px "Times New Roman", Times, serif`;
+      c.fillText(n.glyph, n.x, n.y);
+    };
+    const frame = (now) => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      for (const t of trail) { t.x += t.vx * dt; t.y += t.vy * dt; t.age += dt; }
+      trail = trail.filter((t) => t.age < t.life);
+      for (const n of burst) { n.x += n.vx * dt; n.y += n.vy * dt; }
+      const m = 80 * DPR; // burst notes fly until they leave the screen
+      burst = burst.filter((n) => n.x > -m && n.x < W + m && n.y > -m && n.y < H + m);
+      c.clearRect(0, 0, W, H);
+      c.fillStyle = '#000'; c.textBaseline = 'middle'; c.textAlign = 'center';
+      for (const n of burst) draw(n, 1);
+      for (const t of trail) draw(t, 1 - t.age / t.life);
+      running = trail.length + burst.length > 0;
+      if (running) requestAnimationFrame(frame);
+    };
+    const wake = () => {
+      if (running) return;
+      running = true; last = performance.now();
+      requestAnimationFrame(frame);
     };
     addEventListener('mousemove', (e) => {
-      mx = e.clientX; my = e.clientY;
-      document.body.classList.remove('still');
-      clearTimeout(idle);
-      idle = setTimeout(hide, 60); // no movement for 60ms = mouse is still
-      if (!running) { running = true; requestAnimationFrame(step); }
+      const x = e.clientX * DPR, y = e.clientY * DPR, now = performance.now();
+      const dist = lastTrailX < 0 ? Infinity : Math.hypot(x - lastTrailX, y - lastTrailY);
+      if (dist < 16 * DPR && now - lastTrailT < 50) return;
+      lastTrailX = x; lastTrailY = y; lastTrailT = now;
+      trail.push({
+        glyph: glyph(), x, y,
+        vx: (Math.random() - 0.5) * 40 * DPR,
+        vy: -(15 + Math.random() * 35) * DPR,
+        size: lineSpacing * (1.4 + Math.random() * 0.7),
+        age: 0,
+        life: 0.7 + Math.random() * 0.5,
+      });
+      if (trail.length > 200) trail.shift();
+      wake();
+    });
+    addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' || e.button !== 0) return;
+      const x = e.clientX * DPR, y = e.clientY * DPR;
+      for (let i = 10 + ((Math.random() * 6) | 0); i > 0; i--) {
+        const angle = Math.random() * Math.PI * 2, speed = (180 + Math.random() * 320) * DPR;
+        burst.push({ glyph: glyph(), x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                     size: lineSpacing * (1.6 + Math.random() * 0.8) });
+      }
+      wake();
     });
   }
 
@@ -914,7 +1089,7 @@
       piano ??= loadPiano(ctx); // decoded buffers outlive this context, so they're reused next time
       const [s, bufs] = await Promise.all([song, piano]);
       if (ctx !== mine) return; // stopped (or restarted) while loading
-      btn.textContent = '■ stop the MIDI (do not)';
+      btn.textContent = '■ stop';
       player.hidden = false;
       start(s, bufs);
     } catch {
@@ -1047,6 +1222,18 @@
     bird.classList.add('mew');
     clearTimeout(mewTimer);
     mewTimer = setTimeout(() => bird.classList.remove('mew'), 1200);
+  });
+
+  // Poems: one at a time; the arrows step through them, wrapping around.
+  const poems = [...document.getElementById('poems').children], poemN = document.getElementById('poem-n');
+  let poem = 0;
+  const count = () => { poemN.textContent = `${poem + 1} / ${poems.length}`; };
+  count();
+  for (const b of document.querySelectorAll('.poem-nav button')) b.addEventListener('click', () => {
+    poems[poem].hidden = true;
+    poem = (poem + +b.dataset.step + poems.length) % poems.length;
+    poems[poem].hidden = false;
+    count();
   });
 })();
 </script>
