@@ -51,11 +51,7 @@
                     background: repeating-linear-gradient(#000 0 1px, transparent 1px 0.17em);
                     border-left: 2px solid #000; border-right: 6px double #000; }
     .logo .flat { display: inline-block; margin-left: -0.235em; margin-right: -0.215em; transform: translateY(-0.04em); }
-    .counter { display: inline-block; background: #000; border: 3px inset #888; padding: 2px 4px; font: bold 20px "Courier New", monospace; color: #FFF; letter-spacing: 4px; }
-    .intro { position: relative; width: fit-content; }
-    /* As tall as the counter + button; multiply drops the GIF's white background. */
-    .guy { position: absolute; left: calc(100% + 16px); top: 0; height: 100%; width: auto; mix-blend-mode: multiply; }
-    @media (max-width: 520px) { .guy { left: calc(100% + 4px); } }
+    .guy { mix-blend-mode: multiply; } /* drops the GIF's white background */
     /* Poems: each has its own typographic theme. */
     .crypt { max-width: 600px; }
     .crypt h3 { margin: 0; font: 400 clamp(30px, 7vw, 44px) "UnifrakturMaguntia", "Old English Text MT", serif; }
@@ -86,6 +82,8 @@
     .poem-nav { font: bold 18px "Courier New", monospace; }
     .poem-nav button { font-size: 20px; padding: 0 12px; cursor: pointer; }
     .box { background: #FFF; max-width: 600px; }
+    .release a { display: inline-block; }
+    .release img { display: block; border: 3px double #000; }
     .botm .prof-cell { position: relative; width: 280px; } /* photo fills the cell at the text's height */
     .botm img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .bio { padding: 16px 22px; line-height: 1.6; text-align: left; }
@@ -93,9 +91,27 @@
     img.prof { display: block; width: 240px; height: 240px; object-fit: cover; }
     #fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
     #roll { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; }
-    #player { max-width: 560px; border: 3px outset #888; background: #FFF; }
-    #player .np { background: #000; color: #FFF; font: bold 13px/1.4 "Courier New", monospace; padding: 4px 8px; text-align: left; }
-    #pianoroll { display: block; width: 100%; height: 160px; }
+    /* MIDI player as a Win95 window: raised bevels for chrome and buttons, sunken green LCDs for readouts. */
+    #player { max-width: 600px; margin: 0 auto 16px; padding: 3px; background: #C0C0C0; font: 14px Tahoma, "MS Sans Serif", sans-serif;
+              box-shadow: inset -1px -1px #000, inset 1px 1px #DFDFDF, inset -2px -2px #808080, inset 2px 2px #FFF, 8px 8px 0 #000; }
+    #player .bar { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 2px 6px;
+                   background: linear-gradient(90deg, #000080, #1084D0); color: #FFF; font-weight: bold; }
+    #player button { min-width: 28px; padding: 3px 8px; border: 0; background: #C0C0C0; font: bold 14px Tahoma, "MS Sans Serif", sans-serif; cursor: pointer;
+                     box-shadow: inset -1px -1px #000, inset 1px 1px #FFF, inset -2px -2px #808080, inset 2px 2px #DFDFDF; }
+    #player button:active { box-shadow: inset 1px 1px #000, inset -1px -1px #FFF, inset 2px 2px #808080, inset -2px -2px #DFDFDF; }
+    #player .bar button { min-width: 0; padding: 0 5px; line-height: 16px; }
+    #player :is(#song, #bpm, #tr) { background: repeating-linear-gradient(#0000 0 2px, #3F31 2px 3px) #000; color: #3F3; font: 22px/1.1 "VT323", "Courier New", monospace; text-shadow: 0 0 4px #3F3;
+                                          box-shadow: inset 1px 1px #808080, inset -1px -1px #FFF, inset 2px 2px #000, inset -2px -2px #DFDFDF; }
+    #player .ctl { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; padding: 6px 0 8px; }
+    #player .nav { display: flex; flex-basis: 100%; gap: 6px; }
+    #song { flex: 1; padding: 2px 6px; }
+    #bpm { width: 3.2em; padding: 2px 6px; border: 0; }
+    #tr { display: inline-block; min-width: 2em; padding: 2px 6px; cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none; }
+    #player .status { display: flex; gap: 3px; margin-top: 3px; font-size: 13px; }
+    #player .status span { flex: 1; padding: 1px 6px; text-align: left; box-shadow: inset 1px 1px #808080, inset -1px -1px #FFF; }
+    #player .status #time { flex: none; font-variant-numeric: tabular-nums; }
+    #pianoroll { display: block; box-sizing: border-box; width: 100%; height: clamp(280px, 50vh, 480px); background: #000;
+                 border: 2px solid; border-color: #808080 #FFF #FFF #808080; }
     /* Black keys sit inside the white key to their left, straddling its right edge. */
     #keys { position: relative; display: flex; width: fit-content; margin: 0 auto; padding: 6px 6px 0; background: #000; border: 3px outset #888;
             user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -144,7 +160,7 @@
     .staff { display: flex; align-items: center; justify-content: center; height: 41px; max-width: 600px; margin: 32px auto 16px; font-size: 32px; line-height: 1;
              border-left: 2px solid #000; border-right: 6px double #000; background: repeating-linear-gradient(#000 0 1px, transparent 1px 10px); }
   </style>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IM+Fell+English:ital@0;1&family=Pinyon+Script&family=Pirata+One&family=UnifrakturMaguntia&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IM+Fell+English:ital@0;1&family=Pinyon+Script&family=Pirata+One&family=UnifrakturMaguntia&family=VT323&display=swap">
 </head>
 <body link="#0000EE" vlink="#551A8B" alink="#FF0000">
 <canvas id="roll" aria-hidden="true"></canvas>
@@ -159,16 +175,18 @@
 <p class="welcome">Welcome to my Website :) </p>
 </header>
 
-<div class="intro">
-<p><font size="3">You are visitor number:</font><br>
-<span class="counter">000♭0♯7</span></p>
-
+<p><img class="guy" src="resources/guy.gif" width="140" height="140" alt=""></p>
 <p><button id="midi" type="button">▶ MIDI player ♪</button></p>
-<img class="guy" src="resources/guy.gif" width="140" height="140" alt="">
-</div>
 <div id="player" hidden>
-  <div class="np">NOW PLAYING : Maurice Ravel - Le Tombeau de Couperin, Suite (1917-1919) Prélude</div>
+  <div class="bar"><span>♫ brand0 MIDI Jukebox</span><button id="close" type="button" aria-label="close player">×</button></div>
+  <div class="ctl">
+    <span class="nav"><button type="button" data-song="-1" aria-label="previous song">|◄</button><span id="song"></span><button type="button" data-song="1" aria-label="next song">►|</button></span>
+    <button id="pp" type="button"></button>
+    <label>BPM <input id="bpm" type="number" min="20" max="300"></label>
+    <span>KEY <span id="tr" role="slider" tabindex="0" aria-label="transpose" aria-valuemin="-12" aria-valuemax="12" aria-valuenow="0" title="drag up/down to transpose">0</span></span>
+  </div>
   <canvas id="pianoroll" aria-hidden="true"></canvas>
+  <div class="status"><span id="state"></span><span id="time">0:00 / 0:00</span></div>
 </div>
 
 <!-- ======== ABOUT ======== -->
@@ -186,6 +204,10 @@
 <iframe src="https://open.spotify.com/embed/playlist/0TuQrG6ttGKuI6cAWvabNj?utm_source=generator&amp;theme=0"
         width="100%" height="352" style="max-width:560px; border:0" loading="lazy"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+<p class="release"><b class="blink">★ ALBUM OUT NOW ★</b><br><br>
+<a href="https://ffm.to/frau_flutter" target="_blank" rel="noopener"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDpUIkFyAFqfTGuIrPhZN3DjOgbL0rgR7tktYGfjE92R38jESY2zwgdII&amp;s=10" width="200" alt="frau - flutter by cover art" referrerpolicy="no-referrer"></a><br>
+<font size="4"><b>&ldquo;flutter&rdquo;</b> by frau</font><br>
+<font size="2">executive produced &amp; co-written by me</font></p>
 
 <!-- ======== PLUGINS ======== -->
 <h2 class="staff"><span>♮ PLUGINS ♮</span></h2>
@@ -857,13 +879,6 @@
     pop.addEventListener('mouseenter', start);
   }
 
-  // "Visitor counter": random digits per load with at least one ♭ and one ♯, sometimes a joke value.
-  const digits = Array.from({ length: 7 }, () => '0123456789♭♯'[rint(12)]);
-  const fp = rint(7), sp = (fp + 1 + rint(6)) % 7; // two distinct slots
-  digits[fp] = '♭'; digits[sp] = '♯';
-  const JOKES = ['-00♭0♯03', '0♯000♭½', '♭♯♭♯♭♯♭', 'N♭a♯N', '3.1♯4♭…', '000♭♯01'];
-  document.querySelector('.counter').textContent = Math.random() < 0.3 ? pick(JOKES) : digits.join('');
-
   // Mouse notes: moving sheds fading notes, a click bursts some; the frame loop only runs while any are visible.
   {
     const fx = document.getElementById('fx'), c = fx.getContext('2d');
@@ -931,7 +946,15 @@
     });
   }
 
-  // "Background MIDI": plays resources/midi.mid on the piano samples, looping.
+  // MIDI player: songs loop on the piano samples; position is kept in beats so BPM and transpose apply live.
+  const SONGS = [
+    { name: 'Debussy - Serenade of the Doll', title: "Claude Debussy - Children's Corner (1908) III. Serenade of the Doll", file: 'resources/childrens_corner_3_(c)dery.mid', bpm: 126 },
+    { name: 'Ravel - Prélude', title: 'Maurice Ravel - Le Tombeau de Couperin, Suite (1917-1919) Prélude', file: 'resources/midi.mid', bpm: 72 },
+    { name: 'Joplin - Pineapple Rag', title: 'Scott Joplin - Pineapple Rag (1908)', file: 'resources/156s_pineapple_rag_(nc)smythe.mid', bpm: 120 },
+    { name: 'Mozart - Fugue in G minor', title: 'Wolfgang Amadeus Mozart - Fugue in G minor, K. 401 (1782)', file: 'resources/mozart_fugue_401_(c)garty.mid', bpm: 120 },
+    { name: 'Zelda - Hateno Village', title: 'The Legend of Zelda: Breath of the Wild - Hateno Village', file: 'resources/Hateno Village - Legend of Zelda_ Breath of the Wild.mid', bpm: 120 },
+    { name: 'Expedition 33 - Lumière', title: 'Clair Obscur: Expedition 33 - Lumière', file: 'resources/Lumière - Clair Obscur_ Expedition 33 (WIP).mid', bpm: 86 },
+  ];
   const newAudio = () => {
     const c = new (window.AudioContext || window.webkitAudioContext)();
     const o = c.createDynamicsCompressor(); // keeps dense chords from clipping
@@ -941,11 +964,10 @@
   const btn = document.getElementById('midi');
   const LABEL = btn.textContent;
 
-  // Minimal SMF parser -> notes in seconds at a fixed BPM, first onset at t = 0, drums skipped.
-  const BPM = 92;
+  // Minimal SMF parser -> notes in beats of the opening tempo (so ritardandos survive), first onset at 0, drums skipped.
   const parseMidi = (buf) => {
     const d = new DataView(buf), div = d.getUint16(12), nTracks = d.getUint16(10);
-    const raw = [];
+    const raw = [], tempos = [];
     let p = 14;
     const vlq = () => { let v = 0, b; do { b = d.getUint8(p++); v = (v << 7) | (b & 127); } while (b & 128); return v; };
     for (let t = 0; t < nTracks; t++) {
@@ -956,9 +978,11 @@
       while (p < end) {
         tick += vlq();
         const st = d.getUint8(p);
-        if (st === 0xFF || st === 0xF0 || st === 0xF7) { // meta / sysex: skip payload
+        if (st === 0xFF || st === 0xF0 || st === 0xF7) { // meta / sysex: keep tempos, skip the rest
+          const meta = st === 0xFF && d.getUint8(p + 1);
           p += st === 0xFF ? 2 : 1;
           const len = vlq(); // not `p += vlq()`: that reads p before vlq advances it
+          if (meta === 0x51) tempos.push([tick, d.getUint32(p - 1) & 0xFFFFFF]); // µs per quarter
           p += len; continue;
         }
         if (st & 0x80) { rs = st; p++; }
@@ -976,18 +1000,23 @@
       }
       p = end;
     }
-    const sec = (tick) => tick * 60 / (BPM * div);
-    const notes = raw.map(([s, e, m, v]) => ({ t: sec(s), d: sec(e) - sec(s), m, v: v / 127 }))
-      .sort((x, y) => x.t - y.t);
-    const first = notes[0].t;
-    for (const n of notes) n.t -= first;
+    tempos.sort((x, y) => x[0] - y[0]);
+    const ref = tempos[0]?.[1] ?? 500000;
+    const beat = (tick) => {
+      let us = 0, t0 = 0, cur = ref;
+      for (const [t, u] of tempos) { if (t >= tick) break; us += (t - t0) * cur; t0 = t; cur = u; }
+      return (us + (tick - t0) * cur) / (ref * div);
+    };
+    const notes = raw.map(([s, e, m, v]) => ({ b: beat(s), l: beat(e) - beat(s), m, v: v / 127 })).sort((x, y) => x.b - y.b);
+    const first = notes[0].b;
+    for (const n of notes) n.b -= first;
     const ms = notes.map(n => n.m);
-    return { notes, length: Math.max(...notes.map(n => n.t + n.d)), lo: Math.min(...ms), hi: Math.max(...ms) };
+    return { notes, length: Math.max(...notes.map(n => n.b + n.l)), lo: Math.min(...ms), hi: Math.max(...ms) };
   };
 
   // FluidR3 GM grand piano (CC BY 3.0) sampled every 3 semitones; notes pitch-shift the nearest sample.
   const SAMPLES = Array.from({ length: 26 }, (_, k) => 27 + 3 * k);
-  let song = null, piano = null, ctx = null, out = null, timer = 0;
+  let piano = null, ctx = null, out = null, bus = null, timer = 0, gen = 0;
   const loadPiano = (c) => Promise.all(SAMPLES.map(m =>
     fetch(`resources/piano/${m}.mp3`).then(r => r.arrayBuffer()).then(b => c.decodeAudioData(b))));
   // One sampled note into `dst` starting at t; returns the voice so the caller can release it.
@@ -1002,76 +1031,148 @@
     return { src, g };
   };
   const release = ({ src, g }, t) => { g.gain.setTargetAtTime(0, t, 0.08); src.stop(t + 0.5); }; // damper falls
-  const play = (n, t, bufs) => release(voice(out, bufs, n.m, n.v, t), t + Math.max(n.d, 0.05));
-  // Lookahead scheduler: queue only the next half second of notes, so stopping is instant.
-  const start = (song, bufs) => {
-    const { notes, length } = song, period = length + 1, origin = ctx.currentTime + 0.05;
+
+  // Transport: song beat `beat0` sounds at audio time `at0`; re-anchored whenever the BPM changes.
+  let song = null, cur = 0, bpm = SONGS[0].bpm, tr = 0, at0 = 0, beat0 = 0, paused = false;
+  const beatAt = (t) => beat0 + (t - at0) * bpm / 60;
+  const timeOf = (b) => at0 + (b - beat0) * 60 / bpm;
+  // Lookahead scheduler: queue only the next 0.2s of notes, so stopping, tempo and key changes are near-instant.
+  const start = (s, bufs) => {
+    const { notes } = s, period = s.length + 2; // two-beat breath before each loop
     let i = 0, loop = 0;
+    song = s; at0 = ctx.currentTime + 0.05; beat0 = 0;
+    bus?.gain.setTargetAtTime(0, ctx.currentTime, 0.03); // silence the previous song's tails
+    bus = ctx.createGain();
+    bus.connect(out);
     const pump = () => {
-      while (origin + loop * period + notes[i].t < ctx.currentTime + 0.5) {
-        play(notes[i], origin + loop * period + notes[i].t, bufs);
+      for (let b, h = beatAt(ctx.currentTime + 0.2); (b = loop * period + notes[i].b) < h;) {
+        const n = notes[i], t = timeOf(b);
+        release(voice(bus, bufs, n.m + tr, n.v, t), t + Math.max(n.l * 60 / bpm, 0.05));
         if (++i === notes.length) { i = 0; loop++; }
       }
-      timer = setTimeout(pump, 100);
+      timer = setTimeout(pump, 50);
     };
     pump();
-    roll(song, origin, period, ctx);
+  };
+  const load = async () => {
+    const s = SONGS[cur], mine = ++gen;
+    clearTimeout(timer);
+    song = null;
+    showState();
+    try {
+      piano ??= loadPiano(ctx); // decoded buffers outlive this context, so they're reused next time
+      const [data, bufs] = await Promise.all([s.data ??= fetch(s.file).then(r => r.arrayBuffer()).then(parseMidi), piano]);
+      if (mine !== gen || !ctx) return; // switched song or stopped while loading
+      start(data, bufs);
+      showState();
+    } catch {
+      s.data = piano = null;
+      if (mine === gen && ctx) { stop(); btn.textContent = 'MIDI broke :( try again'; }
+    }
   };
 
-  // Scrolling piano roll synced to the audio clock: 4s window, playhead at 20%, sounding notes in blue.
-  const player = document.getElementById('player');
+  // Scrolling piano roll synced to the audio clock: 4s window, playhead at 20%, keyboard strip on the left.
+  const player = document.getElementById('player'), timeEl = document.getElementById('time');
   const cv = document.getElementById('pianoroll');
   const g = cv.getContext('2d');
-  const SPAN = 4, HEAD = 0.2, BLACK = 0b10101001010; // bit n set = pitch class n is a black key
-  const roll = ({ notes, lo, hi }, origin, period, mine) => {
+  const SPAN = 4, HEAD = 0.2, KW = 26, BLACK = 0b10101001010; // bit n set = pitch class n is a black key
+  const clock = (sec) => `${(sec / 60) | 0}:${String(sec % 60 | 0).padStart(2, '0')}`;
+  const roll = (mine) => {
+    if (ctx !== mine) return; // stopped
+    requestAnimationFrame(() => roll(mine));
     const dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
-    cv.width = W * dpr; cv.height = H * dpr;
-    g.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const rows = hi - lo + 3, rh = H / rows, pxs = W / SPAN, hx = W * HEAD;
-    const frame = () => {
-      if (ctx !== mine) return; // stopped
-      const pos = (ctx.currentTime - origin) % period;
-      g.clearRect(0, 0, W, H);
-      g.fillStyle = '#F2F2F2'; // black-key lanes
-      for (let m = lo - 1; m <= hi + 1; m++) if ((1 << (m % 12)) & BLACK) g.fillRect(0, H - (m - lo + 2) * rh, W, rh);
-      for (const n of notes) {
-        const x = hx + (n.t - pos) * pxs;
-        if (x > W) break;
-        const w = Math.max(n.d * pxs, 2);
-        if (x + w < 0) continue;
-        g.fillStyle = n.t <= pos && pos < n.t + n.d ? '#0000EE' : '#000';
-        g.fillRect(x, H - (n.m - lo + 2) * rh, w, Math.max(rh - 1, 1));
-      }
-      g.fillStyle = '#F00';
-      g.fillRect(hx, 0, 1, H);
-      requestAnimationFrame(frame);
-    };
-    frame();
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) {
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    g.clearRect(0, 0, W, H);
+    if (!song) return;
+    const { notes, lo, hi, length } = song, rh = H / (hi - lo + 3), pxb = (W - KW) * 60 / (SPAN * bpm), hx = KW + (W - KW) * HEAD;
+    const pos = beatAt(ctx.currentTime) % (length + 2), y = (m) => H - (m - lo + 2) * rh, isBlack = (m) => (1 << ((m + tr) % 12)) & BLACK;
+    const t = `${clock(Math.max(0, pos) * 60 / bpm)} / ${clock(length * 60 / bpm)}`;
+    if (timeEl.textContent !== t) timeEl.textContent = t;
+    g.fillStyle = '#0A240A'; // black-key lanes and beat lines, following the transposition
+    for (let m = lo - 1; m <= hi + 1; m++) if (isBlack(m)) g.fillRect(0, y(m), W, rh);
+    for (let b = Math.ceil(pos - HEAD * SPAN * bpm / 60); hx + (b - pos) * pxb < W; b++) g.fillRect(hx + (b - pos) * pxb, 0, 1, H);
+    const lit = new Set();
+    for (const n of notes) {
+      const x = hx + (n.b - pos) * pxb;
+      if (x > W) break;
+      const w = Math.max(n.l * pxb, 2);
+      if (x + w < KW) continue;
+      const on = n.b <= pos && pos < n.b + n.l, h = Math.max(rh - 1, 1);
+      if (on) lit.add(n.m);
+      g.fillStyle = on ? '#FF0' : '#2A2';
+      g.fillRect(x, y(n.m), w, h);
+      g.fillStyle = on ? '#FFC' : '#6F6'; // lit top edge
+      g.fillRect(x, y(n.m), w, Math.min(2, h));
+    }
+    for (let m = lo - 1; m <= hi + 1; m++) {
+      g.fillStyle = lit.has(m) ? '#FF0' : isBlack(m) ? '#111' : '#DDD';
+      g.fillRect(0, y(m), isBlack(m) ? KW * 0.6 : KW, Math.max(rh - 0.5, 1));
+    }
+    g.fillStyle = '#808080';
+    g.fillRect(KW, 0, 1, H);
+    g.fillStyle = '#F00';
+    g.fillRect(hx, 0, 1, H);
   };
   const stop = () => {
     clearTimeout(timer);
-    ctx.close(); ctx = null; // drops any notes already scheduled
+    ctx.close(); ctx = bus = song = null; // closing drops any notes already scheduled
     btn.textContent = LABEL;
     player.hidden = true;
   };
 
-  btn.addEventListener('click', async () => {
+  btn.addEventListener('click', () => {
     if (ctx) return stop();
     [ctx, out] = newAudio();
-    const mine = ctx;
-    btn.textContent = '⏳ tuning the piano...';
-    try {
-      song ??= fetch('resources/midi.mid').then(r => r.arrayBuffer()).then(parseMidi);
-      piano ??= loadPiano(ctx); // decoded buffers outlive this context, so they're reused next time
-      const [s, bufs] = await Promise.all([song, piano]);
-      if (ctx !== mine) return; // stopped (or restarted) while loading
-      btn.textContent = '■ stop';
-      player.hidden = false;
-      start(s, bufs);
-    } catch {
-      song = piano = null;
-      if (ctx === mine) { stop(); btn.textContent = 'MIDI broke :( try again'; }
-    }
+    btn.textContent = '■ close player';
+    player.hidden = false;
+    setPaused(false);
+    roll(ctx);
+    load();
+  });
+
+  // Player controls: pause suspends the audio clock, freezing sound and roll together.
+  const pp = document.getElementById('pp'), songName = document.getElementById('song');
+  const bpmIn = document.getElementById('bpm'), trOut = document.getElementById('tr');
+  const stateEl = document.getElementById('state');
+  const showState = () => { stateEl.textContent = !song ? '⏳ tuning the piano...' : paused ? '❚❚ Paused' : '► Playing'; };
+  const setPaused = (p) => { paused = p; pp.textContent = p ? '►' : '❚❚'; pp.setAttribute('aria-label', p ? 'play' : 'pause'); showState(); };
+  document.getElementById('close').addEventListener('click', stop);
+  pp.addEventListener('click', () => { setPaused(!paused); paused ? ctx.suspend() : ctx.resume(); });
+  const showSong = () => {
+    songName.textContent = `${String(cur + 1).padStart(2, '0')}/${String(SONGS.length).padStart(2, '0')} ▪ ${SONGS[cur].name}`;
+    songName.title = SONGS[cur].title;
+  };
+  showSong();
+  bpmIn.value = bpm;
+  for (const b of document.querySelectorAll('[data-song]')) b.addEventListener('click', () => {
+    cur = (cur + +b.dataset.song + SONGS.length) % SONGS.length;
+    showSong();
+    bpmIn.value = bpm = SONGS[cur].bpm;
+    if (ctx) load();
+  });
+  bpmIn.addEventListener('input', () => {
+    const v = +bpmIn.value;
+    if (!(v >= 20 && v <= 300)) return; // ignore partial typing
+    if (ctx) { beat0 = beatAt(ctx.currentTime); at0 = ctx.currentTime; }
+    bpm = v;
+  });
+  // Transpose: drag up/down (12px per semitone) or arrow keys, within an octave either way.
+  const setTr = (v) => {
+    tr = Math.max(-12, Math.min(12, v));
+    trOut.textContent = tr > 0 ? `+${tr}` : tr;
+    trOut.setAttribute('aria-valuenow', tr);
+  };
+  let drag = null; // [pointer y, tr] at drag start
+  trOut.addEventListener('pointerdown', (e) => { trOut.setPointerCapture(e.pointerId); drag = [e.clientY, tr]; });
+  trOut.addEventListener('pointermove', (e) => { if (drag) setTr(drag[1] + Math.round((drag[0] - e.clientY) / 12)); });
+  trOut.addEventListener('pointerup', () => { drag = null; });
+  trOut.addEventListener('pointercancel', () => { drag = null; });
+  trOut.addEventListener('keydown', (e) => {
+    const d = { ArrowUp: 1, ArrowDown: -1 }[e.key];
+    if (d) { e.preventDefault(); setTr(tr + d); }
   });
 
   // The keyboard's context lives for the page (the MIDI player's closes on stop); made inside a gesture.
