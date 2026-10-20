@@ -17,13 +17,12 @@
   <meta name="twitter:image" content="https://www.brand0.world/resources/flat_logo.jpg" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='52' font-family='Times New Roman, serif'%3E%E2%99%AB%3C/text%3E%3C/svg%3E">
   <style>
-    /* Background is a dense score drawn on #roll (see script). */
     html { background: #FFF; }
     body {
-      margin: 0 8px 8px; /* no top margin: the welcome banner touches the top edge */
+      margin: 0 8px 8px;
       color: #000;
       font-family: "Times New Roman", Times, serif;
-      cursor: url(resources/cursor32.png) 3 29, crosshair; /* hotspot: the quill end of the wing */
+      cursor: url(resources/cursor32.png) 3 29, crosshair; /* hotspot: quill end of the wing */
     }
     a { font-weight: bold; }
     a:hover { background: #0000EE; color: #FFF; }
@@ -38,8 +37,6 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .bounce { display: inline-block; animation: bounce .6s ease-in-out infinite alternate; }
     @keyframes bounce { to { transform: translateY(-10px); } }
-    /* Wordmark matches the original site: plain serif, flat kerned into the "r", white halo over the staves. */
-    /* Title card holding the logo + welcome so they read as a header. */
     .masthead { display: block; max-width: 640px; margin: 28px auto 8px; padding: 4px 20px 8px; background: #FFF;
                 border: 6px double #000; box-shadow: 8px 8px 0 #000; }
     .hero { position: relative; }
@@ -48,37 +45,31 @@
     .hero .logo { font-size: clamp(44px, 8vw, 92px); }
     .hero .welcome { font-size: clamp(13px, 4.6vw, 22px); margin: 8px 0; }
     .birds.rev .bird-track { animation-direction: reverse; }
-    .logo { font: 400 clamp(56px, 10vw, 140px) / 0.85 "Times New Roman", Times, serif; letter-spacing: -0.01em; margin-top: 0.25em; transform: translateX(0.04em); text-shadow: 0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF; }
-    /* Staff behind the wordmark: 5 lines across the card, opening barline + final double bar. */
-    .logo { position: relative; }
+    .logo { position: relative; font: 400 clamp(56px, 10vw, 140px) / 0.85 "Times New Roman", Times, serif; letter-spacing: -0.01em; margin-top: 0.25em; transform: translateX(0.04em); text-shadow: 0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF; }
+    /* Staff behind the wordmark. */
     .logo::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0.06em; height: calc(0.68em + 1px);
                     background: repeating-linear-gradient(#000 0 1px, transparent 1px 0.17em);
                     border-left: 2px solid #000; border-right: 6px double #000; }
     .logo .flat { display: inline-block; margin-left: -0.235em; margin-right: -0.215em; transform: translateY(-0.04em); }
     .counter { display: inline-block; background: #000; border: 3px inset #888; padding: 2px 4px; font: bold 20px "Courier New", monospace; color: #FFF; letter-spacing: 4px; }
-    /* Counter + MIDI button stay centered; the keyboard guy hangs off to their right. */
     .intro { position: relative; width: fit-content; }
-    /* Exactly as tall as the counter + button block, so it never reaches the birds above or the player below.
-       The GIF has an opaque white background; multiply drops the white onto the page. */
+    /* As tall as the counter + button; multiply drops the GIF's white background. */
     .guy { position: absolute; left: calc(100% + 16px); top: 0; height: 100%; width: auto; mix-blend-mode: multiply; }
     @media (max-width: 520px) { .guy { left: calc(100% + 4px); } }
-    /* Poem: blackletter title + capital, old-print serif verse, black only. */
+    /* Poems: each has its own typographic theme. */
     .crypt { max-width: 600px; }
     .crypt h3 { margin: 0; font: 400 clamp(30px, 7vw, 44px) "UnifrakturMaguntia", "Old English Text MT", serif; }
     .crypt .by { margin: 6px 0 0; font: italic 16px "IM Fell English", "Times New Roman", serif; letter-spacing: .08em; }
     .crypt .orn { margin: 12px 0; font-size: 20px; }
     .crypt .verse { margin: 0; font: 18px/1.7 "IM Fell English", "Times New Roman", serif; }
-    .crypt .verse::first-letter { font: 400 42px/1 "UnifrakturMaguntia", serif; } /* inline: lines are centered */
-    /* Keats: romantic to contrast the Poe. Script title, italic serif, sonnet indents kept. */
+    .crypt .verse::first-letter { font: 400 42px/1 "UnifrakturMaguntia", serif; }
     .star { max-width: 600px; }
     .star h3 { margin: 0; font: 400 clamp(22px, 5vw, 32px)/1.3 "Pinyon Script", cursive; text-wrap: balance; }
     .star .by { margin: 8px 0 18px; font: italic 600 15px "Cormorant Garamond", serif; letter-spacing: .3em; text-transform: uppercase; }
     .star .verse { display: inline-block; margin: 0; text-align: left; font: italic 500 19px/1.75 "Cormorant Garamond", "Times New Roman", serif; }
     .star .in { padding-left: 2.2em; }
-    .twinkle { margin: 4px 0 20px; font-size: 22px; letter-spacing: .4em; }
-    .twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+    .twinkle { margin: 4px 0 20px; font-size: 22px; letter-spacing: .4em; animation: twinkle 2.4s ease-in-out infinite; }
     @keyframes twinkle { 50% { opacity: .35; } }
-    /* Donne: pirate broadside. Weathered pirate title, old-print verse, a rocking skull-and-anchor. */
     .pirate { max-width: 600px; }
     .pirate h3 { margin: 0; font: 400 clamp(36px, 8vw, 54px) "Pirata One", cursive; letter-spacing: .04em; }
     .pirate .by { margin: 4px 0 18px; font: italic 17px "IM Fell English", "Times New Roman", serif; }
@@ -86,40 +77,37 @@
     .pirate .verse::first-letter { font: 400 44px/1 "Pirata One", cursive; }
     .rock { display: inline-block; margin: 8px 0; font-size: 26px; animation: rock 2.6s ease-in-out infinite; }
     @keyframes rock { 25% { transform: rotate(-7deg) translateY(2px); } 75% { transform: rotate(7deg) translateY(-2px); } }
-    /* POETRY is a dropdown: the staff heading is the toggle; its caret flips when open. */
     .poetry summary { list-style: none; cursor: pointer; }
     .poetry summary::-webkit-details-marker { display: none; }
     .poetry .caret { display: inline-block; font-size: 18px; vertical-align: middle; transition: transform .2s; }
     .poetry[open] .caret { transform: rotate(180deg); }
     .poetry .tease { margin: -8px 0 16px; }
-    .poetry[open] .tease { display: none; } /* only invites while closed */
+    .poetry[open] .tease { display: none; }
     .poem-nav { font: bold 18px "Courier New", monospace; }
     .poem-nav button { font-size: 20px; padding: 0 12px; cursor: pointer; }
     .box { background: #FFF; max-width: 600px; }
-    .botm .prof-cell { position: relative; width: 280px; } /* photo fills the cell at whatever height the text sets */
+    .botm .prof-cell { position: relative; width: 280px; } /* photo fills the cell at the text's height */
     .botm img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .bio { padding: 16px 22px; line-height: 1.6; text-align: left; } /* room to breathe beside the photo */
-    .prof-cell { padding: 0; width: 240px; } /* photo fills the whole left cell */
+    .bio { padding: 16px 22px; line-height: 1.6; text-align: left; }
+    .prof-cell { padding: 0; width: 240px; }
     img.prof { display: block; width: 240px; height: 240px; object-fit: cover; }
     #fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
     #roll { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; }
     #player { max-width: 560px; border: 3px outset #888; background: #FFF; }
     #player .np { background: #000; color: #FFF; font: bold 13px/1.4 "Courier New", monospace; padding: 4px 8px; text-align: left; }
     #pianoroll { display: block; width: 100%; height: 160px; }
-    /* Playable keyboard, C4..C6. Black keys sit inside the white key to their left, straddling its right edge. */
-    #keys { display: flex; width: fit-content; margin: 0 auto; padding: 6px 6px 0; background: #000; border: 3px outset #888;
+    /* Black keys sit inside the white key to their left, straddling its right edge. */
+    #keys { position: relative; display: flex; width: fit-content; margin: 0 auto; padding: 6px 6px 0; background: #000; border: 3px outset #888;
             user-select: none; -webkit-user-select: none; touch-action: none; }
     #keys .w { position: relative; box-sizing: border-box; width: min(32px, calc((100vw - 52px) / 15)); height: 120px;
                display: flex; align-items: flex-end; justify-content: center; background: #FFF; border: 1px solid #000;
                border-radius: 0 0 3px 3px; font: 11px "Courier New", monospace; color: #888; }
     #keys .b { position: absolute; z-index: 1; top: 0; right: -30%; width: 60%; height: 62%; background: #000; }
     #keys :is(.on, .auto) { background: #0000EE; color: #FFF; }
-    /* Song of Storms easter egg: Guru-Guru pops up while the riff plays. */
-    #keys { position: relative; }
-    /* Out to the right, past the 600px staves and boxes below the keys so it covers nothing. */
+    /* Song of Storms easter egg: right of the 600px column so it covers nothing. */
     #storms { position: absolute; left: calc(50% + 316px); bottom: 0; z-index: 2; border: 6px outset #888; pointer-events: none; }
-    @media (max-width: 1080px) { #storms { position: fixed; left: auto; top: auto; right: 8px; bottom: 48px; } } /* no room beside */
-    /* Catbird pacing the bottom edge: the box slides, the sprite flips at each end, the legs alternate. */
+    @media (max-width: 1080px) { #storms { position: fixed; left: auto; top: auto; right: 8px; bottom: 48px; } }
+    /* Catbird: the box slides, the sprite flips at each end, the legs alternate. */
     #catbird { position: fixed; bottom: 0; left: 0; z-index: 98; cursor: pointer; animation: pace 35s linear infinite alternate; }
     #catbird svg { display: block; animation: face 70s steps(1) infinite; }
     #catbird .legB { animation: legs .3s steps(1) infinite; }
@@ -131,29 +119,28 @@
     @keyframes pace { to { transform: translateX(calc(100vw - 64px)); } }
     @keyframes face { 50% { transform: scaleX(-1); } }
     @keyframes legs { 50% { visibility: hidden; } }
-    /* Link decorations. Negative block margins keep any gif up to 64px tall from growing the line box,
-       so every link line is the same height whatever its gif. */
+    /* Negative margins keep link gifs (<= 64px) from growing the line box. */
     .gif { vertical-align: middle; margin: -18px 6px; }
-    .gif.fire { position: relative; top: -10px; } /* flame sits low in its frame: lift it onto the text */
+    .gif.fire { position: relative; top: -10px; } /* flame sits low in its frame */
     .birds { overflow: hidden; margin: 0 -8px; } /* full bleed past body margin */
     .bird-track { display: flex; width: max-content; animation: birds var(--dur, 400s) linear infinite; }
     .birds:hover .bird-track { animation-play-state: paused; }
-    .pop { position: relative; width: fit-content; margin-inline: auto; } /* shrink to the link so the popup can sit beside it */
-    /* Hover popups (latest films / insta posts / last-seen birds): to the right of the link, below it on phones. */
+    .pop { position: relative; width: fit-content; margin-inline: auto; }
+    /* Hover popups: right of the link (clear of the widest one), below it on phones. */
     .popup { display: none; position: absolute; top: 50%; left: calc(50% + 160px); transform: translateY(-50%); z-index: 5;
-             width: min(560px, calc(50vw - 170px)); /* same x for every popup: clear of the widest contact link */ margin: 0; padding: 6px 0; background: #FFF; border: 3px outset #888; }
+             width: min(560px, calc(50vw - 170px)); margin: 0; padding: 6px 0; background: #FFF; border: 3px outset #888; }
     .popup::before { content: ""; position: absolute; right: 100%; top: 0; bottom: 0; width: 160px; } /* hover bridge from link to popup */
     .pop:hover .popup { display: block; }
     @media (max-width: 700px) {
       .popup { top: 100%; left: 50%; transform: translateX(-50%); width: calc(100vw - 16px); }
       .popup::before { display: none; }
     }
-    .birds.deco { pointer-eventinsts: none; } /* top strip is decoration: no hover-pause */
+    .birds.deco { pointer-events: none; }
     @keyframes birds { to { transform: translateX(-50%); } }
     .bird { display: inline-block; margin: 0 8px; text-align: center; font: 11px "Courier New", monospace; }
     .bird img { border: 3px double #000; }
     marquee { display: block; margin: 0 -8px; font: bold 18px "Courier New", monospace; background: #000; color: #FFF; }
-    /* Dividers drawn as a staff: five lines closed by a final barline. Section titles sit on top. */
+    /* Section dividers drawn as a staff. */
     .staff { display: flex; align-items: center; justify-content: center; height: 41px; max-width: 600px; margin: 32px auto 16px; font-size: 32px; line-height: 1;
              border-left: 2px solid #000; border-right: 6px double #000; background: repeating-linear-gradient(#000 0 1px, transparent 1px 10px); }
   </style>
@@ -443,9 +430,7 @@
 
 <p><font size="2" face="Arial"><a href="#">𝄆 back 2 top 𝄇</a></font></p>
 
-<!-- Birds of McGolrick Park (eBird hotspot L2987624). Photos: Wikimedia Commons, free licenses;
-     hover a bird for its photographer + license, click for the source page.
-     The track is duplicated by script and slides by half its width, so it loops seamlessly. -->
+<!-- Birds of McGolrick Park (eBird hotspot L2987624); photos from Wikimedia Commons, credits in titles. -->
 <div class="birds"><div class="bird-track">
   <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Columba_livia_(Rock_Dove,_wild),_Duncansby_Head,_Caithness,_Scotland_1.jpg" target="_blank" rel="noopener" title="Rock Pigeon — photo: william_stephens, CC BY 4.0"><img src="resources/birds/rock-pigeon.jpg" width="133" alt="Rock Pigeon" height="100" decoding="async"></a><br>Rock Pigeon</span>
   <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Mourning_dove_perched_(61179).jpg" target="_blank" rel="noopener" title="Mourning Dove — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/mourning-dove.jpg" width="132" alt="Mourning Dove" height="100" decoding="async"></a><br>Mourning Dove</span>
@@ -595,9 +580,7 @@
 
 <script>
 (() => {
-  // Nancarrow / black MIDI score: faint piano systems (treble + bass) with absurd meters, two
-  // voices per staff, runs, tone clusters, √2 tempo canons between the hands, cross-staff runs
-  // and glissandi. Seeded RNG so every redraw lays out the same.
+  // Background: a faint Nancarrow-style piano score, seeded so every redraw lays out the same.
   const cv = document.getElementById('roll');
   const g = cv.getContext('2d');
   const SP = 7;                 // staff space (px)
@@ -612,6 +595,7 @@
     let seed = 1997;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
     const ri = (a, b) => a + ((rnd() * (b - a + 1)) | 0);
+    const pick = (a) => a[ri(0, a.length - 1)];
 
     // s = staff step: 0 is the bottom line, 8 the top line, beyond that needs ledger lines.
     const Y = (top, s) => top + 4 * SP - s * SP / 2;
@@ -646,23 +630,21 @@
       return { x0: sx[0], x1: sx[n], y: up ? Math.min(...ends) : Math.max(...ends), up };
     };
 
-    const tuplet = (gr) => {
-      const y = gr.y + (gr.up ? -SP * 1.6 : SP * 1.6), d = gr.up ? SP * 0.6 : -SP * 0.6;
-      const mid = (gr.x0 + gr.x1) / 2, label = RATIOS[ri(0, RATIOS.length - 1)];
-      g.font = `italic ${SP * 1.6}px "Times New Roman", serif`;
-      g.textAlign = 'center'; g.textBaseline = 'middle';
-      const tw = g.measureText(label).width / 2 + 3;
-      line(gr.x0, y + d, gr.x0, y, 1); line(gr.x0, y, mid - tw, y, 1);
-      line(mid + tw, y, gr.x1, y, 1); line(gr.x1, y, gr.x1, y + d, 1);
-      g.fillText(label, mid, y);
-    };
-
-    const DYN = ['ffff', 'pppp', 'sfffz', 'fff', 'ppppp', 'fp', 'sffz', 'ffffff'];
     const text = (t, x, y, px, style = '') => {
       g.font = `${style} ${px}px "Times New Roman", serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText(t, x, y);
     };
-    const acc = (x, y) => text('♯♭♮'[ri(0, 2)], x - SP * 1.7, y, SP * 2.2);
+    const tuplet = (gr) => {
+      const y = gr.y + (gr.up ? -SP * 1.6 : SP * 1.6), d = gr.up ? SP * 0.6 : -SP * 0.6;
+      const mid = (gr.x0 + gr.x1) / 2, label = pick(RATIOS);
+      text(label, mid, y, SP * 1.6, 'italic');
+      const tw = g.measureText(label).width / 2 + 3;
+      line(gr.x0, y + d, gr.x0, y, 1); line(gr.x0, y, mid - tw, y, 1);
+      line(mid + tw, y, gr.x1, y, 1); line(gr.x1, y, gr.x1, y + d, 1);
+    };
+
+    const DYN = ['ffff', 'pppp', 'sfffz', 'fff', 'ppppp', 'fp', 'sffz', 'ffffff'];
+    const acc = (x, y) => text(pick('♯♭♮'), x - SP * 1.7, y, SP * 2.2);
     const slur = (gr) => {
       const y = gr.y + (gr.up ? -SP * 2.5 : SP * 2.5), bow = gr.up ? -SP * 2 : SP * 2;
       g.lineWidth = 1; g.beginPath(); g.moveTo(gr.x0, y);
@@ -672,7 +654,7 @@
       const r = rnd();
       if (r < 0.3) tuplet(gr);
       else if (r < 0.5) slur(gr);
-      if (rnd() < 0.15) text(DYN[ri(0, DYN.length - 1)], gr.x0, top + SP * 7.5, SP * 2, 'bold italic');
+      if (rnd() < 0.15) text(pick(DYN), gr.x0, top + SP * 7.5, SP * 2, 'bold italic');
       if (rnd() < 0.08) {               // hairpin
         const y = top + SP * 7.5, x = gr.x0 + SP * 4, w = SP * ri(6, 14), o = rnd() < 0.5;
         line(x, y + (o ? 0 : -SP), x + w, y + (o ? -SP : 0), 1);
@@ -691,8 +673,7 @@
     const TEMPO = ['♩ = 60·√2', '♩ = π·40, accel. al niente', 'Presto impossibile', '♩ = ∞', 'rit. (but faster)', '♪ = e·100, con fuoco'];
     const STAFF_GAP = SP * 12, SYSTEM = STAFF_GAP + SP * 22; // top-to-top inside a system / between systems
 
-    // Fill one measure of one staff with a single voice; returns first and last notehead for glissandi.
-    // Voice 1 (up) lives high on the staff, voice 2 (down) low, so they interlock instead of colliding.
+    // One voice for one measure; voice 1 sits high and voice 2 low so they interlock. Returns end noteheads for glissandi.
     const fill = (top, x0, x1, kind, up, motif, squeeze) => {
       const lo = up ? 2 : -6, hi = up ? 14 : 6;
       let first = null, last = null;
@@ -747,18 +728,18 @@
       g.fillText('𝄞', SP * 3.6, top + SP * 5.2);
       g.font = `${SP * 4.2}px "Times New Roman", serif`;
       g.fillText('𝄢', SP * 3.8, tops[1] + SP * 3.2);
-      const ts = TIME[ri(0, TIME.length - 1)];
+      const ts = pick(TIME);
       for (const t of tops) { text(ts[0], SP * 10, t + SP, SP * 2.6, 'bold'); text(ts[1], SP * 10, t + SP * 3, SP * 2.6, 'bold'); }
       const L = String.fromCharCode(65 + (letter++ % 26));
       g.lineWidth = 1; g.strokeRect(SP * 3, top - SP * 6, SP * 3, SP * 3);
       text(L, SP * 4.5, top - SP * 4.5, SP * 2, 'bold');
-      text(TEMPO[ri(0, TEMPO.length - 1)], SP * 16, top - SP * 4.5, SP * 1.8, 'bold');
+      text(pick(TEMPO), SP * 16, top - SP * 4.5, SP * 1.8, 'bold');
 
       // Measures with barlines through both staves; one musical idea per measure.
       const prev = [[null, null], [null, null]]; // last notehead per staff/voice, for glissandi
       for (let x = SP * 13; x < W;) {
         const w = SP * ri(20, 42), x1 = x + w;
-        const kind = ['run', 'run', 'cluster', 'canon'][ri(0, 3)];
+        const kind = pick(['run', 'run', 'cluster', 'canon']);
         const motif = Array.from({ length: 4 }, () => ri(4, 12));
         tops.forEach((t, si) => [true, false].forEach((up, vi) => {
           ink(VOICE_INK[vi]);
@@ -801,20 +782,19 @@
 </script>
 <script>
 (() => {
-  // WordArt welcome: per-letter rainbow with a rolling wave (delay staggered by letter).
+  const rint = (n) => (Math.random() * n) | 0, pick = (a) => a[rint(a.length)];
+
+  // WordArt welcome: per-letter rainbow with a rolling wave.
   const welcome = document.querySelector('.welcome');
   const RAINBOW = ['#F00', '#F80', '#FD0', '#0C0', '#09F', '#00F', '#A0F'];
   welcome.innerHTML = [...welcome.textContent].map((ch, i) =>
     `<span style="color:${RAINBOW[i % 7]};animation-delay:${-i * 0.08}s">${ch}</span>`).join('');
 
-  // Bird strips: the footer strip (links, credits, hover-pause), plus a bare copy at the top of the page
-  // that is pure decoration: photos only, no links/tooltips/pause, hidden from screen readers. Both are
-  // shuffled independently on every load. Each track then gets a copy of its birds appended for a
-  // seamless loop, and its speed set to ~50px/s.
+  // Bird strips: the linked footer strip plus decorative photo-only copies, each shuffled per load.
   const shuffle = (track) => {
     const kids = [...track.children];
     for (let i = kids.length - 1; i > 0; i--) {
-      const j = (Math.random() * (i + 1)) | 0;
+      const j = rint(i + 1);
       [kids[i], kids[j]] = [kids[j], kids[i]];
     }
     track.append(...kids); // re-appending moves them into the new order
@@ -829,12 +809,13 @@
     shuffle(row.querySelector('.bird-track'));
     return row;
   };
-  // Hero under the welcome banner: two bird rows (opposite directions) with the header card floating on top.
+  // Hero: two bird rows (opposite directions) with the header card floating on top.
   const hero = document.createElement('div'), rowB = decoRow();
   hero.className = 'hero';
   rowB.classList.add('rev');
   hero.append(decoRow(), rowB, document.querySelector('.masthead'));
   document.querySelector('marquee').after(hero);
+  // Duplicate the track so sliding by half its width loops seamlessly, at ~50px/s.
   const loop = (track) => {
     track.append(...[...track.children].map((n) => {
       const c = n.cloneNode(true);
@@ -847,8 +828,7 @@
   };
   for (const track of document.querySelectorAll('.birds:not(.popup) .bird-track')) loop(track);
 
-  // Letterboxd hover: on first hover, fill the popup with recent films (films.json is refreshed daily
-  // by .github/workflows/films.yml). Built with DOM calls since titles come from an external feed.
+  // Letterboxd popup, filled on first hover via DOM calls since titles come from an external feed.
   const lb = document.getElementById('lb');
   lb.addEventListener('mouseenter', async () => {
     try {
@@ -866,8 +846,7 @@
     } catch { /* no popup if films.json is missing */ }
   }, { once: true });
 
-  // Static popups (insta posts, last-seen birds): images are in the HTML (lazy). Start each loop on the
-  // first frame its popup is actually laid out, since its width (and so its speed) can't be measured hidden.
+  // Static popups: start the loop once laid out, since a hidden track's width can't be measured.
   for (const id of ['ig', 'eb']) {
     const pop = document.getElementById(id), track = pop.querySelector('.bird-track');
     const start = () => requestAnimationFrame(() => {
@@ -879,24 +858,20 @@
   }
 
   // "Visitor counter": random digits per load with at least one ♭ and one ♯, sometimes a joke value.
-  const rint = (n) => (Math.random() * n) | 0;
   const digits = Array.from({ length: 7 }, () => '0123456789♭♯'[rint(12)]);
   const fp = rint(7), sp = (fp + 1 + rint(6)) % 7; // two distinct slots
   digits[fp] = '♭'; digits[sp] = '♯';
   const JOKES = ['-00♭0♯03', '0♯000♭½', '♭♯♭♯♭♯♭', 'N♭a♯N', '3.1♯4♭…', '000♭♯01'];
-  document.querySelector('.counter').textContent = Math.random() < 0.3 ? JOKES[rint(JOKES.length)] : digits.join('');
+  document.querySelector('.counter').textContent = Math.random() < 0.3 ? pick(JOKES) : digits.join('');
 
-  // Mouse notes, ported from the old site: moving the mouse sheds notes that drift up and fade, and a
-  // left click (mouse/pen) bursts 10-15 notes out from the pointer. Drawn on a fixed overlay canvas at
-  // full device resolution so the glyphs stay sharp. The frame loop only runs while notes are on screen.
+  // Mouse notes: moving sheds fading notes, a click bursts some; the frame loop only runs while any are visible.
   {
     const fx = document.getElementById('fx'), c = fx.getContext('2d');
-    const GLYPHS = ['♩', '♪', '♫', '♬'];
-    const glyph = () => GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    const glyph = () => pick('♩♪♫♬');
     let DPR = 1, W = 0, H = 0, lineSpacing = 0, trail = [], burst = [], running = false, last = 0;
     let lastTrailX = -1, lastTrailY = -1, lastTrailT = 0;
     const layout = () => {
-      DPR = devicePixelRatio || 1; // canvas px per CSS px; follows zoom / moving to another screen
+      DPR = devicePixelRatio || 1;
       W = fx.width = Math.floor(innerWidth * DPR);
       H = fx.height = Math.floor(innerHeight * DPR);
       lineSpacing = Math.max(10, Math.min(18, innerHeight / 44)) * DPR; // note sizes scale with it
@@ -947,7 +922,7 @@
     addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'touch' || e.button !== 0) return;
       const x = e.clientX * DPR, y = e.clientY * DPR;
-      for (let i = 10 + ((Math.random() * 6) | 0); i > 0; i--) {
+      for (let i = 10 + rint(6); i > 0; i--) {
         const angle = Math.random() * Math.PI * 2, speed = (180 + Math.random() * 320) * DPR;
         burst.push({ glyph: glyph(), x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
                      size: lineSpacing * (1.6 + Math.random() * 0.8) });
@@ -956,13 +931,17 @@
     });
   }
 
-  // "Background MIDI": parses resources/midi.mid and plays it on a little square-wave synth, looping.
-  // Times are shifted so playback starts exactly on the first note-on (the file opens with silence).
+  // "Background MIDI": plays resources/midi.mid on the piano samples, looping.
+  const newAudio = () => {
+    const c = new (window.AudioContext || window.webkitAudioContext)();
+    const o = c.createDynamicsCompressor(); // keeps dense chords from clipping
+    o.connect(c.destination);
+    return [c, o];
+  };
   const btn = document.getElementById('midi');
   const LABEL = btn.textContent;
 
-  // Minimal SMF parser -> [{ t, d, m, v }] in seconds, sorted, first onset at t = 0. Skips drums (ch 10).
-  // The file's own tempo (120) is ignored: the piece plays at a fixed BPM (quarter notes).
+  // Minimal SMF parser -> notes in seconds at a fixed BPM, first onset at t = 0, drums skipped.
   const BPM = 92;
   const parseMidi = (buf) => {
     const d = new DataView(buf), div = d.getUint16(12), nTracks = d.getUint16(10);
@@ -979,7 +958,7 @@
         const st = d.getUint8(p);
         if (st === 0xFF || st === 0xF0 || st === 0xF7) { // meta / sysex: skip payload
           p += st === 0xFF ? 2 : 1;
-          const len = vlq(); // read before adding: `p += vlq()` would use the stale p
+          const len = vlq(); // not `p += vlq()`: that reads p before vlq advances it
           p += len; continue;
         }
         if (st & 0x80) { rs = st; p++; }
@@ -1006,8 +985,7 @@
     return { notes, length: Math.max(...notes.map(n => n.t + n.d)), lo: Math.min(...ms), hi: Math.max(...ms) };
   };
 
-  // Piano: FluidR3 GM acoustic grand (CC BY 3.0) samples every 3 semitones (MIDI 27..102, named by
-  // note number); each note plays its nearest sample, pitch-shifted by at most one semitone.
+  // FluidR3 GM grand piano (CC BY 3.0) sampled every 3 semitones; notes pitch-shift the nearest sample.
   const SAMPLES = Array.from({ length: 26 }, (_, k) => 27 + 3 * k);
   let song = null, piano = null, ctx = null, out = null, timer = 0;
   const loadPiano = (c) => Promise.all(SAMPLES.map(m =>
@@ -1026,7 +1004,6 @@
   const release = ({ src, g }, t) => { g.gain.setTargetAtTime(0, t, 0.08); src.stop(t + 0.5); }; // damper falls
   const play = (n, t, bufs) => release(voice(out, bufs, n.m, n.v, t), t + Math.max(n.d, 0.05));
   // Lookahead scheduler: queue only the next half second of notes, so stopping is instant.
-  // The song loops every `period` seconds (1s breath at the end); `origin` is when loop 0 began.
   const start = (song, bufs) => {
     const { notes, length } = song, period = length + 1, origin = ctx.currentTime + 0.05;
     let i = 0, loop = 0;
@@ -1072,7 +1049,7 @@
     frame();
   };
   const stop = () => {
-    clearTimeout(timer); timer = 0;
+    clearTimeout(timer);
     ctx.close(); ctx = null; // drops any notes already scheduled
     btn.textContent = LABEL;
     player.hidden = true;
@@ -1080,9 +1057,8 @@
 
   btn.addEventListener('click', async () => {
     if (ctx) return stop();
-    const mine = ctx = new (window.AudioContext || window.webkitAudioContext)(); // created inside the click
-    out = ctx.createDynamicsCompressor(); // keeps dense chords from clipping
-    out.connect(ctx.destination);
+    [ctx, out] = newAudio();
+    const mine = ctx;
     btn.textContent = '⏳ tuning the piano...';
     try {
       song ??= fetch('resources/midi.mid').then(r => r.arrayBuffer()).then(parseMidi);
@@ -1098,22 +1074,15 @@
     }
   });
 
-  // The keyboard's context lives for the page, apart from the MIDI player's,
-  // which is closed on stop. Created on first use, inside a click/keypress so autoplay rules allow it.
+  // The keyboard's context lives for the page (the MIDI player's closes on stop); made inside a gesture.
   let toy = null, toyOut = null;
   const toyCtx = () => {
-    if (!toy) {
-      toy = new (window.AudioContext || window.webkitAudioContext)();
-      toyOut = toy.createDynamicsCompressor();
-      toyOut.connect(toy.destination);
-    }
+    if (!toy) [toy, toyOut] = newAudio();
     toy.resume();
     return toy;
   };
 
-  // Playable keyboard C4..C6 on the same piano samples. Mouse/touch can glissando across keys; the
-  // computer keyboard uses the DAW layout (A = C4, W = C♯4, ... ' = F5).
-  // held: midi -> voice, or a placeholder token while the samples are still loading.
+  // Playable keyboard C4..C6; computer keys use the DAW layout. held: midi -> voice, or a token while loading.
   const keys = document.getElementById('keys'), held = new Map(), KEYMAP = "awsedftgyhujkolp;'";
   let white;
   for (let m = 60; m <= 84; m++) {
@@ -1128,31 +1097,27 @@
     const tok = {};
     held.set(m, tok);
     keyEl(m).classList.add('on');
-    const c = toyCtx();
+    const c = toyCtx(), bufs = piano ??= loadPiano(c);
     heard = [...heard.slice(-5), m % 12];
-    if (!storming && heard.join() === STORMS_CUE) songOfStorms();
+    if (!storming && heard.join() === STORMS_CUE) songOfStorms(bufs);
     try {
-      const bufs = await (piano ??= loadPiano(c));
-      const v = voice(toyOut, bufs, m, 0.8, c.currentTime);
+      const v = voice(toyOut, await bufs, m, 0.8, c.currentTime);
       if (held.get(m) === tok) held.set(m, v);
       else release(v, c.currentTime + 0.3); // tapped and let go while loading: still sound it, briefly
     } catch { piano = null; up(m); }
   };
-  // Fetch + decode the samples as the keys scroll near, so the first press isn't spent loading.
-  // Decoding needs no user gesture, and the AudioBuffers play in any context.
+  // Preload samples as the keys scroll near; decoding needs no gesture and buffers play in any context.
   new IntersectionObserver((es, io) => {
     if (!es.some((e) => e.isIntersecting)) return;
     io.disconnect();
     const p = piano ??= loadPiano(new OfflineAudioContext(1, 1, 44100));
     p.catch(() => { if (piano === p) piano = null; }); // retry on the next press
-    // Also wake the audio device now (or at the next click/keypress, if the page hasn't had one yet:
-    // browsers only start audio after a gesture), so the first note isn't late while it spins up.
+    // Also wake the audio device now, or at the next gesture, so the first note isn't late.
     if (navigator.userActivation?.hasBeenActive) toyCtx();
     else for (const ev of ['pointerdown', 'keydown', 'touchend']) addEventListener(ev, toyCtx, { once: true, capture: true });
   }, { rootMargin: '600px' }).observe(keys);
 
-  // Song of Storms: D F D D F D (any octave) and the keyboard plays the rest of the riff, lighting its keys,
-  // while Guru-Guru shows up. [midi, beats] in 3/4; starts after the half-note D the player just played.
+  // Song of Storms: D F D D F D (any octave) and the keyboard plays the rest; [midi, beats] after the cue.
   const STORMS_CUE = '2,5,2,2,5,2', STORMS_BEAT = 0.35;
   const STORMS = [[76, 1.5], [77, .5], [76, .5], [77, .5], [76, .5], [72, .5], [69, 2],
     [69, 1], [62, 1], [65, .5], [67, .5], [69, 3], [69, 1], [62, 1], [65, .5], [67, .5], [64, 3],
@@ -1160,14 +1125,14 @@
     [69, 1], [62, 1], [65, .5], [67, .5], [69, 2], [69, 1], [62, 3]];
   const storms = document.getElementById('storms');
   let heard = [], storming = false;
-  const songOfStorms = async () => {
+  const songOfStorms = async (samples) => {
     storming = true;
     heard = [];
     storms.src = storms.src; // restart the GIF from its first frame
     storms.hidden = false;
     let beat = 2;
     try {
-      const bufs = await piano, t0 = toy.currentTime;
+      const bufs = await samples, t0 = toy.currentTime;
       for (const [m, d] of STORMS) {
         const t = t0 + beat * STORMS_BEAT, el = keyEl(m);
         release(voice(toyOut, bufs, m, 0.7, t), t + d * STORMS_BEAT * 0.9);
@@ -1198,7 +1163,7 @@
   addEventListener('keyup', (e) => up(keyNote(e)));
   addEventListener('blur', () => held.forEach((_, m) => up(m))); // no stuck notes after alt-tab
 
-  // Gray Catbird: pixel sprite pacing the bottom of the window. Click for a (silent) mew speech bubble.
+  // Gray Catbird: pixel sprite pacing the bottom of the window; click for a mew.
   const bird = document.getElementById('catbird');
   const INK = { K: '#111', G: '#77777C', D: '#55555A', R: '#8B3A1A', L: '#222' };
   const px = (rows, y0) => rows.map((r, y) => [...r].map((ch, x) =>
@@ -1218,13 +1183,13 @@
   const MEWS = ['mew!', 'MEOW', 'mew?', 'mrrp'];
   let mewTimer = 0;
   bird.addEventListener('click', () => {
-    bird.querySelector('i').textContent = MEWS[(Math.random() * MEWS.length) | 0];
+    bird.querySelector('i').textContent = pick(MEWS);
     bird.classList.add('mew');
     clearTimeout(mewTimer);
     mewTimer = setTimeout(() => bird.classList.remove('mew'), 1200);
   });
 
-  // Poems: one at a time; the arrows step through them, wrapping around.
+  // Poems: one at a time; the arrows step through them, wrapping.
   const poems = [...document.getElementById('poems').children], poemN = document.getElementById('poem-n');
   let poem = 0;
   const count = () => { poemN.textContent = `${poem + 1} / ${poems.length}`; };

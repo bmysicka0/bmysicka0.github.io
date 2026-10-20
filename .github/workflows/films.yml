@@ -1,5 +1,4 @@
-# Refreshes films.json from the Letterboxd RSS feed once a day (and on demand),
-# committing only when the list changed. GitHub Pages redeploys on the commit.
+# Daily: refresh films.json from Letterboxd RSS, committing only on change.
 name: update films
 on:
   schedule:
