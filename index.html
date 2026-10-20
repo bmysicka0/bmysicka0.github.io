@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>brand0</title>
+  <title>~*~ brand0's homepage ~*~</title>
   <meta name="description" content="music producer and plugin developer" />
+  <meta name="keywords" content="brand0, music, producer, plugins, vst, audio, birdsong, gooper, liminal, sheet music, treble clef, birds, movies, nyc" />
   <meta property="og:title" content="music producer and plugin developer" />
   <meta property="og:description" content="music producer and plugin developer" />
   <meta property="og:type" content="website" />
@@ -15,1150 +16,875 @@
   <meta name="twitter:description" content="music producer and plugin developer" />
   <meta name="twitter:image" content="https://www.brand0.world/resources/flat_logo.jpg" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='52' font-family='Times New Roman, serif'%3E%E2%99%AB%3C/text%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://open.spotify.com">
-  <link rel="dns-prefetch" href="https://open.spotify.com">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    :root {
-      color-scheme: light;
-      --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-    html, body { height: 100%; margin: 0; background: #FFF; color: #000; }
+    /* Background is a dense score drawn on #roll (see script). */
+    html { background: #FFF; }
     body {
-      font: 11px/1.6 var(--pixel-font);
-      overflow: hidden;
-      letter-spacing: 0.02em;
-      -webkit-font-smoothing: none;
-      font-smooth: never;
-    }
-    canvas {
-      display: block;
-      width: 100vw;
-      height: 100vh;
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      image-rendering: pixelated;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: crisp-edges;
-    }
-
-    /* Centered hero stack: wordmark above, press-start button below */
-    #hero {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: clamp(2px, 0.6vh, 10px);
-      z-index: 2;
-      pointer-events: none; /* let the canvas receive mousemove for note knocks */
-    }
-
-    /* Wordmark: large centered serif, with halo so staff lines don't run through it */
-    #brand {
-      font: 400 clamp(72px, 15vw, 240px) / 0.85 "Times New Roman", Times, serif;
-      letter-spacing: -0.01em;
+      margin: 0 8px 8px; /* no top margin: the welcome banner touches the top edge */
       color: #000;
-      pointer-events: none;
-      text-shadow:
-        0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF;
-      transform: translateX(0.04em);
+      font-family: "Times New Roman", Times, serif;
+      cursor: crosshair;
     }
-    #brand .flat {
-      display: inline-block;
-      line-height: 0.85;
-      vertical-align: baseline;
-      margin-left: -0.235em;
-      margin-right: -0.215em;
-      transform: translateY(-0.04em);
+    a { font-weight: bold; }
+    a:hover { background: #0000EE; color: #FFF; }
+    .huge a { font-size: 32px; font-family: "Comic Sans MS", "Comic Sans", cursive; }
+    .new { position: absolute; margin-left: 6px; color: #F00; } /* out of flow so the link stays centered */
+    .welcome { font: bold 30px "Comic Sans MS", "Comic Sans", cursive; text-shadow: 2px 2px 0 #000; }
+    .welcome span { display: inline-block; white-space: pre; animation: wave 1.2s ease-in-out infinite; }
+    @keyframes wave { 50% { transform: translateY(-6px); } }
+    .blink { animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { visibility: hidden; } }
+    .spin { display: inline-block; animation: spin 2s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .bounce { display: inline-block; animation: bounce .6s ease-in-out infinite alternate; }
+    @keyframes bounce { to { transform: translateY(-10px); } }
+    /* Wordmark matches the original site: plain serif, flat kerned into the "r", white halo over the staves. */
+    /* Title card holding the logo + welcome so they read as a header. */
+    .masthead { display: block; max-width: 640px; margin: 28px auto 8px; padding: 4px 20px 8px; background: #FFF;
+                border: 6px double #000; box-shadow: 8px 8px 0 #000; }
+    .hero { position: relative; }
+    .hero .masthead { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; margin: 0;
+                      width: min(420px, 85vw); box-sizing: border-box; padding: 0 12px 4px; }
+    .hero .logo { font-size: clamp(44px, 8vw, 92px); }
+    .hero .welcome { font-size: clamp(13px, 4.6vw, 22px); margin: 8px 0; }
+    .birds.rev .bird-track { animation-direction: reverse; }
+    .logo { font: 400 clamp(56px, 10vw, 140px) / 0.85 "Times New Roman", Times, serif; letter-spacing: -0.01em; margin-top: 0.25em; transform: translateX(0.04em); text-shadow: 0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF; }
+    /* Staff behind the wordmark: 5 lines across the card, opening barline + final double bar. */
+    .logo { position: relative; }
+    .logo::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0.06em; height: calc(0.68em + 1px);
+                    background: repeating-linear-gradient(#000 0 1px, transparent 1px 0.17em);
+                    border-left: 2px solid #000; border-right: 6px double #000; }
+    .logo .flat { display: inline-block; margin-left: -0.235em; margin-right: -0.215em; transform: translateY(-0.04em); }
+    .counter { display: inline-block; background: #000; border: 3px inset #888; padding: 2px 4px; font: bold 20px "Courier New", monospace; color: #FFF; letter-spacing: 4px; }
+    .box { background: #FFF; max-width: 560px; }
+    .prof-cell { padding: 0; width: 240px; } /* photo fills the whole left cell */
+    img.prof { display: block; width: 240px; height: 240px; object-fit: cover; }
+    .trail { position: fixed; pointer-events: none; font-size: 20px; z-index: 99; transform: translate(-50%, -50%); }
+    .still .trail { visibility: hidden; }
+    #roll { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; }
+    #player { max-width: 560px; border: 3px outset #888; background: #FFF; }
+    #player .np { background: #000; color: #FFF; font: bold 13px/1.4 "Courier New", monospace; padding: 4px 8px; text-align: left; }
+    #pianoroll { display: block; width: 100%; height: 160px; }
+    .birds { overflow: hidden; margin: 0 -8px; } /* full bleed past body margin */
+    .bird-track { display: flex; width: max-content; animation: birds var(--dur, 400s) linear infinite; }
+    .birds:hover .bird-track { animation-play-state: paused; }
+    .pop { position: relative; width: fit-content; margin-inline: auto; } /* shrink to the link so the popup can sit beside it */
+    /* Hover popups (latest films / insta posts / last-seen birds): to the right of the link, below it on phones. */
+    .popup { display: none; position: absolute; top: 50%; left: calc(50% + 140px); transform: translateY(-50%); z-index: 5;
+             width: min(560px, calc(50vw - 150px)); /* same x for every popup: clear of the widest contact link */ margin: 0; padding: 6px 0; background: #FFF; border: 3px outset #888; }
+    .popup::before { content: ""; position: absolute; right: 100%; top: 0; bottom: 0; width: 140px; } /* hover bridge from link to popup */
+    .pop:hover .popup { display: block; }
+    @media (max-width: 700px) {
+      .popup { top: 100%; left: 50%; transform: translateX(-50%); width: calc(100vw - 16px); }
+      .popup::before { display: none; }
     }
-
-    #debug {
-      position: fixed; inset: auto 8px 8px auto;
-      color: #000;
-      font: 8px/1.4 var(--pixel-font);
-      opacity: .55;
-      z-index: 4;
-    }
-
-    /* ============ RPG pause menu (B&W) ============ */
-    /* Press-start button: opaque, sits inside #hero under the wordmark */
-    #menu-trigger {
-      pointer-events: auto;
-      color: #FFF;
-      background: #000;
-      border: 3px solid #000;
-      border-radius: 12px;
-      padding: 14px 22px;
-      font: 9px/1 var(--pixel-font);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      cursor: pointer;
-      user-select: none;
-      animation: ps-blink 1.1s steps(2, end) infinite;
-      transition: background 80ms, color 80ms, transform 80ms;
-    }
-    #menu-trigger:active { transform: translateY(2px); }
-    #menu-trigger:hover, #menu-trigger:focus {
-      animation: none;
-      opacity: 1;
-      background: #FFF;
-      color: #000;
-      outline: none;
-    }
-    #menu-trigger::before {
-      content: "";
-      display: inline-block;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 4px 0 4px 6px;
-      border-color: transparent transparent transparent currentColor;
-      margin-right: 0.7em;
-      vertical-align: middle;
-      position: relative;
-      top: -1.5px;
-    }
-    @keyframes ps-blink { 0%, 55% { opacity: 1 } 56%, 100% { opacity: 0.25 } }
-
-    #menu-overlay {
-      position: fixed; inset: 0;
-      background: rgba(255, 255, 255, 0.82);
-      display: none;
-      z-index: 10;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      box-sizing: border-box;
-    }
-    #menu-overlay[data-open="true"] {
-      display: flex;
-      animation: menu-pop 160ms ease-out;
-    }
-    @keyframes menu-pop { from { opacity: 0; transform: scale(0.97) } to { opacity: 1; transform: scale(1) } }
-
-    #menu-frame {
-      width: min(760px, 100%);
-      max-height: 92vh;
-      background: #FFF;
-      color: #000;
-      font: 11px/1.7 var(--pixel-font);
-      border: 4px solid #000;
-      border-radius: 16px;
-      box-shadow:
-        inset 0 0 0 3px #FFF,
-        inset 0 0 0 5px #000,
-        0 10px 0 0 rgba(0,0,0,0.18),
-        0 18px 36px rgba(0,0,0,0.18);
-      padding: 10px;
-      display: grid;
-      grid-template-columns: 210px 1fr;
-      grid-template-rows: 1fr auto;
-      gap: 0;
-      overflow: hidden;
-    }
-    #menu-list {
-      border-right: 3px solid #000;
-      padding: 20px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .menu-item {
-      cursor: pointer;
-      padding: 12px 10px 12px 30px;
-      position: relative;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      user-select: none;
-      color: #000;
-      border-radius: 8px;
-      transition: background 80ms, color 80ms;
-    }
-    .menu-item::before {
-      content: "";
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 5px 0 5px 7px;
-      border-color: transparent transparent transparent currentColor;
-      transform: translateY(-50%);
-      opacity: 0;
-    }
-    .menu-item.selected::before {
-      opacity: 1;
-      animation: ptr-blink 0.55s steps(2, end) infinite;
-    }
-    @media (hover: hover) {
-      .menu-item:hover {
-        background: #000;
-        color: #FFF;
-      }
-    }
-    @keyframes ptr-blink { 0%, 55% { opacity: 1 } 56%, 100% { opacity: 0.25 } }
-
-    #menu-content {
-      padding: 20px 22px;
-      overflow: auto;
-      min-height: 360px;
-    }
-    .content-pane { display: none; }
-    .content-pane[data-active="true"] { display: block; }
-    .content-pane h2 {
-      margin: 0 0 14px;
-      font: 10px/1 var(--pixel-font);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      border-bottom: 2px solid #000;
-      padding-bottom: 10px;
-    }
-    .content-pane p { margin: 0 0 12px; }
-    .content-pane pre { margin: 0 0 12px; font: inherit; white-space: pre-wrap; }
-    .content-pane .sig { opacity: 0.6; margin-top: 18px; text-align: right; font-style: italic; }
-    .content-pane .opt { margin-bottom: 18px; }
-    .content-pane .opt-desc { margin: 6px 0 0; opacity: 0.8; }
-
-    .rpg-btn {
-      /* Pokémon-style double border via inset shadows, color-flippable via CSS vars */
-      --bd-inner: #FFF;
-      --bd-line: #000;
-      display: inline-block;
-      margin-top: 10px;
-      padding: 12px 22px;
-      border: 3px solid #000;
-      border-radius: 14px;
-      color: #000;
-      text-decoration: none;
-      font: 10px/1 var(--pixel-font);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      background: #FFF;
-      width: 16em;
-      max-width: 100%;
-      box-sizing: border-box;
-      text-align: center;
-      box-shadow:
-        inset 0 0 0 2px var(--bd-inner),
-        inset 0 0 0 3px var(--bd-line);
-      transition: background 80ms, color 80ms, transform 80ms, box-shadow 80ms;
-    }
-    .rpg-btn:hover, .rpg-btn:focus {
-      background: #000;
-      color: #FFF;
-      outline: none;
-      --bd-inner: #000;
-      --bd-line: #FFF;
-    }
-    .rpg-btn:active { transform: translateY(2px); }
-    .rpg-btn::before {
-      content: "";
-      display: inline-block;
-      width: 1em;
-      height: 1em;
-      margin-right: 0.55em;
-      vertical-align: -0.18em;
-      background-color: currentColor;
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72'/%3E%3C/svg%3E") no-repeat center / contain;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72'/%3E%3C/svg%3E") no-repeat center / contain;
-    }
-
-    .spotify-wrap { margin-top: 6px; }
-    .spotify-wrap iframe { display: block; width: 100%; border: 0; background: transparent; }
-
-    .content-pane[data-section="about"][data-active="true"] {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 320px;
-    }
-    .content-pane[data-section="about"] .prof {
-      margin-top: auto;
-      margin-bottom: auto;
-    }
-    .prof {
-      display: block;
-      margin: 14px auto 4px;
-      width: clamp(120px, 38%, 200px);
-      height: auto;
-      border: 3px solid #000;
-      border-radius: 8px;
-      image-rendering: pixelated;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: crisp-edges;
-    }
-
-    /* Plugins pane: fill the menu-content height and distribute h2 + opts evenly. */
-    .content-pane[data-section="plugins"][data-active="true"] {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 320px;
-      justify-content: space-evenly;
-    }
-    .content-pane[data-section="plugins"] .opt { margin: 0; text-align: center; }
-
-    /* Contact pane: stretch contact-body to fill, then space-evenly the opts inside contact-list. */
-    .content-pane[data-section="contact"][data-active="true"] {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 320px;
-    }
-    .content-pane[data-section="contact"] .opt { margin: 0; }
-
-    .content-pane[data-section="contact"] .rpg-btn { width: 19em; }
-    .content-pane[data-section="contact"] .contact-body {
-      display: flex;
-      align-items: stretch;
-      gap: 12px;
-      flex: 1;
-    }
-    .content-pane[data-section="contact"] .contact-list {
-      flex: 0 0 auto;
-      width: max-content;
-      max-width: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-evenly;
-    }
-    .content-pane[data-section="contact"] .phone-wrap {
-      flex: 1 1 0;
-      min-width: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .phone {
-      display: block;
-      max-width: 100%;
-      width: clamp(120px, 100%, 220px);
-      height: auto;
-      background: transparent;
-      image-rendering: pixelated;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: crisp-edges;
-    }
-
-    @media (max-width: 600px) {
-      #menu-frame {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-      }
-      /* Mobile: menu-list collapses into a dropdown */
-      #menu-list {
-        position: relative;
-        flex-direction: column;
-        gap: 2px;
-        padding: 14px 14px 6px;
-        border-right: 0;
-        border-bottom: 0;
-        overflow: visible;
-      }
-      /* Collapsed: only the selected item shows, styled like a button */
-      #menu-list:not(.open) .menu-item:not(.selected) { display: none; }
-      #menu-list:not(.open) .menu-item.selected {
-        padding: 12px 40px 12px 30px;
-        border: 3px solid #000;
-        border-radius: 10px;
-        background: #FFF;
-      }
-      #menu-list:not(.open) .menu-item.selected::after {
-        content: "\25BE"; /* ▾ */
-        position: absolute;
-        right: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        line-height: 1;
-      }
-      /* Expanded: full dropdown panel */
-      #menu-list.open {
-        margin: 14px 14px 6px;
-        padding: 6px;
-        border: 3px solid #000;
-        border-radius: 10px;
-        background: #FFF;
-        box-shadow: 0 8px 0 0 rgba(0,0,0,0.18), 0 14px 28px rgba(0,0,0,0.18);
-        z-index: 6;
-      }
-      #menu-list.open .menu-item { padding: 12px 12px 12px 30px; border-radius: 8px; }
-      #menu-content { min-height: 220px; padding: 16px 18px; }
-      /* Dropdown already shows the section name — drop the redundant h2 on mobile. */
-      .content-pane h2 { display: none; }
-      .content-pane[data-section="contact"] .contact-body {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .content-pane[data-section="contact"] .contact-list { width: auto; }
-      .phone { width: clamp(160px, 60%, 240px); margin: 6px auto 0; }
-    }
+    .birds.deco { pointer-events: none; } /* top strip is decoration: no hover-pause */
+    @keyframes birds { to { transform: translateX(-50%); } }
+    .bird { display: inline-block; margin: 0 8px; text-align: center; font: 11px "Courier New", monospace; }
+    .bird img { border: 3px double #000; }
+    marquee { display: block; margin: 0 -8px; font: bold 18px "Courier New", monospace; background: #000; color: #FFF; }
+    /* Dividers drawn as a staff: five lines closed by a final barline. Section titles sit on top. */
+    .staff { display: flex; align-items: center; justify-content: center; height: 41px; max-width: 600px; margin: 32px auto 16px; font-size: 32px; line-height: 1;
+             border-left: 2px solid #000; border-right: 6px double #000; background: repeating-linear-gradient(#000 0 1px, transparent 1px 10px); }
   </style>
 </head>
-<body>
-<canvas id="c"></canvas>
-<div id="debug" hidden></div>
+<body link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<canvas id="roll" aria-hidden="true"></canvas>
+<center>
 
-<div id="hero">
-  <div id="brand" aria-label="brand0"><span class="flat">♭</span>rand0</div>
-  <div id="menu-trigger" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="menu-overlay">press start</div>
+<marquee scrollamount="8" behavior="alternate">𝄞 ♩ ♪ ♫ ♬ ♭ ♮ ♯ &nbsp; WELCOME 2 THE OFFICIAL HOMEPAGE OF brand0 &nbsp; ♯ ♮ ♭ ♬ ♫ ♪ ♩ 𝄇</marquee>
+
+<header class="masthead">
+<div class="logo"><span class="flat">♭</span>rand0</div>
+
+<p class="welcome">Welcome to my Website :) </p>
+</header>
+
+<p><font size="3">You are visitor number:</font><br>
+<span class="counter">000♭0♯7</span></p>
+
+<p><button id="midi" type="button">▶ MIDI player ♪</button></p>
+<div id="player" hidden>
+  <div class="np">NOW PLAYING : Maurice Ravel - Le Tombeau de Couperin, Suite (1917-1919) Prélude</div>
+  <canvas id="pianoroll" aria-hidden="true"></canvas>
 </div>
 
-<div id="menu-overlay" data-open="false" aria-hidden="true">
-  <div id="menu-frame" role="dialog" aria-modal="true" aria-label="brand0 menu">
-    <div id="menu-list" role="menu" aria-label="Sections">
-      <div class="menu-item selected" data-section="about" role="menuitem" tabindex="-1">about</div>
-      <div class="menu-item" data-section="music" role="menuitem" tabindex="-1">music</div>
-      <div class="menu-item" data-section="plugins" role="menuitem" tabindex="-1">plugins</div>
-      <div class="menu-item" data-section="contact" role="menuitem" tabindex="-1">contact</div>
-      <div class="menu-item" data-section="close" role="menuitem" tabindex="-1">close</div>
-    </div>
+<!-- ======== ABOUT ======== -->
+<h2 class="staff"><span><span class="spin">𝄞</span> ABOUT ME <span class="spin">𝄢</span></span></h2>
+<table class="box" border="4" cellpadding="10">
+  <tr>
+    <td class="prof-cell"><img class="prof" src="resources/prof_480.jpg" alt="portrait of brandon" /></td>
+    <td><font face="Courier New" size="3">hi i'm brandon. i'm a music producer who dabbles in audio plugin development. i also enjoy <b><u>birdwatching</u></b> and <b><u>movies</u></b>. currently based in <b>nyc</b>.</font></td>
+  </tr>
+</table>
 
-    <div id="menu-content">
-      <div class="content-pane" data-section="about" data-active="true">
-        <h2>* about</h2>
-        <p>hi i'm brandon. i'm a music producer who dabbles in audio plugin development. i also enjoy birdwatching and movies. currently based in nyc.</p>
-        <img class="prof" src="resources/prof.png" alt="portrait of brandon" />
-      </div>
+<!-- ======== MUSIC ======== -->
+<h2 class="staff"><span><span class="bounce">♫</span> MY MUSIC <span class="bounce">♫</span></span></h2>
+<p><font size="2">music i've contributed to. press play!!!</font></p>
+<iframe src="https://open.spotify.com/embed/playlist/0TuQrG6ttGKuI6cAWvabNj?utm_source=generator&amp;theme=0"
+        width="100%" height="352" style="max-width:560px; border:0" loading="lazy"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
 
-      <div class="content-pane" data-section="plugins">
-        <h2>* plugins</h2>
-        <div class="opt">
-          <a class="rpg-btn" href="https://www.birdsong.nyc" target="_blank" rel="noopener">birdsong</a>
-          <p class="opt-desc">new company with nathan blair</p>
-        </div>
-        <div class="opt">
-          <a class="rpg-btn" href="https://brand0.gumroad.com/" target="_blank" rel="noopener">gumroad</a>
-          <p class="opt-desc">get gooper here</p>
-        </div>
-        <div class="opt">
-          <a class="rpg-btn" href="https://www.flickswitchaudio.com/product/liminal" target="_blank" rel="noopener">liminal</a>
-          <p class="opt-desc">built this cool device for FlickSwitch Audio</p>
-        </div>
-      </div>
-
-      <div class="content-pane" data-section="music">
-        <h2>* music</h2>
-        <p>music i've contributed to. press play.</p>
-        <div class="spotify-wrap">
-          <iframe id="spotify-embed"
-                  src="https://open.spotify.com/embed/playlist/0TuQrG6ttGKuI6cAWvabNj?utm_source=generator&amp;theme=0"
-                  width="100%" height="352"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
-        </div>
-      </div>
-
-      <div class="content-pane" data-section="contact">
-        <h2>* contact</h2>
-        <div class="contact-body">
-          <div class="contact-list">
-            <div class="opt">
-              <a class="rpg-btn" href="mailto:hello@brand0.world">email</a>
-              <p class="opt-desc">hello@brand0.world</p>
-            </div>
-            <div class="opt">
-              <a class="rpg-btn" href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a>
-              <p class="opt-desc">@brand0music</p>
-            </div>
-            <div class="opt">
-              <a class="rpg-btn" href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a>
-              <p class="opt-desc">@brand0m</p>
-            </div>
-          </div>
-          <div class="phone-wrap">
-            <img class="phone" src="resources/phone.png" alt="" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- ======== PLUGINS ======== -->
+<h2 class="staff"><span>♮ PLUGINS ♮</span></h2>
+<div class="huge">
+  <p><a href="https://www.birdsong.nyc" target="_blank" rel="noopener">&gt;&gt; BIRDSONG &lt;&lt;</a><b class="blink new">NEW!</b><br>
+  <font size="2">new company with nathan blair</font></p>
+  <p><a href="https://brand0.gumroad.com/" target="_blank" rel="noopener">&gt;&gt; GUMROAD &lt;&lt;</a><br>
+  <font size="2">get gooper here</font></p>
+  <p><a href="https://www.flickswitchaudio.com/product/liminal" target="_blank" rel="noopener">&gt;&gt; LIMINAL &lt;&lt;</a><br>
+  <font size="2">built this cool device for FlickSwitch Audio</font></p>
 </div>
+
+<!-- ======== CONTACT ======== -->
+<h2 class="staff"><span>𝄪 CONTACT 𝄪</span></h2>
+<div class="huge">
+  <p><a href="mailto:hello@brand0.world?subject=i%20saw%20ur%20website">✉ E-MAIL ME!!!</a></p>
+  <p class="pop" id="ig"><a href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a><span class="birds popup"><span class="bird-track">
+    <span class="bird"><a href="https://www.instagram.com/p/DeR_iFjBIQb/" target="_blank" rel="noopener"><img src="resources/insta/DeR_iFjBIQb.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DdZb448lcwT/" target="_blank" rel="noopener"><img src="resources/insta/DdZb448lcwT.jpg" width="87" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DcbrfJdpD7I/" target="_blank" rel="noopener"><img src="resources/insta/DcbrfJdpD7I.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/Da2_XkTOvug/" target="_blank" rel="noopener"><img src="resources/insta/Da2_XkTOvug.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DZXgyu7scs3/" target="_blank" rel="noopener"><img src="resources/insta/DZXgyu7scs3.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DZNSx5oxGZK/" target="_blank" rel="noopener"><img src="resources/insta/DZNSx5oxGZK.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DYkwsHWlRpn/" target="_blank" rel="noopener"><img src="resources/insta/DYkwsHWlRpn.jpg" width="90" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DX_00K0mmp1/" target="_blank" rel="noopener"><img src="resources/insta/DX_00K0mmp1.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DX27LfEDn_v/" target="_blank" rel="noopener"><img src="resources/insta/DX27LfEDn_v.jpg" width="85" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DXzRob8jZv-/" target="_blank" rel="noopener"><img src="resources/insta/DXzRob8jZv-.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/reel/DXwjml9tJZU/" target="_blank" rel="noopener"><img src="resources/insta/DXwjml9tJZU.jpg" width="64" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/reel/DXwb5S5Fy-a/" target="_blank" rel="noopener"><img src="resources/insta/DXwb5S5Fy-a.jpg" width="151" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DVRXBI8Dw1y/" target="_blank" rel="noopener"><img src="resources/insta/DVRXBI8Dw1y.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DSfgZkND8bO/" target="_blank" rel="noopener"><img src="resources/insta/DSfgZkND8bO.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DRU23lMjfxq/" target="_blank" rel="noopener"><img src="resources/insta/DRU23lMjfxq.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DPY_0I4DT3z/" target="_blank" rel="noopener"><img src="resources/insta/DPY_0I4DT3z.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DPUlT9mj-8E/" target="_blank" rel="noopener"><img src="resources/insta/DPUlT9mj-8E.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DOqdQtxDd7p/" target="_blank" rel="noopener"><img src="resources/insta/DOqdQtxDd7p.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DNWQyOLSwUm/" target="_blank" rel="noopener"><img src="resources/insta/DNWQyOLSwUm.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DL0liUbSwgp/" target="_blank" rel="noopener"><img src="resources/insta/DL0liUbSwgp.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DK793XNy00w/" target="_blank" rel="noopener"><img src="resources/insta/DK793XNy00w.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DKPbZN3tEgP/" target="_blank" rel="noopener"><img src="resources/insta/DKPbZN3tEgP.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/p/DH_6Y2oyYJe/" target="_blank" rel="noopener"><img src="resources/insta/DH_6Y2oyYJe.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+    <span class="bird"><a href="https://www.instagram.com/reel/DHb2zHPS656/" target="_blank" rel="noopener"><img src="resources/insta/DHb2zHPS656.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
+  </span></span></p>
+  <p class="pop" id="lb"><a href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a><span class="birds popup"><span class="bird-track"></span></span></p>
+  <p class="pop" id="eb"><a href="https://ebird.org/profile/NTc5NTE5Mw" target="_blank" rel="noopener">ebird</a><span class="birds popup"><span class="bird-track">
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-rumped_warbler_singing_(41612)_(cropped).jpg" target="_blank" rel="noopener" title="Yellow-rumped Warbler — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/yellow-rumped-warbler.jpg" width="126" height="100" loading="lazy" alt="Yellow-rumped Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Song_sparrow_in_Prospect_Park_(93031).jpg" target="_blank" rel="noopener" title="Song Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/song-sparrow.jpg" width="143" height="100" loading="lazy" alt="Song Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Zonotrichia_albicollis_CT1.jpg" target="_blank" rel="noopener" title="White-throated Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 3.0)"><img src="resources/birds/white-throated-sparrow.jpg" width="149" height="100" loading="lazy" alt="White-throated Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Junco_hyemalis_hyemalis_CT1_(cropped).jpg" target="_blank" rel="noopener" title="Dark-eyed Junco — seen 20 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 3.0)"><img src="resources/birds/dark-eyed-junco.jpg" width="149" height="100" loading="lazy" alt="Dark-eyed Junco"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Spizella-passerina-015_edit.jpg" target="_blank" rel="noopener" title="Chipping Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Mdf, Edited by Fir0002, CC BY-SA 3.0)"><img src="resources/birds/chipping-sparrow.jpg" width="149" height="100" loading="lazy" alt="Chipping Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:House_sparrow_male_in_Prospect_Park_(53532).jpg" target="_blank" rel="noopener" title="House Sparrow — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/house-sparrow.jpg" width="129" height="100" loading="lazy" alt="House Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Hermit_thrush_(10787).jpg" target="_blank" rel="noopener" title="Hermit Thrush — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/hermit-thrush.jpg" width="120" height="100" loading="lazy" alt="Hermit Thrush"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Common_starling_(Sturnus_vulgaris)_breeding_male_Marken.jpg" target="_blank" rel="noopener" title="European Starling — seen 20 Oct 2026 @ McGolrick Park (photo: Charles J. Sharp, CC BY-SA 4.0)"><img src="resources/birds/european-starling.jpg" width="149" height="100" loading="lazy" alt="European Starling"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Regulus_calendula_MP_3.jpg" target="_blank" rel="noopener" title="Ruby-crowned Kinglet — seen 20 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 4.0)"><img src="resources/birds/ruby-crowned-kinglet.jpg" width="100" height="100" loading="lazy" alt="Ruby-crowned Kinglet"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Blue_jay_in_PP_(30960).jpg" target="_blank" rel="noopener" title="Blue Jay — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/blue-jay.jpg" width="73" height="100" loading="lazy" alt="Blue Jay"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Red-bellied_Woodpecker-27527.jpg" target="_blank" rel="noopener" title="Red-bellied Woodpecker — seen 20 Oct 2026 @ McGolrick Park (photo: Ken Thomas, Public domain)"><img src="resources/birds/red-bellied-woodpecker.jpg" width="62" height="100" loading="lazy" alt="Red-bellied Woodpecker"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Accipiter_cooperii_m_Sam_Smith_Toronto3.jpg" target="_blank" rel="noopener" title="Cooper&#x27;s Hawk — seen 20 Oct 2026 @ McGolrick Park (photo: Mykola Swarnyk, CC BY-SA 3.0)"><img src="resources/birds/cooper-s-hawk.jpg" width="132" height="100" loading="lazy" alt="Cooper&#x27;s Hawk"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Mourning_dove_perched_(61179).jpg" target="_blank" rel="noopener" title="Mourning Dove — seen 20 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/mourning-dove.jpg" width="132" height="100" loading="lazy" alt="Mourning Dove"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Columba_livia_(Rock_Dove,_wild),_Duncansby_Head,_Caithness,_Scotland_1.jpg" target="_blank" rel="noopener" title="Rock Pigeon — seen 20 Oct 2026 @ McGolrick Park (photo: william_stephens, CC BY 4.0)"><img src="resources/birds/rock-pigeon.jpg" width="133" height="100" loading="lazy" alt="Rock Pigeon"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:American_robin_(71307).jpg" target="_blank" rel="noopener" title="American Robin — seen 19 Oct 2026 @ Cooper Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/american-robin.jpg" width="133" height="100" loading="lazy" alt="American Robin"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Corvus-brachyrhynchos-001.jpg" target="_blank" rel="noopener" title="American Crow — seen 19 Oct 2026 @ Cooper Park (photo: unknown, CC BY-SA 3.0)"><img src="resources/birds/american-crow.jpg" width="100" height="100" loading="lazy" alt="American Crow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Pine_warbler_(90070).jpg" target="_blank" rel="noopener" title="Pine Warbler — seen 19 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/pine-warbler.jpg" width="140" height="100" loading="lazy" alt="Pine Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dendroica_striata_MN.jpg" target="_blank" rel="noopener" title="Blackpoll Warbler — seen 19 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 3.0)"><img src="resources/birds/blackpoll-warbler.jpg" width="145" height="100" loading="lazy" alt="Blackpoll Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Mockingbird_in_Bay_Ridge_(85082).jpg" target="_blank" rel="noopener" title="Northern Mockingbird — seen 19 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/northern-mockingbird.jpg" width="140" height="100" loading="lazy" alt="Northern Mockingbird"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Golden-Crowned_Kinglet_EBFNWR.jpg" target="_blank" rel="noopener" title="Golden-crowned Kinglet — seen 19 Oct 2026 @ McGolrick Park (photo: Chuck Homler, Focus On Wildlife, CC BY-SA 4.0)"><img src="resources/birds/golden-crowned-kinglet.jpg" width="100" height="100" loading="lazy" alt="Golden-crowned Kinglet"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Blue-headed_Vireo_(8088895251).jpg" target="_blank" rel="noopener" title="Blue-headed Vireo — seen 19 Oct 2026 @ McGolrick Park (photo: Andy Reago &amp; Chrissy McClarren, CC BY 2.0)"><img src="resources/birds/blue-headed-vireo.jpg" width="177" height="100" loading="lazy" alt="Blue-headed Vireo"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Sayornis_phoebe_-Owen_Conservation_Park,_Madison,_Wisconsin,_USA-8.jpg" target="_blank" rel="noopener" title="Eastern Phoebe — seen 19 Oct 2026 @ McGolrick Park (photo: John Benson, CC BY 2.0)"><img src="resources/birds/eastern-phoebe.jpg" width="127" height="100" loading="lazy" alt="Eastern Phoebe"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Northern_yellow-shafted_flicker_male_(33737)_(cropped).jpg" target="_blank" rel="noopener" title="Northern Flicker — seen 19 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/northern-flicker.jpg" width="100" height="100" loading="lazy" alt="Northern Flicker"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dryobates_pubescens_UL_03.jpg" target="_blank" rel="noopener" title="Downy Woodpecker — seen 19 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 4.0)"><img src="resources/birds/downy-woodpecker.jpg" width="100" height="100" loading="lazy" alt="Downy Woodpecker"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-bellied_sapsucker_in_CP_(40484).jpg" target="_blank" rel="noopener" title="Yellow-bellied Sapsucker — seen 19 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/yellow-bellied-sapsucker.jpg" width="122" height="100" loading="lazy" alt="Yellow-bellied Sapsucker"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Phalacrocorax-auritus-007.jpg" target="_blank" rel="noopener" title="Double-crested Cormorant — seen 19 Oct 2026 @ McGolrick Park (photo: Mdf, CC BY-SA 3.0)"><img src="resources/birds/double-crested-cormorant.jpg" width="100" height="100" loading="lazy" alt="Double-crested Cormorant"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Common_yellowthroat_in_PP_(14155).jpg" target="_blank" rel="noopener" title="Common Yellowthroat — seen 17 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/common-yellowthroat.jpg" width="129" height="100" loading="lazy" alt="Common Yellowthroat"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:20241004_eastern_towhee_pleasant_valley_PD207764.jpg" target="_blank" rel="noopener" title="Eastern Towhee — seen 17 Oct 2026 @ McGolrick Park (photo: Paul Danese, CC BY-SA 4.0)"><img src="resources/birds/eastern-towhee.jpg" width="100" height="100" loading="lazy" alt="Eastern Towhee"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Gray_catbird_(85315).jpg" target="_blank" rel="noopener" title="Gray Catbird — seen 17 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/gray-catbird.jpg" width="133" height="100" loading="lazy" alt="Gray Catbird"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:20250926_house_wren_point_meadows_PD201015.jpg" target="_blank" rel="noopener" title="Northern House Wren — seen 17 Oct 2026 @ McGolrick Park (photo: Paul Danese, CC BY-SA 4.0)"><img src="resources/birds/northern-house-wren.jpg" width="100" height="100" loading="lazy" alt="Northern House Wren"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Red-tailed_Hawk_(45812546121).jpg" target="_blank" rel="noopener" title="Red-tailed Hawk — seen 17 Oct 2026 @ McGolrick Park (photo: Becky Matsubara from El Sobrante, California, CC BY 2.0)"><img src="resources/birds/red-tailed-hawk.jpg" width="149" height="100" loading="lazy" alt="Red-tailed Hawk"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Black-and-white_warbler_in_Prospect_Park_(06193)2.jpg" target="_blank" rel="noopener" title="Black-and-white Warbler — seen 16 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/black-and-white-warbler.jpg" width="136" height="100" loading="lazy" alt="Black-and-white Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Palm_warbler_(41597).jpg" target="_blank" rel="noopener" title="Palm Warbler — seen 15 Oct 2026 @ Cooper Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/palm-warbler.jpg" width="133" height="100" loading="lazy" alt="Palm Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:American_Kestrel_(53468230687).jpg" target="_blank" rel="noopener" title="American Kestrel — seen 15 Oct 2026 @ Cooper Park (photo: Channel City Camera Club from Santa Barbara, US, CC BY 2.0)"><img src="resources/birds/american-kestrel.jpg" width="80" height="100" loading="lazy" alt="American Kestrel"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:American_redstart_in_JBWR_(24754).jpg" target="_blank" rel="noopener" title="American Redstart — seen 15 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/american-redstart.jpg" width="141" height="100" loading="lazy" alt="American Redstart"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Ovenbird_(90497).jpg" target="_blank" rel="noopener" title="Ovenbird — seen 15 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/ovenbird.jpg" width="136" height="100" loading="lazy" alt="Ovenbird"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Common_grackle_in_PP_(36732).jpg" target="_blank" rel="noopener" title="Common Grackle — seen 15 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/common-grackle.jpg" width="133" height="100" loading="lazy" alt="Common Grackle"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Field_sparrow_in_CP_(41484)_(cropped).jpg" target="_blank" rel="noopener" title="Field Sparrow — seen 15 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/field-sparrow.jpg" width="122" height="100" loading="lazy" alt="Field Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:House_finch_(33688)2.jpg" target="_blank" rel="noopener" title="House Finch — seen 15 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/house-finch.jpg" width="127" height="100" loading="lazy" alt="House Finch"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Cedar_waxwing_in_pokeweed_(10132).jpg" target="_blank" rel="noopener" title="Cedar Waxwing — seen 15 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/cedar-waxwing.jpg" width="131" height="100" loading="lazy" alt="Cedar Waxwing"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Brown_creeper_(Certhia_americana)_in_Center_City,_Philadelphia,_PA,_USA.png" target="_blank" rel="noopener" title="Brown Creeper — seen 15 Oct 2026 @ McGolrick Park (photo: Chuck Homler, Focus On Wildlife, CC BY-SA 4.0)"><img src="resources/birds/brown-creeper.jpg" width="66" height="100" loading="lazy" alt="Brown Creeper"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Corvus_corax_clarionensis,_Point_Reyes_National_Seashore.jpg" target="_blank" rel="noopener" title="Common Raven — seen 14 Oct 2026 @ Cooper Park (photo: Frank Schulenburg, CC BY-SA 4.0)"><img src="resources/birds/common-raven.jpg" width="149" height="100" loading="lazy" alt="Common Raven"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Herring_Gull_Very_Close.jpg" target="_blank" rel="noopener" title="American Herring Gull — seen 14 Oct 2026 @ Cooper Park (photo: Chuck Homler d/b/a Focus On Wildlife, CC BY-SA 4.0)"><img src="resources/birds/american-herring-gull.jpg" width="149" height="100" loading="lazy" alt="American Herring Gull"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Brown_thrasher_in_CP_(02147).jpg" target="_blank" rel="noopener" title="Brown Thrasher — seen 14 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/brown-thrasher.jpg" width="149" height="100" loading="lazy" alt="Brown Thrasher"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Eastern_wood_pewee_(71095).jpg" target="_blank" rel="noopener" title="Eastern Wood-Pewee — seen 14 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/eastern-wood-pewee.jpg" width="138" height="100" loading="lazy" alt="Eastern Wood-Pewee"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Vireo_olivaceus_-Madison_-Wisconsin_-USA-8.jpg" target="_blank" rel="noopener" title="Red-eyed Vireo — seen 13 Oct 2026 @ Cooper Park (photo: John Benson from Madison WI, CC BY 2.0)"><img src="resources/birds/red-eyed-vireo.jpg" width="80" height="100" loading="lazy" alt="Red-eyed Vireo"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Scarlet_tanager_in_GWC_(50867).jpg" target="_blank" rel="noopener" title="Scarlet Tanager — seen 13 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/scarlet-tanager.jpg" width="136" height="100" loading="lazy" alt="Scarlet Tanager"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Melospiza_georgiana_MP_01,_crop.jpg" target="_blank" rel="noopener" title="Swamp Sparrow — seen 13 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 4.0)"><img src="resources/birds/swamp-sparrow.jpg" width="75" height="100" loading="lazy" alt="Swamp Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Eastern_kingbird_on_the_hunt_(56948).jpg" target="_blank" rel="noopener" title="Eastern Kingbird — seen 13 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/eastern-kingbird.jpg" width="133" height="100" loading="lazy" alt="Eastern Kingbird"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Black-throated_green_warbler_in_PP_(14050).jpg" target="_blank" rel="noopener" title="Black-throated Green Warbler — seen 12 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/black-throated-green-warbler.jpg" width="138" height="100" loading="lazy" alt="Black-throated Green Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:2014-05-21_Northern_Parula,_Shenandoah_NP,_Virginia_001200_07.jpg" target="_blank" rel="noopener" title="Northern Parula — seen 12 Oct 2026 @ McGolrick Park (photo: ShenandoahNPS, Public domain)"><img src="resources/birds/northern-parula.jpg" width="118" height="100" loading="lazy" alt="Northern Parula"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Magnolia_Warbler_-_May_17,_2025.jpg" target="_blank" rel="noopener" title="Magnolia Warbler — seen 10 Oct 2026 @ Cooper Park (photo: AMMuench, CC BY 4.0)"><img src="resources/birds/magnolia-warbler.jpg" width="149" height="100" loading="lazy" alt="Magnolia Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Brown-headed_cowbird_male_(71126).jpg" target="_blank" rel="noopener" title="Brown-headed Cowbird — seen 10 Oct 2026 @ Cooper Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/brown-headed-cowbird.jpg" width="135" height="100" loading="lazy" alt="Brown-headed Cowbird"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Canada_goose_on_Seedskadee_NWR_(27826185489).jpg" target="_blank" rel="noopener" title="Canada Goose — seen 10 Oct 2026 @ McGolrick Park (photo: USFWS Mountain-Prairie, Public domain)"><img src="resources/birds/canada-goose.jpg" width="131" height="100" loading="lazy" alt="Canada Goose"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Black-throated_blue_warblers_(7140435321).jpg" target="_blank" rel="noopener" title="Black-throated Blue Warbler — seen 09 Oct 2026 @ McGolrick Park (photo: cuatrok77, CC BY 2.0)"><img src="resources/birds/black-throated-blue-warbler.jpg" width="148" height="100" loading="lazy" alt="Black-throated Blue Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-billed_cuckoo_(42690).jpg" target="_blank" rel="noopener" title="Yellow-billed Cuckoo — seen 08 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/yellow-billed-cuckoo.jpg" width="73" height="100" loading="lazy" alt="Yellow-billed Cuckoo"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Setophaga_tigrina_Male.jpg" target="_blank" rel="noopener" title="Cape May Warbler — seen 05 Oct 2026 @ Cooper Park (photo: Will123w, CC BY 4.0)"><img src="resources/birds/cape-may-warbler.jpg" width="149" height="100" loading="lazy" alt="Cape May Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Chaetura_pelagica,_by_Lake_Erie,_Cleveland,_Ohio,_USA_339593191.jpg" target="_blank" rel="noopener" title="Chimney Swift — seen 05 Oct 2026 @ McGolrick Park (photo: Adam Jackson, CC0)"><img src="resources/birds/chimney-swift.jpg" width="149" height="100" loading="lazy" alt="Chimney Swift"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Edit_white-eyed_vireo_blandair_4.20.20_DSC_0224.jpg" target="_blank" rel="noopener" title="White-eyed Vireo — seen 03 Oct 2026 @ McGolrick Park (photo: lwolfartist, CC BY 2.0)"><img src="resources/birds/white-eyed-vireo.jpg" width="125" height="100" loading="lazy" alt="White-eyed Vireo"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dendroica-castanea-001.jpg" target="_blank" rel="noopener" title="Bay-breasted Warbler — seen 01 Oct 2026 @ McGolrick Park (photo: Mdf, CC BY-SA 3.0)"><img src="resources/birds/bay-breasted-warbler.jpg" width="149" height="100" loading="lazy" alt="Bay-breasted Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Fish_crow_in_Red_Hook_(42712).jpg" target="_blank" rel="noopener" title="Fish Crow — seen 01 Oct 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/fish-crow.jpg" width="132" height="100" loading="lazy" alt="Fish Crow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Worm-eating_Warbler.jpg" target="_blank" rel="noopener" title="Worm-eating Warbler — seen 26 Sep 2026 @ Cooper Park (photo: http://www.birdphotos.com, CC BY 3.0)"><img src="resources/birds/worm-eating-warbler.jpg" width="127" height="100" loading="lazy" alt="Worm-eating Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Carduelis_tristis_-Michigan,_USA_-male-8.jpg" target="_blank" rel="noopener" title="American Goldfinch — seen 25 Sep 2026 @ Cooper Park (photo: Rodney Campbell, CC BY 2.0)"><img src="resources/birds/american-goldfinch.jpg" width="123" height="100" loading="lazy" alt="American Goldfinch"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Merlin_in_Prospect_Park_(63386).jpg" target="_blank" rel="noopener" title="Merlin — seen 25 Sep 2026 @ Cooper Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/merlin.jpg" width="137" height="100" loading="lazy" alt="Merlin"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Leucophaeus_atricilla_Caye_Caulker_04.JPG" target="_blank" rel="noopener" title="Laughing Gull — seen 25 Sep 2026 @ Cooper Park (photo: Cephas, CC BY-SA 4.0)"><img src="resources/birds/laughing-gull.jpg" width="149" height="100" loading="lazy" alt="Laughing Gull"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Catharus_ustulatus_Clbrg_01.jpg" target="_blank" rel="noopener" title="Swainson&#x27;s Thrush — seen 25 Sep 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 4.0)"><img src="resources/birds/swainson-s-thrush.jpg" width="125" height="100" loading="lazy" alt="Swainson&#x27;s Thrush"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Veery_in_CP_(43277).jpg" target="_blank" rel="noopener" title="Veery — seen 25 Sep 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/veery.jpg" width="120" height="100" loading="lazy" alt="Veery"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Larus-delawarensis-021.jpg" target="_blank" rel="noopener" title="Ring-billed Gull — seen 24 Sep 2026 @ Cooper Park (photo: User:Mdf, CC BY-SA 3.0)"><img src="resources/birds/ring-billed-gull.jpg" width="149" height="100" loading="lazy" alt="Ring-billed Gull"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-bellied_Flycatcher_-_Empidonax_flaviventris.jpg" target="_blank" rel="noopener" title="Yellow-bellied Flycatcher — seen 24 Sep 2026 @ Cooper Park (photo: Dominic Sherony, CC BY-SA 2.0)"><img src="resources/birds/yellow-bellied-flycatcher.jpg" width="149" height="100" loading="lazy" alt="Yellow-bellied Flycatcher"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Lincoln%27s_sparrow_(14367).jpg" target="_blank" rel="noopener" title="Lincoln&#x27;s Sparrow — seen 20 Sep 2026 @ cedar lakes leanto 1 (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/lincoln-s-sparrow.jpg" width="132" height="100" loading="lazy" alt="Lincoln&#x27;s Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:SolitarySandpiper.jpg" target="_blank" rel="noopener" title="Solitary Sandpiper — seen 20 Sep 2026 @ cedar lakes leanto 1 (photo: Polinova, CC BY-SA 4.0)"><img src="resources/birds/solitary-sandpiper.jpg" width="140" height="100" loading="lazy" alt="Solitary Sandpiper"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Gavia_immer_-Minocqua,_Wisconsin,_USA_-swimming-8.jpg" target="_blank" rel="noopener" title="Common Loon — seen 19 Sep 2026 @ pillsbury leanto (photo: John Picken from Chicago, USA, CC BY 2.0)"><img src="resources/birds/common-loon.jpg" width="148" height="100" loading="lazy" alt="Common Loon"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Archilochus_colubris_-flying_-male-8.jpg" target="_blank" rel="noopener" title="Ruby-throated Hummingbird — seen 17 Sep 2026 @ McGolrick Park (photo: jeffreyw, CC BY 2.0)"><img src="resources/birds/ruby-throated-hummingbird.jpg" width="91" height="100" loading="lazy" alt="Ruby-throated Hummingbird"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:RosebreastedGrosbeak08.jpg" target="_blank" rel="noopener" title="Rose-breasted Grosbeak — seen 15 Sep 2026 @ McGolrick Park (photo: John Harrison at https://www.flickr.com/photos/15512543@N04/, CC BY-SA 3.0)"><img src="resources/birds/rose-breasted-grosbeak.jpg" width="153" height="100" loading="lazy" alt="Rose-breasted Grosbeak"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dendroica-pensylvanica-003.jpg" target="_blank" rel="noopener" title="Chestnut-sided Warbler — seen 15 Sep 2026 @ McGolrick Park (photo: Mdf, CC BY-SA 3.0)"><img src="resources/birds/chestnut-sided-warbler.jpg" width="132" height="100" loading="lazy" alt="Chestnut-sided Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow_warbler_(82905).jpg" target="_blank" rel="noopener" title="Northern Yellow Warbler — seen 15 Sep 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/northern-yellow-warbler.jpg" width="133" height="100" loading="lazy" alt="Northern Yellow Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Leiothlypis_peregrina_Malus_sp_JRVdH_01.jpg" target="_blank" rel="noopener" title="Tennessee Warbler — seen 15 Sep 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 4.0)"><img src="resources/birds/tennessee-warbler.jpg" width="125" height="100" loading="lazy" alt="Tennessee Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Blue-gray_gnatcatcher_in_PP_(72317).jpg" target="_blank" rel="noopener" title="Blue-gray Gnatcatcher — seen 15 Sep 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/blue-gray-gnatcatcher.jpg" width="136" height="100" loading="lazy" alt="Blue-gray Gnatcatcher"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Male_northern_cardinal_in_Central_Park_(52612).jpg" target="_blank" rel="noopener" title="Northern Cardinal — seen 01 Jun 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/northern-cardinal.jpg" width="76" height="100" loading="lazy" alt="Northern Cardinal"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:GreatCrestedFlycatcher.jpg" target="_blank" rel="noopener" title="Great Crested Flycatcher — seen 01 Jun 2026 @ McGolrick Park (photo: Polinova, CC BY-SA 4.0)"><img src="resources/birds/great-crested-flycatcher.jpg" width="125" height="100" loading="lazy" alt="Great Crested Flycatcher"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Empidonax_virescens_99136793_(cropped).jpg" target="_blank" rel="noopener" title="Acadian Flycatcher — seen 01 Jun 2026 @ McGolrick Park (photo: Aitor, CC BY 4.0)"><img src="resources/birds/acadian-flycatcher.jpg" width="108" height="100" loading="lazy" alt="Acadian Flycatcher"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:GreatBlueHeronInARiver.jpg" target="_blank" rel="noopener" title="Great Blue Heron — seen 01 Jun 2026 @ McGolrick Park (photo: DallasPenner, CC BY-SA 4.0)"><img src="resources/birds/great-blue-heron.jpg" width="149" height="100" loading="lazy" alt="Great Blue Heron"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:PacificLoon24.jpg" target="_blank" rel="noopener" title="Pacific Loon — seen 19 May 2026 @ off the shore of doran (photo: Tim Bowman, USFWS Originally uploaded by User Kingturtle on en.wikipedia, Public domain)"><img src="resources/birds/pacific-loon.jpg" width="158" height="100" loading="lazy" alt="Pacific Loon"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Western_Grebe_swimming.jpg" target="_blank" rel="noopener" title="Western Grebe — seen 19 May 2026 @ off the shore of doran (photo: dominic sherony, CC BY-SA 2.0)"><img src="resources/birds/western-grebe.jpg" width="132" height="100" loading="lazy" alt="Western Grebe"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Pelagic_Cormorant_flying.jpg" target="_blank" rel="noopener" title="Pelagic Cormorant — seen 19 May 2026 @ swimming off dora (photo: Mike Baird from Morro Bay, USA, CC BY 2.0)"><img src="resources/birds/pelagic-cormorant.jpg" width="149" height="100" loading="lazy" alt="Pelagic Cormorant"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Sterna-caspia-010.jpg" target="_blank" rel="noopener" title="Caspian Tern — seen 19 May 2026 @ beach flyover (photo: Mdf, CC BY-SA 3.0)"><img src="resources/birds/caspian-tern.jpg" width="149" height="100" loading="lazy" alt="Caspian Tern"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:BushtitMale.jpg" target="_blank" rel="noopener" title="Bushtit — seen 19 May 2026 @ beach (photo: Polinova, CC BY-SA 4.0)"><img src="resources/birds/bushtit.jpg" width="125" height="100" loading="lazy" alt="Bushtit"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Brown_pelican_in_flight_(Bodega_Bay).jpg" target="_blank" rel="noopener" title="Brown Pelican — seen 19 May 2026 @ beach (photo: Frank Schulenburg, CC BY-SA 4.0)"><img src="resources/birds/brown-pelican.jpg" width="139" height="100" loading="lazy" alt="Brown Pelican"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Larus_occidentalis_(Western_Gull),_Point_Lobos,_CA,_US_-_May_2013.jpg" target="_blank" rel="noopener" title="Western Gull — seen 19 May 2026 @ beach (photo: Diliff, CC BY-SA 3.0)"><img src="resources/birds/western-gull.jpg" width="136" height="100" loading="lazy" alt="Western Gull"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Surf_Scoter_Drake_LBI.png" target="_blank" rel="noopener" title="Surf Scoter — seen 19 May 2026 @ beach (photo: Chuck Homler, Focus On Wildlife, CC BY-SA 4.0)"><img src="resources/birds/surf-scoter.jpg" width="149" height="100" loading="lazy" alt="Surf Scoter"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Pigeon_guillemot_(Cepphus_columba_adiantus)_hock_sitting_Tofino.jpg" target="_blank" rel="noopener" title="Pigeon Guillemot — seen 19 May 2026 @ beach (photo: Charles J. Sharp, CC BY-SA 4.0)"><img src="resources/birds/pigeon-guillemot.jpg" width="149" height="100" loading="lazy" alt="Pigeon Guillemot"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Indigo_Bunting_by_Dan_Pancamo_4.jpg" target="_blank" rel="noopener" title="Indigo Bunting — seen 04 May 2026 @ McGolrick Park (photo: Dan Pancamo, CC BY-SA 2.0)"><img src="resources/birds/indigo-bunting.jpg" width="133" height="100" loading="lazy" alt="Indigo Bunting"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Prairie_Warbler_in_Central_Park,_New_York_City.jpg" target="_blank" rel="noopener" title="Prairie Warbler — seen 04 May 2026 @ McGolrick Park (photo: Mikeschafer.wildlife, CC BY 4.0)"><img src="resources/birds/prairie-warbler.jpg" width="125" height="100" loading="lazy" alt="Prairie Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Hooded_Warbler.jpg" target="_blank" rel="noopener" title="Hooded Warbler — seen 04 May 2026 @ McGolrick Park (photo: Ninahale, CC BY-SA 4.0)"><img src="resources/birds/hooded-warbler.jpg" width="133" height="100" loading="lazy" alt="Hooded Warbler"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Baltimore_Oriole-_dorsum.jpg" target="_blank" rel="noopener" title="Baltimore Oriole — seen 04 May 2026 @ McGolrick Park (photo: TonyCastro, CC BY-SA 4.0)"><img src="resources/birds/baltimore-oriole.jpg" width="112" height="100" loading="lazy" alt="Baltimore Oriole"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Orchard_Oriole_by_Dan_Pancamo_1.jpg" target="_blank" rel="noopener" title="Orchard Oriole — seen 04 May 2026 @ McGolrick Park (photo: Dan Pancamo, CC BY-SA 2.0)"><img src="resources/birds/orchard-oriole.jpg" width="75" height="100" loading="lazy" alt="Orchard Oriole"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Passerculus_sandwichensis_crop.jpg" target="_blank" rel="noopener" title="Savannah Sparrow — seen 04 May 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 3.0)"><img src="resources/birds/savannah-sparrow.jpg" width="115" height="100" loading="lazy" alt="Savannah Sparrow"></a></span>
+    <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Warbling_vireo_(82141).jpg" target="_blank" rel="noopener" title="Eastern Warbling Vireo — seen 04 May 2026 @ McGolrick Park (photo: Rhododendrites, CC BY-SA 4.0)"><img src="resources/birds/eastern-warbling-vireo.jpg" width="131" height="100" loading="lazy" alt="Eastern Warbling Vireo"></a></span>
+  </span></span></p>
+</div>
+
+<h2 class="staff"><span>𝄐 THE END 𝄐</span></h2>
+
+<p><font size="2" face="Arial"><a href="#">𝄆 back 2 top 𝄇</a></font></p>
+
+<!-- Birds of McGolrick Park (eBird hotspot L2987624). Photos: Wikimedia Commons, free licenses;
+     hover a bird for its photographer + license, click for the source page.
+     The track is duplicated by script and slides by half its width, so it loops seamlessly. -->
+<div class="birds"><div class="bird-track">
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Columba_livia_(Rock_Dove,_wild),_Duncansby_Head,_Caithness,_Scotland_1.jpg" target="_blank" rel="noopener" title="Rock Pigeon — photo: william_stephens, CC BY 4.0"><img src="resources/birds/rock-pigeon.jpg" width="133" alt="Rock Pigeon" height="100" decoding="async"></a><br>Rock Pigeon</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Mourning_dove_perched_(61179).jpg" target="_blank" rel="noopener" title="Mourning Dove — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/mourning-dove.jpg" width="132" alt="Mourning Dove" height="100" decoding="async"></a><br>Mourning Dove</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Accipiter_cooperii_m_Sam_Smith_Toronto3.jpg" target="_blank" rel="noopener" title="Cooper&#x27;s Hawk — photo: Mykola Swarnyk, CC BY-SA 3.0"><img src="resources/birds/cooper-s-hawk.jpg" width="132" alt="Cooper&#x27;s Hawk" height="100" decoding="async"></a><br>Cooper&#x27;s Hawk</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Red-bellied_Woodpecker-27527.jpg" target="_blank" rel="noopener" title="Red-bellied Woodpecker — photo: Ken Thomas, Public domain"><img src="resources/birds/red-bellied-woodpecker.jpg" width="62" alt="Red-bellied Woodpecker" height="100" decoding="async"></a><br>Red-bellied Woodpecker</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Blue_jay_in_PP_(30960).jpg" target="_blank" rel="noopener" title="Blue Jay — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/blue-jay.jpg" width="73" alt="Blue Jay" height="100" decoding="async"></a><br>Blue Jay</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Regulus_calendula_MP_3.jpg" target="_blank" rel="noopener" title="Ruby-crowned Kinglet — photo: Cephas, CC BY-SA 4.0"><img src="resources/birds/ruby-crowned-kinglet.jpg" width="100" alt="Ruby-crowned Kinglet" height="100" decoding="async"></a><br>Ruby-crowned Kinglet</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Common_starling_(Sturnus_vulgaris)_breeding_male_Marken.jpg" target="_blank" rel="noopener" title="European Starling — photo: Charles J. Sharp, CC BY-SA 4.0"><img src="resources/birds/european-starling.jpg" width="149" alt="European Starling" height="100" decoding="async"></a><br>European Starling</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Hermit_thrush_(10787).jpg" target="_blank" rel="noopener" title="Hermit Thrush — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/hermit-thrush.jpg" width="120" alt="Hermit Thrush" height="100" decoding="async"></a><br>Hermit Thrush</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:House_sparrow_male_in_Prospect_Park_(53532).jpg" target="_blank" rel="noopener" title="House Sparrow — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/house-sparrow.jpg" width="129" alt="House Sparrow" height="100" decoding="async"></a><br>House Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Spizella-passerina-015_edit.jpg" target="_blank" rel="noopener" title="Chipping Sparrow — photo: Mdf, Edited by Fir0002, CC BY-SA 3.0"><img src="resources/birds/chipping-sparrow.jpg" width="149" alt="Chipping Sparrow" height="100" decoding="async"></a><br>Chipping Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Junco_hyemalis_hyemalis_CT1_(cropped).jpg" target="_blank" rel="noopener" title="Dark-eyed Junco — photo: Cephas, CC BY-SA 3.0"><img src="resources/birds/dark-eyed-junco.jpg" width="149" alt="Dark-eyed Junco" height="100" decoding="async"></a><br>Dark-eyed Junco</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Zonotrichia_albicollis_CT1.jpg" target="_blank" rel="noopener" title="White-throated Sparrow — photo: Cephas, CC BY-SA 3.0"><img src="resources/birds/white-throated-sparrow.jpg" width="149" alt="White-throated Sparrow" height="100" decoding="async"></a><br>White-throated Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Song_sparrow_in_Prospect_Park_(93031).jpg" target="_blank" rel="noopener" title="Song Sparrow — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/song-sparrow.jpg" width="143" alt="Song Sparrow" height="100" decoding="async"></a><br>Song Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-rumped_warbler_singing_(41612)_(cropped).jpg" target="_blank" rel="noopener" title="Yellow-rumped Warbler — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/yellow-rumped-warbler.jpg" width="126" alt="Yellow-rumped Warbler" height="100" decoding="async"></a><br>Yellow-rumped Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dryobates_pubescens_UL_03.jpg" target="_blank" rel="noopener" title="Downy Woodpecker — photo: Cephas, CC BY-SA 4.0"><img src="resources/birds/downy-woodpecker.jpg" width="100" alt="Downy Woodpecker" height="100" decoding="async"></a><br>Downy Woodpecker</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Corvus-brachyrhynchos-001.jpg" target="_blank" rel="noopener" title="American Crow — photo: unknown, CC BY-SA 3.0"><img src="resources/birds/american-crow.jpg" width="100" alt="American Crow" height="100" decoding="async"></a><br>American Crow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Golden-Crowned_Kinglet_EBFNWR.jpg" target="_blank" rel="noopener" title="Golden-crowned Kinglet — photo: Chuck Homler, Focus On Wildlife, CC BY-SA 4.0"><img src="resources/birds/golden-crowned-kinglet.jpg" width="100" alt="Golden-crowned Kinglet" height="100" decoding="async"></a><br>Golden-crowned Kinglet</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:American_robin_(71307).jpg" target="_blank" rel="noopener" title="American Robin — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/american-robin.jpg" width="133" alt="American Robin" height="100" decoding="async"></a><br>American Robin</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Common_grackle_in_PP_(36732).jpg" target="_blank" rel="noopener" title="Common Grackle — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/common-grackle.jpg" width="133" alt="Common Grackle" height="100" decoding="async"></a><br>Common Grackle</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Phalacrocorax-auritus-007.jpg" target="_blank" rel="noopener" title="Double-crested Cormorant — photo: Mdf, CC BY-SA 3.0"><img src="resources/birds/double-crested-cormorant.jpg" width="100" alt="Double-crested Cormorant" height="100" decoding="async"></a><br>Double-crested Cormorant</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-bellied_sapsucker_in_CP_(40484).jpg" target="_blank" rel="noopener" title="Yellow-bellied Sapsucker — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/yellow-bellied-sapsucker.jpg" width="122" alt="Yellow-bellied Sapsucker" height="100" decoding="async"></a><br>Yellow-bellied Sapsucker</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Northern_yellow-shafted_flicker_male_(33737)_(cropped).jpg" target="_blank" rel="noopener" title="Northern Flicker — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/northern-flicker.jpg" width="100" alt="Northern Flicker" height="100" decoding="async"></a><br>Northern Flicker</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Sayornis_phoebe_-Owen_Conservation_Park,_Madison,_Wisconsin,_USA-8.jpg" target="_blank" rel="noopener" title="Eastern Phoebe — photo: John Benson, CC BY 2.0"><img src="resources/birds/eastern-phoebe.jpg" width="127" alt="Eastern Phoebe" height="100" decoding="async"></a><br>Eastern Phoebe</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Mockingbird_in_Bay_Ridge_(85082).jpg" target="_blank" rel="noopener" title="Northern Mockingbird — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/northern-mockingbird.jpg" width="140" alt="Northern Mockingbird" height="100" decoding="async"></a><br>Northern Mockingbird</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dendroica_striata_MN.jpg" target="_blank" rel="noopener" title="Blackpoll Warbler — photo: Cephas, CC BY-SA 3.0"><img src="resources/birds/blackpoll-warbler.jpg" width="145" alt="Blackpoll Warbler" height="100" decoding="async"></a><br>Blackpoll Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Pine_warbler_(90070).jpg" target="_blank" rel="noopener" title="Pine Warbler — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/pine-warbler.jpg" width="140" alt="Pine Warbler" height="100" decoding="async"></a><br>Pine Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Blue-headed_Vireo_(8088895251).jpg" target="_blank" rel="noopener" title="Blue-headed Vireo — photo: Andy Reago &amp; Chrissy McClarren, CC BY 2.0"><img src="resources/birds/blue-headed-vireo.jpg" width="177" alt="Blue-headed Vireo" height="100" decoding="async"></a><br>Blue-headed Vireo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Field_sparrow_in_CP_(41484)_(cropped).jpg" target="_blank" rel="noopener" title="Field Sparrow — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/field-sparrow.jpg" width="122" alt="Field Sparrow" height="100" decoding="async"></a><br>Field Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Melospiza_georgiana_MP_01,_crop.jpg" target="_blank" rel="noopener" title="Swamp Sparrow — photo: Cephas, CC BY-SA 4.0"><img src="resources/birds/swamp-sparrow.jpg" width="75" alt="Swamp Sparrow" height="100" decoding="async"></a><br>Swamp Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:20241004_eastern_towhee_pleasant_valley_PD207764.jpg" target="_blank" rel="noopener" title="Eastern Towhee — photo: Paul Danese, CC BY-SA 4.0"><img src="resources/birds/eastern-towhee.jpg" width="100" alt="Eastern Towhee" height="100" decoding="async"></a><br>Eastern Towhee</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Black-and-white_warbler_in_Prospect_Park_(06193)2.jpg" target="_blank" rel="noopener" title="Black-and-white Warbler — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/black-and-white-warbler.jpg" width="136" alt="Black-and-white Warbler" height="100" decoding="async"></a><br>Black-and-white Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Leiothlypis_peregrina_Malus_sp_JRVdH_01.jpg" target="_blank" rel="noopener" title="Tennessee Warbler — photo: Cephas, CC BY-SA 4.0"><img src="resources/birds/tennessee-warbler.jpg" width="125" alt="Tennessee Warbler" height="100" decoding="async"></a><br>Tennessee Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:House_finch_(33688)2.jpg" target="_blank" rel="noopener" title="House Finch — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/house-finch.jpg" width="127" alt="House Finch" height="100" decoding="async"></a><br>House Finch</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Ovenbird_(90497).jpg" target="_blank" rel="noopener" title="Ovenbird — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/ovenbird.jpg" width="136" alt="Ovenbird" height="100" decoding="async"></a><br>Ovenbird</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Red-tailed_Hawk_(45812546121).jpg" target="_blank" rel="noopener" title="Red-tailed Hawk — photo: Becky Matsubara from El Sobrante, California, CC BY 2.0"><img src="resources/birds/red-tailed-hawk.jpg" width="149" alt="Red-tailed Hawk" height="100" decoding="async"></a><br>Red-tailed Hawk</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:20250926_house_wren_point_meadows_PD201015.jpg" target="_blank" rel="noopener" title="Northern House Wren — photo: Paul Danese, CC BY-SA 4.0"><img src="resources/birds/northern-house-wren.jpg" width="100" alt="Northern House Wren" height="100" decoding="async"></a><br>Northern House Wren</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Gray_catbird_(85315).jpg" target="_blank" rel="noopener" title="Gray Catbird — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/gray-catbird.jpg" width="133" alt="Gray Catbird" height="100" decoding="async"></a><br>Gray Catbird</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Common_yellowthroat_in_PP_(14155).jpg" target="_blank" rel="noopener" title="Common Yellowthroat — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/common-yellowthroat.jpg" width="129" alt="Common Yellowthroat" height="100" decoding="async"></a><br>Common Yellowthroat</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Brown_creeper_(Certhia_americana)_in_Center_City,_Philadelphia,_PA,_USA.png" target="_blank" rel="noopener" title="Brown Creeper — photo: Chuck Homler, Focus On Wildlife, CC BY-SA 4.0"><img src="resources/birds/brown-creeper.jpg" width="66" alt="Brown Creeper" height="100" decoding="async"></a><br>Brown Creeper</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Cedar_waxwing_in_pokeweed_(10132).jpg" target="_blank" rel="noopener" title="Cedar Waxwing — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/cedar-waxwing.jpg" width="131" alt="Cedar Waxwing" height="100" decoding="async"></a><br>Cedar Waxwing</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:American_redstart_in_JBWR_(24754).jpg" target="_blank" rel="noopener" title="American Redstart — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/american-redstart.jpg" width="141" alt="American Redstart" height="100" decoding="async"></a><br>American Redstart</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Herring_Gull_Very_Close.jpg" target="_blank" rel="noopener" title="American Herring Gull — photo: Chuck Homler d/b/a Focus On Wildlife, CC BY-SA 4.0"><img src="resources/birds/american-herring-gull.jpg" width="149" alt="American Herring Gull" height="100" decoding="async"></a><br>American Herring Gull</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Brown_thrasher_in_CP_(02147).jpg" target="_blank" rel="noopener" title="Brown Thrasher — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/brown-thrasher.jpg" width="149" alt="Brown Thrasher" height="100" decoding="async"></a><br>Brown Thrasher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:American_Kestrel_(53468230687).jpg" target="_blank" rel="noopener" title="American Kestrel — photo: Channel City Camera Club from Santa Barbara, US, CC BY 2.0"><img src="resources/birds/american-kestrel.jpg" width="80" alt="American Kestrel" height="100" decoding="async"></a><br>American Kestrel</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Eastern_wood_pewee_(71095).jpg" target="_blank" rel="noopener" title="Eastern Wood-Pewee — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/eastern-wood-pewee.jpg" width="138" alt="Eastern Wood-Pewee" height="100" decoding="async"></a><br>Eastern Wood-Pewee</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Black-throated_blue_warblers_(7140435321).jpg" target="_blank" rel="noopener" title="Black-throated Blue Warbler — photo: cuatrok77, CC BY 2.0"><img src="resources/birds/black-throated-blue-warbler.jpg" width="148" alt="Black-throated Blue Warbler" height="100" decoding="async"></a><br>Black-throated Blue Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Vireo_olivaceus_-Madison_-Wisconsin_-USA-8.jpg" target="_blank" rel="noopener" title="Red-eyed Vireo — photo: John Benson from Madison WI, CC BY 2.0"><img src="resources/birds/red-eyed-vireo.jpg" width="80" alt="Red-eyed Vireo" height="100" decoding="async"></a><br>Red-eyed Vireo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Scarlet_tanager_in_GWC_(50867).jpg" target="_blank" rel="noopener" title="Scarlet Tanager — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/scarlet-tanager.jpg" width="136" alt="Scarlet Tanager" height="100" decoding="async"></a><br>Scarlet Tanager</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:2014-05-21_Northern_Parula,_Shenandoah_NP,_Virginia_001200_07.jpg" target="_blank" rel="noopener" title="Northern Parula — photo: ShenandoahNPS, Public domain"><img src="resources/birds/northern-parula.jpg" width="118" alt="Northern Parula" height="100" decoding="async"></a><br>Northern Parula</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Black-throated_green_warbler_in_PP_(14050).jpg" target="_blank" rel="noopener" title="Black-throated Green Warbler — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/black-throated-green-warbler.jpg" width="138" alt="Black-throated Green Warbler" height="100" decoding="async"></a><br>Black-throated Green Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Canada_goose_on_Seedskadee_NWR_(27826185489).jpg" target="_blank" rel="noopener" title="Canada Goose — photo: USFWS Mountain-Prairie, Public domain"><img src="resources/birds/canada-goose.jpg" width="131" alt="Canada Goose" height="100" decoding="async"></a><br>Canada Goose</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-billed_cuckoo_(42690).jpg" target="_blank" rel="noopener" title="Yellow-billed Cuckoo — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/yellow-billed-cuckoo.jpg" width="73" alt="Yellow-billed Cuckoo" height="100" decoding="async"></a><br>Yellow-billed Cuckoo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Palm_warbler_(41597).jpg" target="_blank" rel="noopener" title="Palm Warbler — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/palm-warbler.jpg" width="133" alt="Palm Warbler" height="100" decoding="async"></a><br>Palm Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Chaetura_pelagica,_by_Lake_Erie,_Cleveland,_Ohio,_USA_339593191.jpg" target="_blank" rel="noopener" title="Chimney Swift — photo: Adam Jackson, CC0"><img src="resources/birds/chimney-swift.jpg" width="149" alt="Chimney Swift" height="100" decoding="async"></a><br>Chimney Swift</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Catharus_ustulatus_Clbrg_01.jpg" target="_blank" rel="noopener" title="Swainson&#x27;s Thrush — photo: Cephas, CC BY-SA 4.0"><img src="resources/birds/swainson-s-thrush.jpg" width="125" alt="Swainson&#x27;s Thrush" height="100" decoding="async"></a><br>Swainson&#x27;s Thrush</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Northern_Waterthrush_at_the_Pool_in_Central_Park,_New_York_City.jpg" target="_blank" rel="noopener" title="Northern Waterthrush — photo: Mikeschafer.wildlife, CC BY 4.0"><img src="resources/birds/northern-waterthrush.jpg" width="149" alt="Northern Waterthrush" height="100" decoding="async"></a><br>Northern Waterthrush</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Setophaga_tigrina_Male.jpg" target="_blank" rel="noopener" title="Cape May Warbler — photo: Will123w, CC BY 4.0"><img src="resources/birds/cape-may-warbler.jpg" width="149" alt="Cape May Warbler" height="100" decoding="async"></a><br>Cape May Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Magnolia_Warbler_-_May_17,_2025.jpg" target="_blank" rel="noopener" title="Magnolia Warbler — photo: AMMuench, CC BY 4.0"><img src="resources/birds/magnolia-warbler.jpg" width="149" alt="Magnolia Warbler" height="100" decoding="async"></a><br>Magnolia Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Edit_white-eyed_vireo_blandair_4.20.20_DSC_0224.jpg" target="_blank" rel="noopener" title="White-eyed Vireo — photo: lwolfartist, CC BY 2.0"><img src="resources/birds/white-eyed-vireo.jpg" width="125" alt="White-eyed Vireo" height="100" decoding="async"></a><br>White-eyed Vireo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Lincoln%27s_sparrow_(14367).jpg" target="_blank" rel="noopener" title="Lincoln&#x27;s Sparrow — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/lincoln-s-sparrow.jpg" width="132" alt="Lincoln&#x27;s Sparrow" height="100" decoding="async"></a><br>Lincoln&#x27;s Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Baltimore_Oriole-_dorsum.jpg" target="_blank" rel="noopener" title="Baltimore Oriole — photo: TonyCastro, CC BY-SA 4.0"><img src="resources/birds/baltimore-oriole.jpg" width="112" alt="Baltimore Oriole" height="100" decoding="async"></a><br>Baltimore Oriole</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Merlin_in_Prospect_Park_(63386).jpg" target="_blank" rel="noopener" title="Merlin — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/merlin.jpg" width="137" alt="Merlin" height="100" decoding="async"></a><br>Merlin</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Larus-delawarensis-021.jpg" target="_blank" rel="noopener" title="Ring-billed Gull — photo: User:Mdf, CC BY-SA 3.0"><img src="resources/birds/ring-billed-gull.jpg" width="149" alt="Ring-billed Gull" height="100" decoding="async"></a><br>Ring-billed Gull</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Red-Winged_Blackbird.png" target="_blank" rel="noopener" title="Red-winged Blackbird — photo: Chuck Homler, Focus On Wildlife, CC BY-SA 4.0"><img src="resources/birds/red-winged-blackbird.jpg" width="66" alt="Red-winged Blackbird" height="100" decoding="async"></a><br>Red-winged Blackbird</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow_warbler_(82905).jpg" target="_blank" rel="noopener" title="Northern Yellow Warbler — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/northern-yellow-warbler.jpg" width="133" alt="Northern Yellow Warbler" height="100" decoding="async"></a><br>Northern Yellow Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dendroica-pensylvanica-003.jpg" target="_blank" rel="noopener" title="Chestnut-sided Warbler — photo: Mdf, CC BY-SA 3.0"><img src="resources/birds/chestnut-sided-warbler.jpg" width="132" alt="Chestnut-sided Warbler" height="100" decoding="async"></a><br>Chestnut-sided Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Male_northern_cardinal_in_Central_Park_(52612).jpg" target="_blank" rel="noopener" title="Northern Cardinal — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/northern-cardinal.jpg" width="76" alt="Northern Cardinal" height="100" decoding="async"></a><br>Northern Cardinal</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Circus_hudsonius,_male_perched,_Berkeley,_California_(cropped).jpg" target="_blank" rel="noopener" title="Northern Harrier — photo: Becky Matsubara from El Sobrante, California, CC BY 2.0"><img src="resources/birds/northern-harrier.jpg" width="66" alt="Northern Harrier" height="100" decoding="async"></a><br>Northern Harrier</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Fish_crow_in_Red_Hook_(42712).jpg" target="_blank" rel="noopener" title="Fish Crow — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/fish-crow.jpg" width="132" alt="Fish Crow" height="100" decoding="async"></a><br>Fish Crow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Dendroica-castanea-001.jpg" target="_blank" rel="noopener" title="Bay-breasted Warbler — photo: Mdf, CC BY-SA 3.0"><img src="resources/birds/bay-breasted-warbler.jpg" width="149" alt="Bay-breasted Warbler" height="100" decoding="async"></a><br>Bay-breasted Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:GreatBlueHeronInARiver.jpg" target="_blank" rel="noopener" title="Great Blue Heron — photo: DallasPenner, CC BY-SA 4.0"><img src="resources/birds/great-blue-heron.jpg" width="149" alt="Great Blue Heron" height="100" decoding="async"></a><br>Great Blue Heron</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Wood_thrush_(Hylocichla_mustelina)_Peten.jpg" target="_blank" rel="noopener" title="Wood Thrush — photo: Charles J. Sharp, CC BY-SA 4.0"><img src="resources/birds/wood-thrush.jpg" width="149" alt="Wood Thrush" height="100" decoding="async"></a><br>Wood Thrush</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Canada_warbler_(Cardellina_canadensis)_male_San_Isidro.jpg" target="_blank" rel="noopener" title="Canada Warbler — photo: Charles J. Sharp, CC BY-SA 4.0"><img src="resources/birds/canada-warbler.jpg" width="149" alt="Canada Warbler" height="100" decoding="async"></a><br>Canada Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:RosebreastedGrosbeak08.jpg" target="_blank" rel="noopener" title="Rose-breasted Grosbeak — photo: John Harrison at https://www.flickr.com/photos/15512543@N04/, CC BY-SA 3.0"><img src="resources/birds/rose-breasted-grosbeak.jpg" width="153" alt="Rose-breasted Grosbeak" height="100" decoding="async"></a><br>Rose-breasted Grosbeak</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Gray-cheeked_thrush_(71096).jpg" target="_blank" rel="noopener" title="Gray-cheeked Thrush — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/gray-cheeked-thrush.jpg" width="144" alt="Gray-cheeked Thrush" height="100" decoding="async"></a><br>Gray-cheeked Thrush</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Veery_in_CP_(43277).jpg" target="_blank" rel="noopener" title="Veery — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/veery.jpg" width="120" alt="Veery" height="100" decoding="async"></a><br>Veery</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Falco_peregrinus_m_Humber_Bay_Park_Toronto.jpg" target="_blank" rel="noopener" title="Peregrine Falcon — photo: Mykola Swarnyk, CC BY-SA 3.0"><img src="resources/birds/peregrine-falcon.jpg" width="82" alt="Peregrine Falcon" height="100" decoding="async"></a><br>Peregrine Falcon</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Archilochus_colubris_-flying_-male-8.jpg" target="_blank" rel="noopener" title="Ruby-throated Hummingbird — photo: jeffreyw, CC BY 2.0"><img src="resources/birds/ruby-throated-hummingbird.jpg" width="91" alt="Ruby-throated Hummingbird" height="100" decoding="async"></a><br>Ruby-throated Hummingbird</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Blackburnian_warbler_(Setophaga_fusca)_male_San_Isidro.jpg" target="_blank" rel="noopener" title="Blackburnian Warbler — photo: Charles J. Sharp, CC BY-SA 4.0"><img src="resources/birds/blackburnian-warbler.jpg" width="149" alt="Blackburnian Warbler" height="100" decoding="async"></a><br>Blackburnian Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Osprey_Perched_Snag_Heislerville.jpg" target="_blank" rel="noopener" title="Osprey — photo: Chuck Homler / Focus On Wildlife, CC BY-SA 4.0"><img src="resources/birds/osprey.jpg" width="149" alt="Osprey" height="100" decoding="async"></a><br>Osprey</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Bald_eagle_about_to_fly_in_Alaska_(2016).jpg" target="_blank" rel="noopener" title="Bald Eagle — photo: Andy Morffew from Itchen Abbas, Hampshire, UK, CC BY 2.0"><img src="resources/birds/bald-eagle.jpg" width="125" alt="Bald Eagle" height="100" decoding="async"></a><br>Bald Eagle</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Carduelis_tristis_-Michigan,_USA_-male-8.jpg" target="_blank" rel="noopener" title="American Goldfinch — photo: Rodney Campbell, CC BY 2.0"><img src="resources/birds/american-goldfinch.jpg" width="123" alt="American Goldfinch" height="100" decoding="async"></a><br>American Goldfinch</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Leucophaeus_atricilla_Caye_Caulker_04.JPG" target="_blank" rel="noopener" title="Laughing Gull — photo: Cephas, CC BY-SA 4.0"><img src="resources/birds/laughing-gull.jpg" width="149" alt="Laughing Gull" height="100" decoding="async"></a><br>Laughing Gull</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Rauchschwalbe_Hirundo_rustica.jpg" target="_blank" rel="noopener" title="Barn Swallow — photo: Andreas Trepte, CC BY-SA 2.5"><img src="resources/birds/barn-swallow.jpg" width="149" alt="Barn Swallow" height="100" decoding="async"></a><br>Barn Swallow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Blue-gray_gnatcatcher_in_PP_(72317).jpg" target="_blank" rel="noopener" title="Blue-gray Gnatcatcher — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/blue-gray-gnatcatcher.jpg" width="136" alt="Blue-gray Gnatcatcher" height="100" decoding="async"></a><br>Blue-gray Gnatcatcher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Olive-sided_Flycatcher.jpg" target="_blank" rel="noopener" title="Olive-sided Flycatcher — photo: Dominic Sherony, CC BY-SA 2.0"><img src="resources/birds/olive-sided-flycatcher.jpg" width="75" alt="Olive-sided Flycatcher" height="100" decoding="async"></a><br>Olive-sided Flycatcher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Green_heron_(Butorides_virescens),_South_Padre_Island,_Texas,_USA_(cropped).jpg" target="_blank" rel="noopener" title="Green Heron — photo: Chuck Homler d/b/a Focus On Wildlife, CC BY-SA 4.0"><img src="resources/birds/green-heron.jpg" width="113" alt="Green Heron" height="100" decoding="async"></a><br>Green Heron</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:GreatCrestedFlycatcher.jpg" target="_blank" rel="noopener" title="Great Crested Flycatcher — photo: Polinova, CC BY-SA 4.0"><img src="resources/birds/great-crested-flycatcher.jpg" width="125" alt="Great Crested Flycatcher" height="100" decoding="async"></a><br>Great Crested Flycatcher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-bellied_Flycatcher_-_Empidonax_flaviventris.jpg" target="_blank" rel="noopener" title="Yellow-bellied Flycatcher — photo: Dominic Sherony, CC BY-SA 2.0"><img src="resources/birds/yellow-bellied-flycatcher.jpg" width="149" alt="Yellow-bellied Flycatcher" height="100" decoding="async"></a><br>Yellow-bellied Flycatcher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Killdeer_Heislerville.png" target="_blank" rel="noopener" title="Killdeer — photo: Charles Homler d/b/a FocusOnWildlife, CC BY-SA 4.0"><img src="resources/birds/killdeer.jpg" width="139" alt="Killdeer" height="100" decoding="async"></a><br>Killdeer</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Summer_tanager_(Piranga_rubra)_male_Copan_3.jpg" target="_blank" rel="noopener" title="Summer Tanager — photo: Charles J. Sharp, CC BY-SA 4.0"><img src="resources/birds/summer-tanager.jpg" width="100" alt="Summer Tanager" height="100" decoding="async"></a><br>Summer Tanager</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Empidonax-minimus-001.jpg" target="_blank" rel="noopener" title="Least Flycatcher — photo: User:Mdf, CC BY-SA 3.0"><img src="resources/birds/least-flycatcher.jpg" width="100" alt="Least Flycatcher" height="100" decoding="async"></a><br>Least Flycatcher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Vermivora_cyanoptera_-North_Berwick,_Maine,_USA-8.jpg" target="_blank" rel="noopener" title="Blue-winged Warbler — photo: Ken Janes, CC BY-SA 2.0"><img src="resources/birds/blue-winged-warbler.jpg" width="149" alt="Blue-winged Warbler" height="100" decoding="async"></a><br>Blue-winged Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Eastern_kingbird_on_the_hunt_(56948).jpg" target="_blank" rel="noopener" title="Eastern Kingbird — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/eastern-kingbird.jpg" width="133" alt="Eastern Kingbird" height="100" decoding="async"></a><br>Eastern Kingbird</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Warbling_vireo_(82141).jpg" target="_blank" rel="noopener" title="Eastern Warbling Vireo — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/eastern-warbling-vireo.jpg" width="131" alt="Eastern Warbling Vireo" height="100" decoding="async"></a><br>Eastern Warbling Vireo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Empidonax_virescens_99136793_(cropped).jpg" target="_blank" rel="noopener" title="Acadian Flycatcher — photo: Aitor, CC BY 4.0"><img src="resources/birds/acadian-flycatcher.jpg" width="108" alt="Acadian Flycatcher" height="100" decoding="async"></a><br>Acadian Flycatcher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Nashville_Warbler_-_Hunter_Canyon_-_Huachuca_Mtns_-_Sierra_Vista_-_AZ_-_2015-09-03at10-37-163_(21738186340).jpg" target="_blank" rel="noopener" title="Nashville Warbler — photo: HarmonyonPlanetEarth, CC BY 2.0"><img src="resources/birds/nashville-warbler.jpg" width="149" alt="Nashville Warbler" height="100" decoding="async"></a><br>Nashville Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Wilsonia_pusilla.jpg" target="_blank" rel="noopener" title="Wilson&#x27;s Warbler — photo: Michael Woodruff from Spokane, Washington, USA, CC BY 2.0"><img src="resources/birds/wilson-s-warbler.jpg" width="131" alt="Wilson&#x27;s Warbler" height="100" decoding="async"></a><br>Wilson&#x27;s Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:20250514_northern_rough_winged_swallow_bolton_notch_state_park_PD200438_crop.jpg" target="_blank" rel="noopener" title="Northern Rough-winged Swallow — photo: Paul Danese, CC BY-SA 4.0"><img src="resources/birds/northern-rough-winged-swallow.jpg" width="100" alt="Northern Rough-winged Swallow" height="100" decoding="async"></a><br>Northern Rough-winged Swallow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Protonotaria-citrea-002_edit.jpg" target="_blank" rel="noopener" title="Prothonotary Warbler — photo: Mdf, edited by Fir0002, CC BY-SA 3.0"><img src="resources/birds/prothonotary-warbler.jpg" width="100" alt="Prothonotary Warbler" height="100" decoding="async"></a><br>Prothonotary Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Worm-eating_Warbler.jpg" target="_blank" rel="noopener" title="Worm-eating Warbler — photo: http://www.birdphotos.com, CC BY 3.0"><img src="resources/birds/worm-eating-warbler.jpg" width="127" alt="Worm-eating Warbler" height="100" decoding="async"></a><br>Worm-eating Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Carolina_wren_(14391).jpg" target="_blank" rel="noopener" title="Carolina Wren — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/carolina-wren.jpg" width="128" alt="Carolina Wren" height="100" decoding="async"></a><br>Carolina Wren</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Great_Black-backed_Gull_Larus_marinus.jpg" target="_blank" rel="noopener" title="Great Black-backed Gull — photo: Andreas Trepte, CC BY-SA 2.5"><img src="resources/birds/great-black-backed-gull.jpg" width="125" alt="Great Black-backed Gull" height="100" decoding="async"></a><br>Great Black-backed Gull</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Indigo_Bunting_by_Dan_Pancamo_4.jpg" target="_blank" rel="noopener" title="Indigo Bunting — photo: Dan Pancamo, CC BY-SA 2.0"><img src="resources/birds/indigo-bunting.jpg" width="133" alt="Indigo Bunting" height="100" decoding="async"></a><br>Indigo Bunting</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Tree_swallow_in_JBWR_(25579).jpg" target="_blank" rel="noopener" title="Tree Swallow — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/tree-swallow.jpg" width="132" alt="Tree Swallow" height="100" decoding="async"></a><br>Tree Swallow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Orchard_Oriole_by_Dan_Pancamo_1.jpg" target="_blank" rel="noopener" title="Orchard Oriole — photo: Dan Pancamo, CC BY-SA 2.0"><img src="resources/birds/orchard-oriole.jpg" width="75" alt="Orchard Oriole" height="100" decoding="async"></a><br>Orchard Oriole</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Hooded_Warbler.jpg" target="_blank" rel="noopener" title="Hooded Warbler — photo: Ninahale, CC BY-SA 4.0"><img src="resources/birds/hooded-warbler.jpg" width="133" alt="Hooded Warbler" height="100" decoding="async"></a><br>Hooded Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Prairie_Warbler_in_Central_Park,_New_York_City.jpg" target="_blank" rel="noopener" title="Prairie Warbler — photo: Mikeschafer.wildlife, CC BY 4.0"><img src="resources/birds/prairie-warbler.jpg" width="125" alt="Prairie Warbler" height="100" decoding="async"></a><br>Prairie Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Passerculus_sandwichensis_crop.jpg" target="_blank" rel="noopener" title="Savannah Sparrow — photo: Cephas, CC BY-SA 3.0"><img src="resources/birds/savannah-sparrow.jpg" width="115" alt="Savannah Sparrow" height="100" decoding="async"></a><br>Savannah Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Snowy_Egret_(Egretta_thula)_Edwin_B_Forsythe_NWR,_Galloway,_NJ,_USA.jpg" target="_blank" rel="noopener" title="Snowy Egret — photo: Chuck Homler d/b/a Focus On Wildlife, CC BY-SA 4.0"><img src="resources/birds/snowy-egret.jpg" width="149" alt="Snowy Egret" height="100" decoding="async"></a><br>Snowy Egret</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Corvus_corax_clarionensis,_Point_Reyes_National_Seashore.jpg" target="_blank" rel="noopener" title="Common Raven — photo: Frank Schulenburg, CC BY-SA 4.0"><img src="resources/birds/common-raven.jpg" width="149" alt="Common Raven" height="100" decoding="async"></a><br>Common Raven</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Tufted_titmouse_(84917).jpg" target="_blank" rel="noopener" title="Tufted Titmouse — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/tufted-titmouse.jpg" width="137" alt="Tufted Titmouse" height="100" decoding="async"></a><br>Tufted Titmouse</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Carpodacus_purpureus_CT3.jpg" target="_blank" rel="noopener" title="Purple Finch — photo: Cephas, CC BY-SA 3.0"><img src="resources/birds/purple-finch.jpg" width="149" alt="Purple Finch" height="100" decoding="async"></a><br>Purple Finch</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:American_woodcock_(95252).jpg" target="_blank" rel="noopener" title="American Woodcock — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/american-woodcock.jpg" width="139" alt="American Woodcock" height="100" decoding="async"></a><br>American Woodcock</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Passerella_iliaca_UL_05.jpg" target="_blank" rel="noopener" title="Fox Sparrow — photo: Cephas, CC BY-SA 4.0"><img src="resources/birds/fox-sparrow.jpg" width="125" alt="Fox Sparrow" height="100" decoding="async"></a><br>Fox Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Atlantic_Brant_Fly-By_Wiki.png" target="_blank" rel="noopener" title="Brant — photo: Needsmoreritalin, CC BY-SA 4.0"><img src="resources/birds/brant.jpg" width="149" alt="Brant" height="100" decoding="async"></a><br>Brant</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:White-breasted_nuthatch_(26471).jpg" target="_blank" rel="noopener" title="White-breasted Nuthatch — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/white-breasted-nuthatch.jpg" width="133" alt="White-breasted Nuthatch" height="100" decoding="async"></a><br>White-breasted Nuthatch</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-Breasted-Chat-Oregon.jpg" target="_blank" rel="noopener" title="Yellow-breasted Chat — photo: Jim Conrad, Public domain"><img src="resources/birds/yellow-breasted-chat.jpg" width="164" alt="Yellow-breasted Chat" height="100" decoding="async"></a><br>Yellow-breasted Chat</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Winter_wren_in_Prospect_Park_(32249).jpg" target="_blank" rel="noopener" title="Winter Wren — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/winter-wren.jpg" width="130" alt="Winter Wren" height="100" decoding="async"></a><br>Winter Wren</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Red-breasted_Nuthatch_(48859254972).jpg" target="_blank" rel="noopener" title="Red-breasted Nuthatch — photo: Becky Matsubara from El Sobrante, California, CC BY 2.0"><img src="resources/birds/red-breasted-nuthatch.jpg" width="149" alt="Red-breasted Nuthatch" height="100" decoding="async"></a><br>Red-breasted Nuthatch</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:BeltedKingfisherJG_Male.jpg" target="_blank" rel="noopener" title="Belted Kingfisher — photo: JeffreyGammon, CC BY-SA 4.0"><img src="resources/birds/belted-kingfisher.jpg" width="133" alt="Belted Kingfisher" height="100" decoding="async"></a><br>Belted Kingfisher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Vireo_philadelphicus.jpg" target="_blank" rel="noopener" title="Philadelphia Vireo — photo: brian_mcclure0422, CC BY-SA 2.0"><img src="resources/birds/philadelphia-vireo.jpg" width="150" alt="Philadelphia Vireo" height="100" decoding="async"></a><br>Philadelphia Vireo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Geothlypis_philadelphia_289725142_(cropped).jpg" target="_blank" rel="noopener" title="Mourning Warbler — photo: kirk gardner, CC BY 4.0"><img src="resources/birds/mourning-warbler.jpg" width="110" alt="Mourning Warbler" height="100" decoding="async"></a><br>Mourning Warbler</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Vireo-flavifrons-001.jpg" target="_blank" rel="noopener" title="Yellow-throated Vireo — photo: Mdf, CC BY-SA 3.0"><img src="resources/birds/yellow-throated-vireo.jpg" width="149" alt="Yellow-throated Vireo" height="100" decoding="async"></a><br>Yellow-throated Vireo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:20250524_willow_flycatcher_major_donnelly_PD202635.jpg" target="_blank" rel="noopener" title="Willow Flycatcher — photo: Paul Danese, CC BY-SA 4.0"><img src="resources/birds/willow-flycatcher.jpg" width="100" alt="Willow Flycatcher" height="100" decoding="async"></a><br>Willow Flycatcher</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_male_female_quadrat.jpg" target="_blank" rel="noopener" title="Mallard — photo: This picture was realized by Richard Bartz by using a Canon EF 70-300mm f/4-5.6 IS USM Lens, CC BY-SA 2.5"><img src="resources/birds/mallard.jpg" width="100" alt="Mallard" height="100" decoding="async"></a><br>Mallard</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Common_Nighthawk_(14428313550).jpg" target="_blank" rel="noopener" title="Common Nighthawk — photo: Andy Reago &amp; Chrissy McClarren, CC BY 2.0"><img src="resources/birds/common-nighthawk.jpg" width="177" alt="Common Nighthawk" height="100" decoding="async"></a><br>Common Nighthawk</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Great_Egret_(Ardea_alba)_in_Breeding_Plumage,_Cape_May_County,_New_Jersey,_USA_(cropped).png" target="_blank" rel="noopener" title="Great Egret — photo: Chuck Homler (FocusOnWildlife.Me), CC BY-SA 4.0"><img src="resources/birds/great-egret.jpg" width="120" alt="Great Egret" height="100" decoding="async"></a><br>Great Egret</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Yellow-crowned_Night_Heron_(Nyctanassa_violacea)_perched_on_a_cedar_-_Cape_May_County,_New_Jersey,_USA.png" target="_blank" rel="noopener" title="Yellow-crowned Night Heron — photo: Chuck Homler (FocusOnWildlife.Me), CC BY-SA 4.0"><img src="resources/birds/yellow-crowned-night-heron.jpg" width="66" alt="Yellow-crowned Night Heron" height="100" decoding="async"></a><br>Yellow-crowned Night Heron</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Botaurus_lentiginosus_28079.JPG" target="_blank" rel="noopener" title="American Bittern — photo: Walter Siegmund, CC BY 2.5"><img src="resources/birds/american-bittern.jpg" width="75" alt="American Bittern" height="100" decoding="async"></a><br>American Bittern</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:CygneVaires.jpg" target="_blank" rel="noopener" title="Mute Swan — photo: Sanchezn, CC BY-SA 3.0"><img src="resources/birds/mute-swan.jpg" width="149" alt="Mute Swan" height="100" decoding="async"></a><br>Mute Swan</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Poecile-atricapilla-001.jpg" target="_blank" rel="noopener" title="Black-capped Chickadee — photo: No machine-readable author provided. Mdf assumed (based on copyright claims)., CC BY-SA 3.0"><img src="resources/birds/black-capped-chickadee.jpg" width="100" alt="Black-capped Chickadee" height="100" decoding="async"></a><br>Black-capped Chickadee</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Turkey_vulture_(Cathartes_aura)_Orange_Walk.jpg" target="_blank" rel="noopener" title="Turkey Vulture — photo: Charles J. Sharp, CC BY-SA 4.0"><img src="resources/birds/turkey-vulture.jpg" width="66" alt="Turkey Vulture" height="100" decoding="async"></a><br>Turkey Vulture</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:20260428_tom_wild_turkey_matthaei_botanical_gardens_PD08952.jpg" target="_blank" rel="noopener" title="Wild Turkey — photo: Paul Danese, CC BY-SA 4.0"><img src="resources/birds/wild-turkey.jpg" width="149" alt="Wild Turkey" height="100" decoding="async"></a><br>Wild Turkey</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:White-crowned-Sparrow.jpg" target="_blank" rel="noopener" title="White-crowned Sparrow — photo: Wolfgang Wander, CC BY-SA 3.0"><img src="resources/birds/white-crowned-sparrow.jpg" width="149" alt="White-crowned Sparrow" height="100" decoding="async"></a><br>White-crowned Sparrow</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Black-billed-cuckoo2.jpg" target="_blank" rel="noopener" title="Black-billed Cuckoo — photo: Wolfgang Wander (colors adjusted by Skiessi), CC BY-SA 2.5"><img src="resources/birds/black-billed-cuckoo.jpg" width="66" alt="Black-billed Cuckoo" height="100" decoding="async"></a><br>Black-billed Cuckoo</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Brown-headed_cowbird_male_(71126).jpg" target="_blank" rel="noopener" title="Brown-headed Cowbird — photo: Rhododendrites, CC BY-SA 4.0"><img src="resources/birds/brown-headed-cowbird.jpg" width="135" alt="Brown-headed Cowbird" height="100" decoding="async"></a><br>Brown-headed Cowbird</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Accipiter_striatus,_Canet_Road,_San_Luis_Obispo_1.jpg" target="_blank" rel="noopener" title="Sharp-shinned Hawk — photo: ALAN SCHMIERER from near Patagonia, AZ, USA, CC0"><img src="resources/birds/sharp-shinned-hawk.jpg" width="69" alt="Sharp-shinned Hawk" height="100" decoding="async"></a><br>Sharp-shinned Hawk</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Picoides_villosus_monticola_male1.jpg" target="_blank" rel="noopener" title="Hairy Woodpecker — photo: JerryFriedman, CC BY-SA 3.0"><img src="resources/birds/hairy-woodpecker.jpg" width="75" alt="Hairy Woodpecker" height="100" decoding="async"></a><br>Hairy Woodpecker</span>
+  <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:2014-05-18_Sterna_hirundo,_Killingworth_Lake,_Northumberland_04.jpg" target="_blank" rel="noopener" title="Common Tern — photo: MPF, CC BY-SA 4.0"><img src="resources/birds/common-tern.jpg" width="133" alt="Common Tern" height="100" decoding="async"></a><br>Common Tern</span>
+</div></div>
+
+</center>
 
 <script>
-/* ============================================================
-   Sheet music canvas: horizontal 5-line staves + drifting notes.
-   Pure black on white. No external assets.
-   ============================================================ */
 (() => {
-  const canvas = document.getElementById('c');
-  const ctx = canvas.getContext('2d');
-  const dbg = document.getElementById('debug');
+  // Nancarrow / black MIDI score: faint piano systems (treble + bass) with absurd meters, two
+  // voices per staff, runs, tone clusters, √2 tempo canons between the hands, cross-staff runs
+  // and glissandi. Seeded RNG so every redraw lays out the same.
+  const cv = document.getElementById('roll');
+  const g = cv.getContext('2d');
+  const SP = 7;                 // staff space (px)
+  const RATIOS = ['√2', '7:5', 'e:π', '13:8', '5:3', '17:12', '3:√2'];
+  let pending = false;
 
-  const GLYPHS = ['♩', '♪', '♫', '♬'];
+  const draw = () => {
+    pending = false;
+    const dpr = devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let seed = 1997;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+    const ri = (a, b) => a + ((rnd() * (b - a + 1)) | 0);
 
-  // Background opacity for staves + drifting notes. Mouse trail stays at full strength.
-  const STAFF_ALPHA = 0.3;
-  const NOTE_ALPHA  = 0.55;
-
-  let DPR = 1, W = 0, H = 0;
-  let staves = [];      // { y }
-  let lineSpacing = 0;
-  let notes = [];       // per-note state with own vx
-  let trail = [];
-  let spawnInterval = 0.4; // recomputed in layout() so steady state matches prefill
-  let densityDivisor = 48; // smaller = denser. Adjustable via +/- keys.
-  let bird = null;      // rare flyby (every few minutes)
-  let nextBirdAt = 0;
-
-  function glyphForSlope(m) {
-    const a = Math.abs(m);
-    if (a < 0.25) return GLYPHS[0];
-    if (a < 0.60) return GLYPHS[1];
-    if (a < 1.20) return GLYPHS[2];
-    return GLYPHS[3];
-  }
-
-  function layout() {
-    // Fixed-low DPR gives a chunky GBA-style pixelation when the canvas is
-    // stretched back up to 100vw/100vh by CSS with `image-rendering: pixelated`.
-    const PIXEL_SCALE = 2; // 1 canvas px = 2 CSS px
-    DPR = 1 / PIXEL_SCALE;
-    W = canvas.width = Math.floor(innerWidth * DPR);
-    H = canvas.height = Math.floor(innerHeight * DPR);
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-
-    lineSpacing = Math.max(10, Math.min(18, innerHeight / 44)) * DPR;
-
-    const staffHeight = lineSpacing * 4;
-    const gap = staffHeight * 1.9;
-    const topPad = Math.max(60, innerHeight * 0.08) * DPR;
-
-    staves = [];
-    let y = topPad + staffHeight / 2;
-    while (y + staffHeight / 2 < H - topPad) {
-      staves.push({ y });
-      y += gap;
-    }
-
-    notes = notes.filter(n => n.y > -50 && n.y < H + 50);
-
-    // Prefill so the screen is populated from frame 1.
-    const target = staves.length * Math.max(10, Math.floor(W / (densityDivisor * DPR)));
-    while (notes.length < target) {
-      spawnOne(-30 * DPR + Math.random() * (W + 70 * DPR));
-    }
-
-    // Calibrate spawn rate so steady-state density ≈ prefill density.
-    const avgSpeed = 43 * DPR; // midpoint of the 22..64 px/s range below
-    const avgLife = W / avgSpeed;
-    spawnInterval = target > 0 ? (avgLife / target) : 1.0;
-  }
-  addEventListener('resize', layout);
-
-  function spawnOne(atX) {
-    if (staves.length === 0) return;
-    const s = staves[Math.floor(Math.random() * staves.length)];
-    // Pitch snapped to one of the 9 line/space positions inside the staff.
-    const step = Math.floor(Math.random() * 9) - 4; // -4..+4 half-steps
-    const y = s.y + step * (lineSpacing / 2);
-    const x = (atX !== undefined) ? atX : (W + 40 * DPR);
-
-    notes.push({
-      glyph: GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
-      x, y,
-      vx: -(22 + Math.random() * 42) * DPR,
-      vy: 0,
-      size: lineSpacing * (2.0 + Math.random() * 0.6),
-      alpha: 0.85 + Math.random() * 0.15,
-      knocked: false,
-    });
-  }
-
-  function applyDensity() {
-    if (staves.length === 0) return;
-    const target = staves.length * Math.max(10, Math.floor(W / (densityDivisor * DPR)));
-    while (notes.length < target) {
-      spawnOne(-30 * DPR + Math.random() * (W + 70 * DPR));
-    }
-    while (notes.length > target) {
-      notes.splice(Math.floor(Math.random() * notes.length), 1);
-    }
-    const avgSpeed = 43 * DPR;
-    spawnInterval = target > 0 ? (W / avgSpeed / target) : 1.0;
-  }
-
-  function adjustDensity(direction) {
-    const step = 12;
-    densityDivisor = Math.max(8, Math.min(400, densityDivisor - direction * step));
-    applyDensity();
-  }
-
-  layout();
-  // Bird shows up every 15–45s.
-  nextBirdAt = performance.now() + (15 + Math.random() * 30) * 1000;
-
-  function spawnBird() {
-    const fromLeft = Math.random() < 0.5;
-    const speed = (180 + Math.random() * 140) * DPR; // 180–320 CSS-px/s × DPR
-    const angle = (Math.random() - 0.5) * 0.4;       // ≈ ±11° drift
-    const dirX = fromLeft ? 1 : -1;
-    // Keep the bird in the top/bottom thirds so the wordmark's halo doesn't hide it.
-    const topBand = Math.random() < 0.7;
-    const y = topBand
-      ? (0.08 + Math.random() * 0.20) * H  // sky band: 8..28% from top
-      : (0.74 + Math.random() * 0.18) * H; // ground band: 74..92%
-    bird = {
-      x: fromLeft ? -180 * DPR : W + 180 * DPR,
-      y,
-      vx: dirX * speed * Math.cos(angle),
-      vy: speed * Math.sin(angle),
-      t: 0.6 + Math.random() * 0.4,    // birdsong cosine amplitude
-      k: 1.2,
-      cell: lineSpacing * 1.7,         // glyph grid cell
-      cols: 9,
-      rows: 5,
-      phase: Math.random() * Math.PI * 2,
-      flap: 0.5 + Math.random() * 0.6,
-      hitR: lineSpacing * 4.5,
+    // s = staff step: 0 is the bottom line, 8 the top line, beyond that needs ledger lines.
+    const Y = (top, s) => top + 4 * SP - s * SP / 2;
+    const line = (x1, y1, x2, y2, w) => { g.lineWidth = w; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); };
+    const head = (x, y) => { g.beginPath(); g.ellipse(x, y, SP * 0.6, SP * 0.42, -0.35, 0, 7); g.fill(); };
+    const ledgers = (x, top, s) => {
+      for (let l = -2; l >= s; l -= 2) line(x - SP, Y(top, l), x + SP, Y(top, l), 1);
+      for (let l = 10; l <= s; l += 2) line(x - SP, Y(top, l), x + SP, Y(top, l), 1);
     };
-  }
 
-  // Mouse position + smoothed velocity (canvas px and px/s)
-  let mouseX = -1, mouseY = -1;
-  let mouseVX = 0, mouseVY = 0;
-  let lastMoveX = -1, lastMoveY = -1, lastMoveT = 0;
-  let lastTrailX = -1, lastTrailY = -1, lastTrailT = 0;
-
-  addEventListener('mousemove', (e) => {
-    const x = e.clientX * DPR;
-    const y = e.clientY * DPR;
-    const now = performance.now();
-
-    if (lastMoveX >= 0) {
-      const dt = (now - lastMoveT) / 1000;
-      if (dt > 0.0005 && dt < 0.2) {
-        const ivx = (x - lastMoveX) / dt;
-        const ivy = (y - lastMoveY) / dt;
-        // EMA smoothing so a single jittery sample doesn't dominate
-        const a = 0.55;
-        mouseVX = mouseVX * (1 - a) + ivx * a;
-        mouseVY = mouseVY * (1 - a) + ivy * a;
-      }
-    }
-    lastMoveX = x; lastMoveY = y; lastMoveT = now;
-    mouseX = x; mouseY = y;
-
-    const dist = (lastTrailX < 0) ? Infinity : Math.hypot(x - lastTrailX, y - lastTrailY);
-    if (dist < 16 * DPR && now - lastTrailT < 50) return;
-    lastTrailX = x; lastTrailY = y; lastTrailT = now;
-    trail.push({
-      glyph: GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
-      x, y,
-      vx: (Math.random() - 0.5) * 40 * DPR,
-      vy: -(15 + Math.random() * 35) * DPR,
-      size: lineSpacing * (1.4 + Math.random() * 0.7),
-      age: 0,
-      life: 0.7 + Math.random() * 0.5,
-    });
-    if (trail.length > 200) trail.shift();
-  });
-  addEventListener('mouseout', (e) => {
-    // When the cursor leaves the document, stop hitting notes.
-    if (!e.relatedTarget) { mouseX = -1; mouseY = -1; mouseVX = 0; mouseVY = 0; }
-  });
-
-  // ===== Easter egg: spacebar sweep that plays a note for each glyph it touches =====
-  let sweep = null;
-  let audioCtx = null;
-  // Pre-baked piano harmonic spectrum + hammer-noise buffer, built once per AudioContext.
-  let pianoWave = null;
-  let noiseBuf = null;
-
-  function ensureAudio() {
-    if (!audioCtx) {
-      const Ctor = window.AudioContext || window.webkitAudioContext;
-      if (!Ctor) return;
-      audioCtx = new Ctor();
-      // Piano-like harmonic series. Index 0 is DC; index k is amplitude of the k-th harmonic.
-      const real = new Float32Array([0, 1.0, 0.42, 0.22, 0.14, 0.08, 0.05, 0.03, 0.02]);
-      const imag = new Float32Array(real.length);
-      pianoWave = audioCtx.createPeriodicWave(real, imag);
-      // 40ms decaying-white-noise hammer transient, shared across all notes.
-      const sr = audioCtx.sampleRate;
-      const len = (sr * 0.04) | 0;
-      noiseBuf = audioCtx.createBuffer(1, len, sr);
-      const d = noiseBuf.getChannelData(0);
-      const invLen = 1 / len;
-      for (let i = 0; i < len; i++) {
-        const k = 1 - i * invLen;
-        d[i] = (Math.random() * 2 - 1) * k * k;
-      }
-    }
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  }
-
-  // Random chromatic note from A2 (MIDI 45) to C7 (MIDI 96), precomputed to skip Math.pow.
-  const PITCHES = (() => {
-    const arr = new Float32Array(52);
-    for (let i = 0; i < arr.length; i++) arr[i] = 440 * Math.pow(2, (45 + i - 69) / 12);
-    return arr;
-  })();
-  function randomPitch() {
-    return PITCHES[(Math.random() * 52) | 0];
-  }
-
-  // One oscillator + PeriodicWave gives the harmonic spectrum; the lowpass closing
-  // during decay handles "high partials fade faster". Shared noise buffer = no per-note alloc.
-  function playTone(freq) {
-    if (!audioCtx) return;
-    const t = audioCtx.currentTime;
-
-    // Clamp decay to [0.7, 2.4] without Math.min/max chains.
-    let dec = 900 / freq;
-    if (dec < 0.7) dec = 0.7; else if (dec > 2.4) dec = 2.4;
-
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.Q.value = 0.6;
-    const f12 = freq * 12, f2 = freq * 2;
-    filter.frequency.setValueAtTime(f12 > 8000 ? 8000 : f12, t);
-    filter.frequency.exponentialRampToValueAtTime(f2 < 300 ? 300 : f2, t + 1.2);
-
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.4, t + 0.004);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + dec);
-
-    const osc = audioCtx.createOscillator();
-    osc.setPeriodicWave(pianoWave);
-    osc.frequency.value = freq;
-    osc.connect(filter).connect(gain).connect(audioCtx.destination);
-    osc.start(t);
-    osc.stop(t + dec + 0.05);
-
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = noiseBuf;
-    const nGain = audioCtx.createGain();
-    nGain.gain.value = 0.08;
-    noise.connect(nGain).connect(filter);
-    noise.start(t);
-  }
-
-  function startSweep() {
-    if (sweep) return;
-    ensureAudio();
-    sweep = {
-      x: -4 * DPR,
-      speed: W / 1.6,    // ~1.6s to cross the screen
-      hit: new WeakSet(),
-    };
-  }
-
-  // Mouse click: scare existing nearby notes radially outward, then spawn a burst
-  // of new notes flying out from the click point in random directions.
-  function shootAndScare(cx, cy) {
-    const scareR = lineSpacing * 6;
-    const scareR2 = scareR * scareR;
-    for (const n of notes) {
-      const dx = n.x - cx;
-      const dy = n.y - cy;
-      const d2 = dx * dx + dy * dy;
-      if (d2 < scareR2 && d2 > 1) {
-        const d = Math.sqrt(d2);
-        const strength = 1 - d / scareR;
-        const v = (200 + strength * 500) * DPR;
-        n.vx = (dx / d) * v;
-        n.vy = (dy / d) * v;
-        n.knocked = true;
-      }
-    }
-    const count = 10 + ((Math.random() * 6) | 0);
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = (180 + Math.random() * 320) * DPR;
-      notes.push({
-        glyph: GLYPHS[(Math.random() * GLYPHS.length) | 0],
-        x: cx,
-        y: cy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: lineSpacing * (1.6 + Math.random() * 0.8),
-        alpha: 1.0,
-        knocked: true,
+    // A beamed group of chords: xs[i] with steps chords[i] (array of staff steps); up forces stem direction.
+    const group = (top, xs, chords, beams, up) => {
+      const lo = chords.map(c => Math.min(...c)), hi = chords.map(c => Math.max(...c));
+      up ??= (lo.reduce((a, b) => a + b) / lo.length) < 4;
+      const ends = xs.map((x, i) => up ? Y(top, hi[i]) - SP * 3.5 : Y(top, lo[i]) + SP * 3.5);
+      const sx = xs.map(x => up ? x + SP * 0.55 : x - SP * 0.55);
+      const n = xs.length - 1, slope = n ? (ends[n] - ends[0]) / (sx[n] - sx[0]) : 0;
+      chords.forEach((c, i) => {
+        c.forEach((s, k) => {
+          // Adjacent seconds flip to the other side of the stem, as in real cluster engraving.
+          const shift = k && c[k] - c[k - 1] === 1 && k % 2 ? (up ? SP * 1.1 : -SP * 1.1) : 0;
+          head(xs[i] + shift, Y(top, s));
+          ledgers(xs[i] + shift, top, s);
+        });
+        const by = ends[0] + slope * (sx[i] - sx[0]);
+        line(sx[i], up ? Y(top, lo[i]) : Y(top, hi[i]), sx[i], by, 1);
       });
-    }
-  }
+      if (n) for (let b = 0; b < beams; b++) {
+        const o = (up ? 1 : -1) * b * SP * 0.75;
+        line(sx[0], ends[0] + o, sx[n], ends[n] + o, SP * 0.45);
+      }
+      return { x0: sx[0], x1: sx[n], y: up ? Math.min(...ends) : Math.max(...ends), up };
+    };
 
-  let spawnAcc = 0;
-  // Knock speed is derived from mouse speed; clamp to a comfortable visual range.
-  const KNOCK_FACTOR = 2.0;             // multiplier on mouse speed
-  const KNOCK_MIN = 300;                // CSS px/s — gentle bump if barely moving
-  const KNOCK_MAX = 4000;               // CSS px/s — cap so it never feels absurd
-  const MOTION_THRESHOLD = 60;          // CSS px/s — below this, use radial direction
+    const tuplet = (gr) => {
+      const y = gr.y + (gr.up ? -SP * 1.6 : SP * 1.6), d = gr.up ? SP * 0.6 : -SP * 0.6;
+      const mid = (gr.x0 + gr.x1) / 2, label = RATIOS[ri(0, RATIOS.length - 1)];
+      g.font = `italic ${SP * 1.6}px "Times New Roman", serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      const tw = g.measureText(label).width / 2 + 3;
+      line(gr.x0, y + d, gr.x0, y, 1); line(gr.x0, y, mid - tw, y, 1);
+      line(mid + tw, y, gr.x1, y, 1); line(gr.x1, y, gr.x1, y + d, 1);
+      g.fillText(label, mid, y);
+    };
 
-  function tick(dt) {
-    spawnAcc += dt;
-    while (spawnAcc > spawnInterval) {
-      spawnAcc -= spawnInterval;
-      spawnOne();
-    }
+    const DYN = ['ffff', 'pppp', 'sfffz', 'fff', 'ppppp', 'fp', 'sffz', 'ffffff'];
+    const text = (t, x, y, px, style = '') => {
+      g.font = `${style} ${px}px "Times New Roman", serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(t, x, y);
+    };
+    const acc = (x, y) => text('♯♭♮'[ri(0, 2)], x - SP * 1.7, y, SP * 2.2);
+    const slur = (gr) => {
+      const y = gr.y + (gr.up ? -SP * 2.5 : SP * 2.5), bow = gr.up ? -SP * 2 : SP * 2;
+      g.lineWidth = 1; g.beginPath(); g.moveTo(gr.x0, y);
+      g.quadraticCurveTo((gr.x0 + gr.x1) / 2, y + bow, gr.x1, y); g.stroke();
+    };
+    const marks = (top, gr) => {
+      const r = rnd();
+      if (r < 0.3) tuplet(gr);
+      else if (r < 0.5) slur(gr);
+      if (rnd() < 0.15) text(DYN[ri(0, DYN.length - 1)], gr.x0, top + SP * 7.5, SP * 2, 'bold italic');
+      if (rnd() < 0.08) {               // hairpin
+        const y = top + SP * 7.5, x = gr.x0 + SP * 4, w = SP * ri(6, 14), o = rnd() < 0.5;
+        line(x, y + (o ? 0 : -SP), x + w, y + (o ? -SP : 0), 1);
+        line(x, y + (o ? 0 : SP), x + w, y + (o ? SP : 0), 1);
+      }
+      if (rnd() < 0.05) text('𝄐', (gr.x0 + gr.x1) / 2, top - SP * 3, SP * 3);
+      if (rnd() < 0.05) {               // 8va bracket
+        const y = top - SP * 4.5;
+        text('8va', gr.x0, y, SP * 1.6, 'bold italic');
+        g.setLineDash([3, 3]); line(gr.x0 + SP * 2, y, gr.x1 + SP * 6, y, 1); g.setLineDash([]);
+        line(gr.x1 + SP * 6, y, gr.x1 + SP * 6, y + SP, 1);
+      }
+    };
 
-    // Decay mouse velocity each frame so a stale fast swipe doesn't keep launching notes.
-    const decay = Math.exp(-dt * 7);
-    mouseVX *= decay;
-    mouseVY *= decay;
+    const TIME = [['17', '√2'], ['π', '4'], ['13', '8'], ['7', '5'], ['∞', '16'], ['e', '8'], ['11', '√3']];
+    const TEMPO = ['♩ = 60·√2', '♩ = π·40, accel. al niente', 'Presto impossibile', '♩ = ∞', 'rit. (but faster)', '♪ = e·100, con fuoco'];
+    const STAFF_GAP = SP * 12, SYSTEM = STAFF_GAP + SP * 22; // top-to-top inside a system / between systems
 
-    const menuOpen = !overlayClosed();
+    // Fill one measure of one staff with a single voice; returns first and last notehead for glissandi.
+    // Voice 1 (up) lives high on the staff, voice 2 (down) low, so they interlock instead of colliding.
+    const fill = (top, x0, x1, kind, up, motif, squeeze) => {
+      const lo = up ? 2 : -6, hi = up ? 14 : 6;
+      let first = null, last = null;
+      const keep = (gr, x, s) => { first ??= [x, Y(top, s)]; last = [x, Y(top, s)]; return gr; };
+      if (kind === 'run') {
+        let s = ri(lo, hi), dir = rnd() < 0.5 ? -1 : 1;
+        const dx = SP * (1.2 + rnd() * 0.6);
+        for (let x = x0; x + dx * 4 < x1;) {
+          const xs = [], ch = [];
+          for (let k = 0; k < 4; k++, x += dx) {
+            if (s >= hi || s <= lo) dir = -dir;
+            s += dir;
+            xs.push(x); ch.push([s]);
+            if (rnd() < 0.12) acc(x, Y(top, s));
+          }
+          marks(top, keep(group(top, xs, ch, ri(2, 4), up), x - dx, s));
+        }
+      } else if (kind === 'cluster') {
+        const xs = [], ch = [];
+        for (let x = x0 + SP; x < x1 - SP && xs.length < 8; x += SP * 2.8) {
+          const h = ri(3, 9), b = up ? ri(2, 8) : ri(-6, 1);
+          xs.push(x); ch.push(Array.from({ length: h }, (_, i) => b + i));
+        }
+        if (xs.length) marks(top, keep(group(top, xs, ch, ri(3, 5), up), xs[0], ch[0][0]));
+      } else {                               // canon: shared motif, compressed on the lower staff
+        const dx = SP * 2.4 * squeeze;
+        for (let x = x0; x + dx * 4 < x1; x += dx * 4 + SP) {
+          const xs = motif.map((_, k) => x + k * dx);
+          const ch = motif.map(m => [up ? m : m - 8]);
+          const gr = keep(group(top, xs, ch, squeeze < 1 ? 3 : 2, up), xs[0], ch[0][0]);
+          if (squeeze < 1 && up) tuplet(gr);
+        }
+      }
+      return { first, last };
+    };
 
-    // ===== Bird flyby =====
-    const nowMs = performance.now();
-    if (!bird && nowMs >= nextBirdAt) spawnBird();
-    if (bird) {
-      bird.x += bird.vx * dt;
-      bird.y += bird.vy * dt;
+    // Flat gray inks (no alpha) so overlaps never build toward black: staff < voice 2 < voice 1 < furniture.
+    const ink = (c) => { g.fillStyle = g.strokeStyle = c; };
+    const STAFF_INK = '#F7F7F7', VOICE_INK = ['#EEEEEE', '#F3F3F3'], RUN_INK = '#F0F0F0', MARK_INK = '#EBEBEB';
+    let letter = 0;
+    for (let top = SP * 10; top < H; top += SYSTEM) {
+      const tops = [top, top + STAFF_GAP], bottom = top + STAFF_GAP + 4 * SP;
+      ink(STAFF_INK);
+      for (const t of tops) for (let l = 0; l < 5; l++) line(SP * 3, t + l * SP + 0.5, W, t + l * SP + 0.5, 1);
+      ink(MARK_INK);
 
-      // Notes within bird's hit radius get launched along its heading + radially outward.
-      const bSpeed = Math.hypot(bird.vx, bird.vy);
-      if (bSpeed > 0) {
-        const bdirX = bird.vx / bSpeed;
-        const bdirY = bird.vy / bSpeed;
-        const knockV = bSpeed * 1.7;
-        const hitR2 = bird.hitR * bird.hitR;
-        for (const n of notes) {
-          if (n.knocked) continue;
-          const dx = n.x - bird.x;
-          const dy = n.y - bird.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < hitR2) {
-            const d = Math.sqrt(Math.max(d2, 1));
-            const rx = dx / d, ry = dy / d;
-            const mx = 0.6 * bdirX + 0.5 * rx;
-            const my = 0.6 * bdirY + 0.5 * ry;
-            const ml = Math.hypot(mx, my) || 1;
-            n.vx = (mx / ml) * knockV;
-            n.vy = (my / ml) * knockV;
-            n.knocked = true;
+      // System furniture: brace, opening barline, clefs, absurd time signature, rehearsal letter, tempo.
+      line(SP * 3, top, SP * 3, bottom, 1);
+      g.lineWidth = SP * 0.5; g.beginPath();
+      g.moveTo(SP * 2, top - SP); g.quadraticCurveTo(SP * 0.5, (top + bottom) / 2, SP * 2, bottom + SP); g.stroke();
+      g.font = `${SP * 6.5}px "Times New Roman", serif`; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+      g.fillText('𝄞', SP * 3.6, top + SP * 5.2);
+      g.font = `${SP * 4.2}px "Times New Roman", serif`;
+      g.fillText('𝄢', SP * 3.8, tops[1] + SP * 3.2);
+      const ts = TIME[ri(0, TIME.length - 1)];
+      for (const t of tops) { text(ts[0], SP * 10, t + SP, SP * 2.6, 'bold'); text(ts[1], SP * 10, t + SP * 3, SP * 2.6, 'bold'); }
+      const L = String.fromCharCode(65 + (letter++ % 26));
+      g.lineWidth = 1; g.strokeRect(SP * 3, top - SP * 6, SP * 3, SP * 3);
+      text(L, SP * 4.5, top - SP * 4.5, SP * 2, 'bold');
+      text(TEMPO[ri(0, TEMPO.length - 1)], SP * 16, top - SP * 4.5, SP * 1.8, 'bold');
+
+      // Measures with barlines through both staves; one musical idea per measure.
+      const prev = [[null, null], [null, null]]; // last notehead per staff/voice, for glissandi
+      for (let x = SP * 13; x < W;) {
+        const w = SP * ri(20, 42), x1 = x + w;
+        const kind = ['run', 'run', 'cluster', 'canon'][ri(0, 3)];
+        const motif = Array.from({ length: 4 }, () => ri(4, 12));
+        tops.forEach((t, si) => [true, false].forEach((up, vi) => {
+          ink(VOICE_INK[vi]);
+          if (kind !== 'canon' && rnd() < 0.25) return; // a voice rests now and then
+          const f = fill(t, x + SP * 1.5, x1 - SP, kind, up, motif, si ? Math.SQRT1_2 : 1);
+          const p = prev[si][vi];
+          if (p && f.first && rnd() < 0.2) {
+            line(p[0], p[1], f.first[0], f.first[1], 1);
+            text('gliss.', (p[0] + f.first[0]) / 2, (p[1] + f.first[1]) / 2 - SP, SP * 1.4, 'italic');
+          }
+          prev[si][vi] = f.last;
+        }));
+        // Occasional cross-staff run: one long beamed line falling from treble to bass.
+        if (rnd() < 0.15) {
+          ink(RUN_INK);
+          const n = 16, dx = w / (n + 2), y0 = top - SP * 2, y1 = bottom + SP * 2;
+          for (let i = 0; i < n; i++) {
+            const hx = x + dx * (i + 1), hy = y0 + (y1 - y0) * i / (n - 1);
+            head(hx, hy); line(hx + SP * 0.55, hy, hx + SP * 0.55, hy - SP * 3.5, 1);
+            if (i % 8 === 7) for (let b = 0; b < 3; b++) {
+              const ax = x + dx * (i - 6) + SP * 0.55, ay = y0 + (y1 - y0) * (i - 7) / (n - 1) - SP * 3.5;
+              line(ax, ay + b * SP * 0.75, hx + SP * 0.55, hy - SP * 3.5 + b * SP * 0.75, SP * 0.45);
+            }
           }
         }
-      }
-
-      // Cull when fully past, schedule the next visit.
-      const margin = 220 * DPR;
-      if (bird.x < -margin || bird.x > W + margin || bird.y < -margin || bird.y > H + margin) {
-        bird = null;
-        nextBirdAt = nowMs + (15 + Math.random() * 30) * 1000; // 15–45s until next
-      }
-    }
-
-    // Mouse knock collisions — disabled while the menu is open.
-    if (mouseX >= 0 && !menuOpen) {
-      const hitR = lineSpacing * 1.8;
-      const hitR2 = hitR * hitR;
-      const mSpeed = Math.hypot(mouseVX, mouseVY);                 // canvas px/s
-      const mSpeedCss = mSpeed / DPR;                              // CSS px/s for threshold compare
-      const knockV = Math.max(KNOCK_MIN, Math.min(KNOCK_MAX, mSpeedCss * KNOCK_FACTOR)) * DPR;
-      const useMotion = mSpeedCss > MOTION_THRESHOLD && mSpeed > 0;
-      const mDirX = useMotion ? (mouseVX / mSpeed) : 0;
-      const mDirY = useMotion ? (mouseVY / mSpeed) : 0;
-
-      for (const n of notes) {
-        if (n.knocked) continue;
-        const dx = n.x - mouseX;
-        const dy = n.y - mouseY;
-        const d2 = dx * dx + dy * dy;
-        if (d2 < hitR2) {
-          let ux, uy;
-          if (useMotion) {
-            ux = mDirX; uy = mDirY;
-          } else if (d2 < 1) {
-            const a = Math.random() * Math.PI * 2;
-            ux = Math.cos(a); uy = Math.sin(a);
-          } else {
-            const d = Math.sqrt(d2);
-            ux = dx / d; uy = dy / d;
-          }
-          n.vx = ux * knockV;
-          n.vy = uy * knockV;
-          n.knocked = true;
-        }
+        // Barline: mostly single, sometimes a double bar or a repeat.
+        ink(MARK_INK);
+        const r = rnd();
+        line(x1, top, x1, bottom, 1);
+        if (r < 0.12) line(x1 + SP * 0.6, top, x1 + SP * 0.6, bottom, SP * 0.5);
+        else if (r < 0.2) for (const t of tops) { head(x1 - SP, t + SP * 1.5); head(x1 - SP, t + SP * 2.5); }
+        x = x1;
       }
     }
+  };
 
-    // ===== Sweep bar: play a note for each glyph it crosses this frame =====
-    if (sweep) {
-      const prevX = sweep.x;
-      sweep.x += sweep.speed * dt;
-      for (const n of notes) {
-        if (sweep.hit.has(n)) continue;
-        if (n.x >= prevX && n.x < sweep.x) {
-          playTone(randomPitch());
-          sweep.hit.add(n);
-          n.knocked = true;
-          // Gentle upward bounce for visual feedback.
-          n.vy = -(70 + Math.random() * 50) * DPR;
-          n.vx = (n.vx * 0.4) + 30 * DPR;
-        }
-      }
-      // Bird columns count too — each glyph of the bird plays its own note.
-      if (bird) {
-        if (sweep.birdRef !== bird) {
-          sweep.birdRef = bird;
-          sweep.birdHit = new Set();
-        }
-        const colsHalf = (bird.cols - 1) / 2;
-        const dxBird = bird.vx * dt;
-        for (let ci = 0; ci < bird.cols; ci++) {
-          if (sweep.birdHit.has(ci)) continue;
-          const cx = bird.x + (ci - colsHalf) * bird.cell;
-          const cxPrev = cx - dxBird;
-          const a = cxPrev - prevX;
-          const b = cx - sweep.x;
-          // Sign change between frames means the sweep and glyph crossed paths.
-          if ((a >= 0 && b <= 0) || (a <= 0 && b >= 0)) {
-            playTone(randomPitch());
-            sweep.birdHit.add(ci);
-          }
-        }
-      }
-      if (sweep.x > W + 40 * DPR) sweep = null;
-    }
-
-    // Advance notes; cull anything off any edge (knocked notes can exit any side).
-    for (const n of notes) {
-      n.x += n.vx * dt;
-      n.y += n.vy * dt;
-    }
-    const m = 80 * DPR;
-    notes = notes.filter(n =>
-      n.x > -m && n.x < W + m && n.y > -m && n.y < H + m
-    );
-
-    for (const t of trail) {
-      t.x += t.vx * dt;
-      t.y += t.vy * dt;
-      t.age += dt;
-    }
-    trail = trail.filter(t => t.age < t.life);
-  }
-
-  function drawStaves() {
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = Math.max(1, DPR * 0.9);
-    ctx.globalAlpha = STAFF_ALPHA;
-    for (const s of staves) {
-      for (let i = -2; i <= 2; i++) {
-        const yy = Math.round(s.y + i * lineSpacing) + 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, yy);
-        ctx.lineTo(W, yy);
-        ctx.stroke();
-      }
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  function drawNotes() {
-    ctx.fillStyle = '#000';
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-    for (const n of notes) {
-      ctx.globalAlpha = n.knocked ? 1 : (n.alpha * NOTE_ALPHA);
-      ctx.font = `${n.size | 0}px "Times New Roman", Times, serif`;
-      ctx.fillText(n.glyph, n.x, n.y);
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  function drawTrail() {
-    for (const t of trail) {
-      const k = 1 - t.age / t.life;
-      ctx.globalAlpha = Math.max(0, k);
-      ctx.font = `${t.size | 0}px "Times New Roman", Times, serif`;
-      ctx.fillText(t.glyph, t.x, t.y);
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  function drawBird() {
-    if (!bird) return;
-    const fontPx = Math.max(10, (bird.cell * 0.9) | 0);
-    ctx.font = `${fontPx}px "Times New Roman", Times, serif`;
-    ctx.fillStyle = '#000';
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-    ctx.globalAlpha = 1;
-
-    const tt = bird.t * (1 + 0.15 * Math.sin(performance.now() * 0.003 * bird.flap + bird.phase));
-    const colsHalf = (bird.cols - 1) / 2;
-    const rowsHalf = (bird.rows - 1) / 2;
-
-    for (let ci = 0; ci < bird.cols; ci++) {
-      const u = ci / (bird.cols - 1);
-      const x = -2 + u * 4;                                  // -2..2
-      const y = Math.cos(bird.k * tt * x) * tt;              // -1..1
-      const dyd = -bird.k * tt * tt * Math.sin(bird.k * tt * x);
-      const ch = glyphForSlope(dyd);
-      const r = Math.round(-rowsHalf + (y + 1) * 0.5 * (bird.rows - 1));
-      const px = bird.x + (ci - colsHalf) * bird.cell;
-      const py = bird.y + r * bird.cell;
-      ctx.fillText(ch, px, py);
-    }
-  }
-
-  function drawSweep() {
-    if (!sweep) return;
-    const w = Math.max(1, Math.round(2 * DPR));
-    // Soft trail behind the bar.
-    for (let i = 6; i >= 1; i--) {
-      ctx.globalAlpha = 0.18 * (1 - i / 7);
-      ctx.fillStyle = '#000';
-      ctx.fillRect(Math.round(sweep.x - i * 5 * DPR), 0, w, H);
-    }
-    ctx.globalAlpha = 0.75;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(Math.round(sweep.x), 0, w, H);
-    ctx.globalAlpha = 1;
-  }
-
-  let last = performance.now();
-  function frame(now) {
-    const dt = Math.min((now - last) / 1000, 0.05);
-    last = now;
-
-    ctx.fillStyle = '#FFF';
-    ctx.fillRect(0, 0, W, H);
-
-    drawStaves();
-    tick(dt);
-    drawNotes();
-    drawSweep();
-    drawBird();
-    drawTrail();
-
-    if (!dbg.hidden) {
-      dbg.textContent = `staves: ${staves.length}\nnotes: ${notes.length}\ntrail: ${trail.length}\nspawn/s: ${(1/spawnInterval).toFixed(2)}\nDPR: ${DPR.toFixed(2)}\nFPS: ${(1/dt).toFixed(0)}`;
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-
-  // Capture-phase listener so Space fires the sweep before the menu's open-on-Space handler.
-  addEventListener('keydown', (e) => {
-    if (e.key !== ' ' && e.code !== 'Space') return;
-    if (!overlayClosed()) return;
-    const ae = document.activeElement;
-    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    startSweep();
-  }, true);
-
-  // Touch tap → sweep. Mouse/pen click → burst of notes + scare nearby ones.
-  // Both ignore taps on the press-start button and while the menu is open.
-  addEventListener('pointerdown', (e) => {
-    if (!overlayClosed()) return;
-    const tgt = e.target;
-    if (tgt && tgt.nodeType === 1 && tgt.closest('#menu-trigger')) return;
-    if (e.pointerType === 'touch') {
-      startSweep();
-    } else if (e.button === 0) {
-      shootAndScare(e.clientX * DPR, e.clientY * DPR);
-    }
-  });
-
-  addEventListener('keydown', (e) => {
-    if (!overlayClosed()) return;
-    const k = e.key;
-    if (k.toLowerCase() === 'd') dbg.hidden = !dbg.hidden;
-    else if (k === '+' || k === '=') adjustDensity(+1); // more notes
-    else if (k === '-' || k === '_') adjustDensity(-1); // fewer notes
-  });
-  function overlayClosed() {
-    const o = document.getElementById('menu-overlay');
-    return !o || o.dataset.open !== 'true';
-  }
+  addEventListener('resize', () => { if (!pending) { pending = true; requestAnimationFrame(draw); } });
+  draw();
 })();
 </script>
-
 <script>
-/* ============================================================
-   RPG menu logic: open/close, keyboard nav, section switching.
-   ============================================================ */
 (() => {
-  const trigger = document.getElementById('menu-trigger');
-  const overlay = document.getElementById('menu-overlay');
-  const items = Array.from(document.querySelectorAll('.menu-item'));
-  const panes = Array.from(document.querySelectorAll('.content-pane'));
-  let idx = 0;
+  // WordArt welcome: per-letter rainbow with a rolling wave (delay staggered by letter).
+  const welcome = document.querySelector('.welcome');
+  const RAINBOW = ['#F00', '#F80', '#FD0', '#0C0', '#09F', '#00F', '#A0F'];
+  welcome.innerHTML = [...welcome.textContent].map((ch, i) =>
+    `<span style="color:${RAINBOW[i % 7]};animation-delay:${-i * 0.08}s">${ch}</span>`).join('');
 
-  function select(i) {
-    idx = (i + items.length) % items.length;
-    items.forEach((el, k) => el.classList.toggle('selected', k === idx));
-    const section = items[idx].dataset.section;
-    panes.forEach(p => p.dataset.active = (p.dataset.section === section) ? 'true' : 'false');
-  }
+  // Bird strips: the footer strip (links, credits, hover-pause), plus a bare copy at the top of the page
+  // that is pure decoration: photos only, no links/tooltips/pause, hidden from screen readers. Both are
+  // shuffled independently on every load. Each track then gets a copy of its birds appended for a
+  // seamless loop, and its speed set to ~50px/s.
+  const shuffle = (track) => {
+    const kids = [...track.children];
+    for (let i = kids.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [kids[i], kids[j]] = [kids[j], kids[i]];
+    }
+    track.append(...kids); // re-appending moves them into the new order
+  };
+  const footerBirds = document.querySelector('.birds:not(.popup)');
+  shuffle(footerBirds.querySelector('.bird-track'));
+  const decoRow = () => {
+    const row = footerBirds.cloneNode(true);
+    row.setAttribute('aria-hidden', 'true');
+    row.classList.add('deco');
+    for (const b of row.querySelectorAll('.bird')) b.replaceChildren(b.querySelector('img')); // drop link, caption
+    shuffle(row.querySelector('.bird-track'));
+    return row;
+  };
+  // Hero under the welcome banner: two bird rows (opposite directions) with the header card floating on top.
+  const hero = document.createElement('div'), rowB = decoRow();
+  hero.className = 'hero';
+  rowB.classList.add('rev');
+  hero.append(decoRow(), rowB, document.querySelector('.masthead'));
+  document.querySelector('marquee').after(hero);
+  const loop = (track) => {
+    track.append(...[...track.children].map((n) => {
+      const c = n.cloneNode(true);
+      c.setAttribute('aria-hidden', 'true');
+      const a = c.querySelector('a');
+      if (a) a.tabIndex = -1;
+      return c;
+    }));
+    track.style.setProperty('--dur', `${track.scrollWidth / 2 / 50}s`);
+  };
+  for (const track of document.querySelectorAll('.birds:not(.popup) .bird-track')) loop(track);
 
-  function open() {
-    overlay.dataset.open = 'true';
-    overlay.setAttribute('aria-hidden', 'false');
-    select(0);
-    trigger.style.visibility = 'hidden';
-  }
-
-  function close() {
-    overlay.dataset.open = 'false';
-    overlay.setAttribute('aria-hidden', 'true');
-    trigger.style.visibility = 'visible';
-  }
-
-  trigger.addEventListener('click', open);
-  trigger.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
-  });
-
-  const menuList = document.getElementById('menu-list');
-  const mobileMQ = window.matchMedia('(max-width: 600px)');
-
-  items.forEach((el, i) => {
-    el.addEventListener('click', () => {
-      // On mobile, tapping the collapsed button just expands the dropdown.
-      if (mobileMQ.matches && !menuList.classList.contains('open')) {
-        menuList.classList.add('open');
-        return;
+  // Letterboxd hover: on first hover, fill the popup with recent films (films.json is refreshed daily
+  // by .github/workflows/films.yml). Built with DOM calls since titles come from an external feed.
+  const lb = document.getElementById('lb');
+  lb.addEventListener('mouseenter', async () => {
+    try {
+      const films = await (await fetch('films.json')).json();
+      const track = lb.querySelector('.bird-track');
+      for (const f of films) {
+        const a = document.createElement('a'), img = new Image(75, 113), span = document.createElement('span');
+        a.href = f.link; a.target = '_blank'; a.rel = 'noopener';
+        a.title = `${f.title} (${f.year}) ${f.stars}`.trim();
+        img.src = f.poster; img.alt = f.title;
+        span.className = 'bird';
+        a.append(img); span.append(a); track.append(span);
       }
-      select(i);
-      if (el.dataset.section === 'close') close();
-      if (mobileMQ.matches) menuList.classList.remove('open');
+      loop(track);
+    } catch { /* no popup if films.json is missing */ }
+  }, { once: true });
+
+  // Static popups (insta posts, last-seen birds): images are in the HTML (lazy). Start each loop on the
+  // first frame its popup is actually laid out, since its width (and so its speed) can't be measured hidden.
+  for (const id of ['ig', 'eb']) {
+    const pop = document.getElementById(id), track = pop.querySelector('.bird-track');
+    const start = () => requestAnimationFrame(() => {
+      if (!track.offsetWidth) return; // left before it showed; try again next hover
+      loop(track);
+      pop.removeEventListener('mouseenter', start);
     });
-  });
+    pop.addEventListener('mouseenter', start);
+  }
 
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) { close(); return; }
-    // Tap outside the dropdown (anywhere in the frame except the list) collapses it.
-    if (mobileMQ.matches && !menuList.contains(e.target)) {
-      menuList.classList.remove('open');
-    }
-  });
+  // "Visitor counter": random digits per load with at least one ♭ and one ♯, sometimes a joke value.
+  const rint = (n) => (Math.random() * n) | 0;
+  const digits = Array.from({ length: 7 }, () => '0123456789♭♯'[rint(12)]);
+  const fp = rint(7), sp = (fp + 1 + rint(6)) % 7; // two distinct slots
+  digits[fp] = '♭'; digits[sp] = '♯';
+  const JOKES = ['-00♭0♯03', '0♯000♭½', '♭♯♭♯♭♯♭', 'N♭a♯N', '3.1♯4♭…', '000♭♯01'];
+  document.querySelector('.counter').textContent = Math.random() < 0.3 ? JOKES[rint(JOKES.length)] : digits.join('');
 
-  addEventListener('keydown', (e) => {
-    const isOpen = overlay.dataset.open === 'true';
-    if (!isOpen) {
-      if ((e.key === 'Enter' || e.key === ' ') && document.activeElement !== trigger) {
-        e.preventDefault();
-        open();
+  // Music-note cursor trail: fixed pool of spans that chase each other.
+  if (matchMedia('(pointer: fine)').matches) {
+    const GLYPHS = '♩♪♫♬♭♯';
+    const dots = Array.from(GLYPHS, (g) => {
+      const s = document.createElement('span');
+      s.className = 'trail';
+      s.textContent = g;
+      document.body.appendChild(s);
+      return { el: s, x: -99, y: -99 };
+    });
+    let mx = -99, my = -99, running = false, idle = 0;
+    const hide = () => document.body.classList.add('still');
+    const step = () => {
+      let x = mx, y = my, moving = false;
+      for (const d of dots) {
+        d.x += (x - d.x) * 0.35;
+        d.y += (y - d.y) * 0.35;
+        if (Math.abs(x - d.x) + Math.abs(y - d.y) > 0.5) moving = true;
+        d.el.style.left = d.x + 'px';
+        d.el.style.top = d.y + 'px';
+        x = d.x; y = d.y;
       }
-      return;
-    }
-    if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); select(idx + 1); }
-    else if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); select(idx - 1); }
-    else if (e.key === 'Escape' || e.key === 'Backspace') {
-      e.preventDefault();
-      // First Escape collapses the open dropdown; otherwise closes the menu.
-      if (mobileMQ.matches && menuList.classList.contains('open')) {
-        menuList.classList.remove('open');
-      } else {
-        close();
+      running = moving;
+      if (running) requestAnimationFrame(step);
+    };
+    addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      document.body.classList.remove('still');
+      clearTimeout(idle);
+      idle = setTimeout(hide, 60); // no movement for 60ms = mouse is still
+      if (!running) { running = true; requestAnimationFrame(step); }
+    });
+  }
+
+  // "Background MIDI": parses resources/midi.mid and plays it on a little square-wave synth, looping.
+  // Times are shifted so playback starts exactly on the first note-on (the file opens with silence).
+  const btn = document.getElementById('midi');
+  const LABEL = btn.textContent;
+
+  // Minimal SMF parser -> [{ t, d, m, v }] in seconds, sorted, first onset at t = 0. Skips drums (ch 10).
+  // The file's own tempo (120) is ignored: the piece plays at a fixed BPM (quarter notes).
+  const BPM = 92;
+  const parseMidi = (buf) => {
+    const d = new DataView(buf), div = d.getUint16(12), nTracks = d.getUint16(10);
+    const raw = [];
+    let p = 14;
+    const vlq = () => { let v = 0, b; do { b = d.getUint8(p++); v = (v << 7) | (b & 127); } while (b & 128); return v; };
+    for (let t = 0; t < nTracks; t++) {
+      const end = p + 8 + d.getUint32(p + 4);
+      const open = new Map();
+      let tick = 0, rs = 0;
+      p += 8;
+      while (p < end) {
+        tick += vlq();
+        const st = d.getUint8(p);
+        if (st === 0xFF || st === 0xF0 || st === 0xF7) { // meta / sysex: skip payload
+          p += st === 0xFF ? 2 : 1;
+          const len = vlq(); // read before adding: `p += vlq()` would use the stale p
+          p += len; continue;
+        }
+        if (st & 0x80) { rs = st; p++; }
+        const type = rs & 0xF0, ch = rs & 15, one = type === 0xC0 || type === 0xD0;
+        const a = d.getUint8(p), b = one ? 0 : d.getUint8(p + 1);
+        p += one ? 1 : 2;
+        if (ch === 9) continue;
+        const key = ch * 128 + a;
+        if (type === 0x90 && b) open.set(key, [tick, b]);
+        else if ((type === 0x80 || type === 0x90) && open.has(key)) {
+          const [s, v] = open.get(key);
+          open.delete(key);
+          raw.push([s, tick, a, v]);
+        }
       }
+      p = end;
     }
-    else if (e.key === 'Enter') {
-      e.preventDefault();
-      close();
+    const sec = (tick) => tick * 60 / (BPM * div);
+    const notes = raw.map(([s, e, m, v]) => ({ t: sec(s), d: sec(e) - sec(s), m, v: v / 127 }))
+      .sort((x, y) => x.t - y.t);
+    const first = notes[0].t;
+    for (const n of notes) n.t -= first;
+    const ms = notes.map(n => n.m);
+    return { notes, length: Math.max(...notes.map(n => n.t + n.d)), lo: Math.min(...ms), hi: Math.max(...ms) };
+  };
+
+  // Piano: FluidR3 GM acoustic grand (CC BY 3.0) samples every 3 semitones (MIDI 27..102, named by
+  // note number); each note plays its nearest sample, pitch-shifted by at most one semitone.
+  const SAMPLES = Array.from({ length: 26 }, (_, k) => 27 + 3 * k);
+  let song = null, piano = null, ctx = null, out = null, timer = 0;
+  const loadPiano = (c) => Promise.all(SAMPLES.map(m =>
+    fetch(`resources/piano/${m}.mp3`).then(r => r.arrayBuffer()).then(b => c.decodeAudioData(b))));
+  const play = (n, t, bufs) => {
+    const k = Math.min(25, Math.max(0, Math.round((n.m - 27) / 3)));
+    const src = ctx.createBufferSource(), g = ctx.createGain(), end = t + Math.max(n.d, 0.05);
+    src.buffer = bufs[k];
+    src.playbackRate.value = 2 ** ((n.m - SAMPLES[k]) / 12);
+    g.gain.setValueAtTime(0.6 * n.v, t);
+    g.gain.setTargetAtTime(0, end, 0.08); // damper falls at note-off
+    src.connect(g).connect(out);
+    src.start(t);
+    src.stop(end + 0.5);
+  };
+  // Lookahead scheduler: queue only the next half second of notes, so stopping is instant.
+  // The song loops every `period` seconds (1s breath at the end); `origin` is when loop 0 began.
+  const start = (song, bufs) => {
+    const { notes, length } = song, period = length + 1, origin = ctx.currentTime + 0.05;
+    let i = 0, loop = 0;
+    const pump = () => {
+      while (origin + loop * period + notes[i].t < ctx.currentTime + 0.5) {
+        play(notes[i], origin + loop * period + notes[i].t, bufs);
+        if (++i === notes.length) { i = 0; loop++; }
+      }
+      timer = setTimeout(pump, 100);
+    };
+    pump();
+    roll(song, origin, period, ctx);
+  };
+
+  // Scrolling piano roll synced to the audio clock: 4s window, playhead at 20%, sounding notes in blue.
+  const player = document.getElementById('player');
+  const cv = document.getElementById('pianoroll');
+  const g = cv.getContext('2d');
+  const SPAN = 4, HEAD = 0.2;
+  const roll = ({ notes, lo, hi }, origin, period, mine) => {
+    const dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const rows = hi - lo + 3, rh = H / rows, pxs = W / SPAN, hx = W * HEAD;
+    const frame = () => {
+      if (ctx !== mine) return; // stopped
+      const pos = (ctx.currentTime - origin) % period;
+      g.clearRect(0, 0, W, H);
+      g.fillStyle = '#F2F2F2'; // black-key lanes
+      for (let m = lo - 1; m <= hi + 1; m++) if ((1 << (m % 12)) & 0b10101001010) g.fillRect(0, H - (m - lo + 2) * rh, W, rh);
+      for (const n of notes) {
+        const x = hx + (n.t - pos) * pxs;
+        if (x > W) break;
+        const w = Math.max(n.d * pxs, 2);
+        if (x + w < 0) continue;
+        g.fillStyle = n.t <= pos && pos < n.t + n.d ? '#0000EE' : '#000';
+        g.fillRect(x, H - (n.m - lo + 2) * rh, w, Math.max(rh - 1, 1));
+      }
+      g.fillStyle = '#F00';
+      g.fillRect(hx, 0, 1, H);
+      requestAnimationFrame(frame);
+    };
+    frame();
+  };
+  const stop = () => {
+    clearTimeout(timer); timer = 0;
+    ctx.close(); ctx = null; // drops any notes already scheduled
+    btn.textContent = LABEL;
+    player.hidden = true;
+  };
+
+  btn.addEventListener('click', async () => {
+    if (ctx) return stop();
+    const mine = ctx = new (window.AudioContext || window.webkitAudioContext)(); // created inside the click
+    out = ctx.createDynamicsCompressor(); // keeps dense chords from clipping
+    out.connect(ctx.destination);
+    btn.textContent = '⏳ tuning the piano...';
+    try {
+      song ??= fetch('resources/midi.mid').then(r => r.arrayBuffer()).then(parseMidi);
+      piano ??= loadPiano(ctx); // decoded buffers outlive this context, so they're reused next time
+      const [s, bufs] = await Promise.all([song, piano]);
+      if (ctx !== mine) return; // stopped (or restarted) while loading
+      btn.textContent = '■ stop the MIDI (do not)';
+      player.hidden = false;
+      start(s, bufs);
+    } catch {
+      song = piano = null;
+      if (ctx === mine) { stop(); btn.textContent = 'MIDI broke :( try again'; }
     }
   });
 })();

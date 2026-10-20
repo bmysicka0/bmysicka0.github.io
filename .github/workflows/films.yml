@@ -1,0 +1,21 @@
+# Refreshes films.json from the Letterboxd RSS feed once a day (and on demand),
+# committing only when the list changed. GitHub Pages redeploys on the commit.
+name: update films
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  films:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl -sfL https://letterboxd.com/brand0m/rss/ | python3 scripts/films.py > films.json
+      - run: |
+          git diff --quiet films.json && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "update films" films.json
+          git push
