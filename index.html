@@ -124,18 +124,31 @@
     /* Song of Storms easter egg: right of the 600px column so it covers nothing. */
     #storms { position: absolute; left: calc(50% + 316px); bottom: 0; z-index: 2; border: 6px outset #888; pointer-events: none; }
     @media (max-width: 1080px) { #storms { position: fixed; left: auto; top: auto; right: 8px; bottom: 48px; } }
-    /* Catbird: the box slides, the sprite flips at each end, the legs alternate. */
-    #catbird { position: fixed; bottom: 0; left: 0; z-index: 98; cursor: pointer; animation: pace 35s linear infinite alternate; }
-    #catbird svg { display: block; animation: face 70s steps(1) infinite; }
-    #catbird .legB { animation: legs .3s steps(1) infinite; }
-    #catbird .legA { animation: legs .3s steps(1) -.15s infinite; }
-    #catbird:is(:hover, .mew), #catbird:is(:hover, .mew) * { animation-play-state: paused; }
-    #catbird i { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    /* Catbird: JS moves the box and flips the sprite; data-move tucks the legs in the air, .step swaps them mid-stride, .flap raises the wing. */
+    #catbird { position: fixed; bottom: 0; left: 0; z-index: 98; cursor: grab; touch-action: none; user-select: none; }
+    #catbird.held { cursor: grabbing; }
+    #catbird.plump svg { scale: 1.3 1.12; } /* overate: rounder, from the feet up */
+    #catbird svg { display: block; transform-origin: 50% 100%; }
+    /* Song notes float up from the beak and fade; --dx drifts them the way it faces. */
+    .chirp { position: fixed; z-index: 98; pointer-events: none; font: 16px "Times New Roman", Times, serif; animation: chirp 1.4s ease-out forwards; }
+    @keyframes chirp { from { transform: translate(-50%, -100%) scale(.6); }
+                       to { transform: translate(calc(-50% + var(--dx)), calc(-100% - 46px)) rotate(var(--r)); opacity: 0; } }
+    /* Dust bath: specks kick out from under the bird and fall back. */
+    .dust { position: fixed; bottom: 0; z-index: 97; width: 3px; height: 3px; background: #A08A6A; pointer-events: none; animation: dust .6s ease-out forwards; }
+    @keyframes dust { 40% { transform: translate(calc(var(--dx) * .6), var(--dy)); } to { transform: translate(var(--dx), 0); opacity: 0; } }
+    .berry { position: fixed; bottom: 0; z-index: 97; pointer-events: none; }
+    .berry svg { display: block; }
+    #catbird :is(.legB, .legT, .wing), #catbird:is([data-move=hop], [data-move=glide], [data-move=bath]) .legA, #catbird.step .legA { display: none; }
+    #catbird:is([data-move=hop], [data-move=glide], [data-move=bath]) .legT, #catbird.step .legB, #catbird.flap .wing { display: inline; }
+    #catbird .tailUp, #catbird.flick .tailDown { display: none; }
+    #catbird.flick .tailUp { display: inline; }
+    #catbird .head { transform-origin: 11px 3px; } /* the neck, in sprite pixels */
+    /* Asleep at night: a blinking z over its head. */
+    #catbird.zz::after { content: "z"; position: absolute; bottom: 100%; left: 50%; font: bold 14px "Comic Sans MS", "Comic Sans", cursive; animation: blink 1s steps(1) infinite; }
+    #catbird.zz.mew::after { display: none; }
+    #catbird i { display: none; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); white-space: nowrap;
                  padding: 2px 6px; background: #FFF; border: 2px solid #000; font: bold 14px "Comic Sans MS", "Comic Sans", cursive; }
     #catbird.mew i { display: block; }
-    @keyframes pace { to { transform: translateX(calc(100vw - 64px)); } }
-    @keyframes face { 50% { transform: scaleX(-1); } }
-    @keyframes legs { 50% { visibility: hidden; } }
     /* Negative margins keep link gifs (<= 64px) from growing the line box. */
     .gif { vertical-align: middle; margin: -18px 6px; }
     .gif.fire { position: relative; top: -10px; } /* flame sits low in its frame */
@@ -1271,28 +1284,287 @@
 
   // Gray Catbird: pixel sprite pacing the bottom of the window; click for a mew.
   const bird = document.getElementById('catbird');
-  const INK = { K: '#111', G: '#77777C', D: '#55555A', R: '#8B3A1A', L: '#222' };
+  const INK = { K: '#111', G: '#77777C', D: '#55555A', R: '#8B3A1A', L: '#222', B: '#27305E', H: '#7D8BBF' };
   const px = (rows, y0) => rows.map((r, y) => [...r].map((ch, x) =>
     INK[ch] ? `<rect x="${x}" y="${y0 + y}" width="1" height="1" fill="${INK[ch]}"/>` : '').join('')).join('');
-  bird.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 16 12" width="48" height="36" shape-rendering="crispEdges">${px([
+  bird.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 16 12" width="48" height="36" shape-rendering="crispEdges"><g class="tailDown">${
+    px(['KK..', '.KKK', '..KK', '...K'], 4)}</g><g class="tailUp">${px(['K...', 'KK..', '.KK.', '..KK', '..KK', '...K'], 2)}</g>${px([
+    '........GGGGGG..',
+    '.......GGGGGGG..',
+    '.....GGGGGGGGG..',
+    '....GGGDDDGGGG..',
+    '....GGDDDDGGGG..',
+    '....RRGGGGGGG...',
+    '.....RRGGGGG....'], 3)}<g class="head">${px([
     '..........KKK...',
     '.........KKKKK..',
-    '.........GGGKGKK',
-    '........GGGGGG..',
-    'KK.....GGGGGGG..',
-    '.KKK.GGGGGGGGG..',
-    '..KKGGGDDDGGGG..',
-    '...KGGDDDDGGGG..',
-    '....RRGGGGGGG...',
-    '.....RRGGGGG....'], 0)}<g class="legA">${px(['.......L..L.....', '......LL.LL.....'], 10)
-    }</g><g class="legB">${px(['........L.L.....', '.......LL.LL....'], 10)}</g></svg>`);
-  const MEWS = ['mew!', 'MEOW', 'mew?', 'mrrp'];
+    '.........GGGKGKK'], 0)}</g><g class="legA">${px(['.......L..L.....', '......LL.LL.....'], 10)
+    }</g><g class="legB">${px(['........L.L.....', '.......LL.LL....'], 10)}</g><g class="legT">${px(['.......LL.L.....'], 10)
+    }</g><g class="wing">${px(['...KK...........', '...KDD..........', '....DDD.........', '.....DD.........'], 1)}</g></svg>`);
+  const MEWS = ['mew!', 'mew?', 'mewww', 'mrrp', 'chek!', 'tchk']; // bird sounds only, no words
   let mewTimer = 0;
-  bird.addEventListener('click', () => {
-    bird.querySelector('i').textContent = pick(MEWS);
+  const say = (text) => { // speech bubble for 1.2s; the bird holds still while it talks
+    bird.querySelector('i').textContent = text;
     bird.classList.add('mew');
     clearTimeout(mewTimer);
     mewTimer = setTimeout(() => bird.classList.remove('mew'), 1200);
+  };
+  // Sleeps 11pm-7am local time: stops pacing and only mumbles when clicked.
+  const nap = () => { const hr = new Date().getHours(); bird.classList.toggle('zz', hr >= 23 || hr < 7); };
+  nap();
+  setInterval(nap, 60000);
+
+  // Movement: walk, stand, hop or glide in turn (x0 + dir * dist * u, an arc of height h); a move in progress finishes before sleep.
+  // Scripted flights set path (u -> [x, y]) and next instead, and ignore hovering; the wing beats until u passes beat.
+  const svg = bird.querySelector('svg'), head = svg.querySelector('.head'), move = { t: 0, dur: 1, x0: 0, dist: 0, h: 0, n: 1, glide: false, beat: 0, path: null, next: null };
+  let bx = 0, by = 0, dir = 1, lastFrame = 0, hovered = false, cx = -1e4, cy = -1e4, headT = '', svgT = '', nextFlick = 0, flickEnd = 0;
+  addEventListener('pointermove', (e) => { cx = e.clientX; cy = e.clientY; }, { passive: true });
+  const near = () => Math.hypot(cx - bx - 24, cy - (innerHeight - by - 18)) < 220;
+  const room = () => document.documentElement.clientWidth - 48;
+  const begin = (kind, props) => {
+    Object.assign(move, { t: 0, x0: bx, dist: 0, h: 0, n: 1, glide: kind === 'glide', beat: 0.25, path: null, next: null, perch: null, sing: false, note: -1 }, props);
+    bird.dataset.move = kind;
+  };
+  const plan = () => {
+    if (berries.some((b) => b.ripe)) return forage();
+    const fat = plump();
+    if (!fat && Math.random() < 0.08 && perch()) return; // too heavy to fly up
+    if (near() && Math.random() < 0.6) return begin('stand', { dur: 1 + Math.random() * 2 }); // curious: stays to watch you
+    if (Math.random() < 0.1) return begin('stand', { dur: 2 + Math.random() * 2, sing: true });
+    if (Math.random() < 0.1) return begin('preen', { dur: 1.4 + Math.random() });
+    if (Math.random() < 0.05) return begin('bath', { dur: 1.6 + Math.random(), glide: true, beat: 2 }); // wings whir the whole time
+    const r = Math.random();
+    const [kind, dur, dist, h, n] = r < 0.5 ? ['walk', 1.5 + Math.random() * 3, 0, 0, 1]
+      : r < 0.7 ? ['stand', 0.6 + Math.random() * 1.6, 0, 0, 1]
+      : r < 0.9 ? ['hop', 0, 0, fat ? 3 : 7, 1 + rint(fat ? 2 : 3)]
+      : fat ? ['walk', 1.5 + Math.random() * 3, 0, 0, 1]
+      : ['glide', 1.4 + Math.random() * 0.8, 110 + Math.random() * 170, 28 + Math.random() * 24, 1];
+    const d = kind === 'walk' ? (fat ? 8 : 32) * dur : kind === 'hop' ? (fat ? 6 : 16) * n : dist;
+    if (Math.random() < (kind === 'stand' ? 0.35 : 0.1) || bx + dir * d < 0 || bx + dir * d > room()) dir = -dir;
+    begin(kind, { dur: kind === 'hop' ? (fat ? 0.45 : 0.28) * n : dur, dist: Math.min(d, dir > 0 ? room() - bx : bx), h, n });
+  };
+  const fly = (dur, path, beat, next) => begin('glide', { dur, path, beat, next });
+
+  // Berries: clicking empty space drops one; the nearest ripe one draws the bird over (gliding if far) to peck it up.
+  const berries = [], BERRY = `<svg viewBox="0 0 4 4" width="12" height="12" shape-rendering="crispEdges">${
+    px(['.BB.', 'BHBB', 'BBBB', '.BB.'], 0)}</svg>`;
+  const forage = () => {
+    const b = berries.filter((f) => f.ripe).reduce((a, f) => (Math.abs(f.x - bx - 24) < Math.abs(a.x - bx - 24) ? f : a));
+    const goal = Math.max(0, Math.min(room(), b.x - (b.x > bx + 24 ? (plump() ? 58 : 52) : plump() ? -12 : -6))), d = goal - bx; // beak over the berry once it tips forward (further out when plump)
+    if (Math.abs(d) < 3) {
+      dir = b.x > bx + 24 ? 1 : -1;
+      return begin('peck', { dur: 0.9, next: () => { eat(b); plan(); } });
+    }
+    dir = Math.sign(d);
+    const far = Math.abs(d) > 220 && !plump();
+    begin(far ? 'glide' : 'walk', { dur: far ? 0.4 + Math.abs(d) / 220 : Math.abs(d) / (plump() ? 16 : 70), dist: Math.abs(d), h: far ? 30 : 0 });
+  };
+  const take = (b, odds, lines) => {
+    const i = berries.indexOf(b);
+    if (i < 0) return; // pushed out by newer berries
+    berries.splice(i, 1);
+    const c = catches.findIndex((q) => q.b === b);
+    if (c >= 0) catches.splice(c, 1); // a cancelled animation's clock stops, so it would never come due
+    b.anim.cancel();
+    b.el.remove();
+    const now = performance.now(), was = plump();
+    ate = [...ate.filter((t) => now - t < 60000), now];
+    if (ate.length >= 5) plumpUntil = now + 45000; // 5 in a minute: plump for 45s after the last one
+    if (!was && plump()) say('hic!');
+    else if (Math.random() < odds) say(pick(lines)); // otherwise eats quietly
+  };
+  // Overeating: a plump bird waddles slowly, can't glide, perch or leap for berries.
+  let ate = [], plumpUntil = 0;
+  const plump = () => performance.now() < plumpUntil;
+  const eat = (b) => take(b, 0.5, ['chrr', 'tk tk', 'mew!', 'chirp', 'prrt', 'mmew']);
+  // Catching: a berry falling near an idle bird gets met mid-air, the beak reaching it at the top of a 0.5s leap.
+  // The fall is exactly quadratic (height = fall * (1 - s^2) over the first 80%), so the meeting time is known at the drop.
+  const catches = []; // { b, at, Y }: leap start (ms into the berry's fall animation, which starts a frame or so after the click) and apex height
+  const leap = ({ b, Y }) => {
+    if (b.ripe || !berries.includes(b) || move.path || by > 0 || hovered || plump() || bird.classList.contains('zz') || bird.classList.contains('mew')
+      || !/^(walk|stand|preen)$/.test(bird.dataset.move)) return;
+    const face = b.x > bx + 24 ? 1 : -1, goal = Math.max(0, Math.min(room(), b.x - (face > 0 ? 46 : 2))), x0 = bx;
+    if (Math.abs(goal - x0) > 150) return; // too far to reach in time
+    dir = face;
+    let got = false;
+    begin('hop', { dur: 0.5, glide: true, beat: 1, path: (u) => {
+      if (u >= 0.5 && !got) { got = true; take(b, 0.6, ['chek!', 'tchk!', 'chip!', 'kwee!']); }
+      return [x0 + (goal - x0) * Math.min(1, u * 2), Y * Math.sin(Math.PI * u)];
+    } });
+  };
+  const land = (b) => { // walking or standing birds notice at once; others finish their move first
+    b.ripe = true;
+    if (move.perch && bird.dataset.move === 'stand') move.t = move.dur; // hops down for it
+    if (!move.path && !bird.classList.contains('zz') && /^(walk|stand)$/.test(bird.dataset.move)) plan();
+  };
+  addEventListener('click', (e) => {
+    if (e.button || String(getSelection()) || e.target.closest('a, button, input, select, textarea, label, summary, img, video, iframe, #keys, #player, #catbird, .popup')) return;
+    const el = document.createElement('div'), b = { x: e.clientX, el, ripe: false }, fall = innerHeight - e.clientY - 6;
+    el.className = 'berry';
+    el.style.left = `${b.x - 6}px`;
+    el.innerHTML = BERRY;
+    document.body.append(el);
+    if (berries.push(b) > 5) berries.shift().el.remove();
+    const D = 250 + Math.sqrt(fall) * 22;
+    b.anim = el.animate([
+      { transform: `translateY(${-fall}px)`, easing: 'cubic-bezier(.333, 0, .667, .333)' }, // exactly s^2: free fall
+      { transform: 'translateY(0)', offset: 0.8, easing: 'ease-out' },
+      { transform: 'translateY(-6px)', offset: 0.9, easing: 'ease-in' },
+      { transform: 'translateY(0)' }], D);
+    b.anim.onfinish = () => land(b);
+    const Y = Math.min(70, fall - 60), tc = 0.8 * D * Math.sqrt(1 - (Y + 24) / fall); // beak (30px up) meets berry centre (6px up)
+    if (Y > 20 && tc > 350) catches.push({ b, at: tc - 250, Y });
+  });
+  // Perching: flies up (or is dropped) to sit on a heading or the player for 5-15s, riding along as the page scrolls; off screen, it comes down.
+  const PERCHES = 'h2.staff, #player';
+  const perch = () => {
+    const spots = [...document.querySelectorAll(PERCHES)].filter((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top > 80 && r.top < innerHeight - 120 && r.width > 96;
+    });
+    if (!spots.length) return false;
+    const el = pick(spots);
+    sit(el, Math.random() * (el.getBoundingClientRect().width - 48), bx, by, 1.6, 40);
+    return true;
+  };
+  const sit = (el, off, x0, y0, dur, arc) => { // off: bird's left edge from the perch's
+    const seat = () => {
+      const r = el.getBoundingClientRect();
+      if (r.top < 0 || r.top > innerHeight) move.t = move.dur; // scrolled away: leave next frame
+      return [r.left + off, innerHeight - r.top];
+    };
+    const sx = seat()[0];
+    if (Math.abs(sx - x0) > 2) dir = sx > x0 ? 1 : -1;
+    fly(dur, (u) => { const [x, y] = seat(); return [x0 + (x - x0) * u, y0 + (y - y0) * u + arc * Math.sin(Math.PI * u)]; }, 0.6,
+      () => begin('stand', { dur: 5 + Math.random() * 10, path: seat, next: alight, perch: el, sing: Math.random() < 0.6 }));
+  };
+  const alight = () => {
+    const x0 = bx, y0 = Math.min(by, innerHeight), to = Math.random() * room(); // from just above the screen if its perch scrolled off the top
+    dir = to > x0 ? 1 : -1;
+    fly(1.8, (u) => [x0 + (to - x0) * u, y0 * (1 - u) ** 2], 0, null);
+  };
+  // Pestered: flaps off the top of the screen, stays away 15-30s, then glides back in from a side.
+  const flee = () => {
+    const x0 = bx, y0 = by, up = innerHeight + 80;
+    fly(1.6, (u) => [x0 + dir * 500 * u, y0 + (up - y0) * u * u], 1, () => fly(15 + Math.random() * 15, () => [-200, 0], 1, () => {
+      const from = Math.random() < 0.5 ? -60 : room() + 60, to = Math.random() * room();
+      dir = to > from ? 1 : -1;
+      fly(2.2, (u) => [from + (to - from) * u, 160 * (1 - u) ** 2], 0, null);
+    }));
+  };
+  const frame = (now) => {
+    const dt = Math.min(now - lastFrame, 50) / 1000;
+    lastFrame = now;
+    for (let i = catches.length; i--;) if (catches[i].b.anim.currentTime >= catches[i].at) leap(catches.splice(i, 1)[0]); // null before it starts
+    const zz = bird.classList.contains('zz');
+    if (move.path || (!hovered && !bird.classList.contains('mew') && !(zz && move.t >= move.dur))) { // asleep and settled: nothing to draw
+      if ((move.t += dt) >= move.dur && (move.next || !zz)) (move.next ?? plan)();
+      const u = Math.min(1, move.t / move.dur);
+      let y = move.h * Math.abs(Math.sin(Math.PI * move.n * (move.glide ? u ** 0.6 : u)));
+      if (move.path) [bx, y] = move.path(u);
+      else bx = Math.max(0, Math.min(room(), move.x0 + dir * move.dist * u));
+      if (move.t >= move.dur) { bird.dataset.move = 'stand'; move.path = null; } // last move before bed is done
+      by = y;
+      bird.style.transform = `translate(${Math.round(bx)}px, ${-Math.round(y)}px)`; // whole px: subpixel offsets make the 1px legs shimmer
+      // Standing with you close by: faces you and tips its head toward the cursor (beak up when you're above).
+      const watch = bird.dataset.move === 'stand' && near();
+      if (watch) dir = cx > bx + 24 ? 1 : -1;
+      // Singing: phrases of 5 notes at 4 a second, then a 3-beat rest; the head bobs up with each note.
+      const beat = move.t * 4 | 0, voiced = move.sing && bird.dataset.move === 'stand' && beat % 8 < 5;
+      if (voiced && beat !== move.note) {
+        move.note = beat;
+        const n = document.createElement('span');
+        n.className = 'chirp';
+        n.textContent = pick('♪♪♫♩♬');
+        n.style.cssText = `left: ${bx + (dir > 0 ? 46 : 2)}px; top: ${innerHeight - by - 30}px; --dx: ${dir * (8 + Math.random() * 22)}px; --r: ${Math.random() * 40 - 20}deg`;
+        n.addEventListener('animationend', () => n.remove());
+        document.body.append(n);
+      }
+      const t = voiced ? (move.t * 4 % 1 < 0.5 ? -20 : -6) : watch ? -Math.max(-10, Math.min(30, Math.atan2(innerHeight - by - 30 - cy, Math.max(1, (cx - bx - 24) * dir)) * 34)) : 0; // 0.6x the angle, in degrees
+      // Preening: beak turned back into the wing, nibbling, then a quick ruffle to finish.
+      const kind = bird.dataset.move, ruffle = kind === 'preen' && u > 0.7;
+      const ht = kind === 'preen' && !ruffle ? `scaleX(-1) rotate(${(move.t * 6 | 0) % 2 ? 22 : 8}deg)` : t ? `rotate(${t}deg)` : '';
+      if (ht !== headT) head.style.transform = headT = ht;
+      const fat = plump();
+      bird.classList.toggle('plump', fat);
+      const stride = fat ? 0.35 : 0.15; // seconds per leg swap
+      const wob = kind === 'walk' && fat ? ((move.t / stride | 0) % 2 ? 5 : -5) : kind === 'peck' ? ((move.t * 4 | 0) % 2 ? 25 : 0) : kind === 'bath' ? ((move.t * 12 | 0) % 2 ? 6 : -6) : ruffle ? ((move.t * 14 | 0) % 2 ? 4 : -4) : 0;
+      const st = `${dir < 0 ? 'scaleX(-1) ' : ''}${wob ? `rotate(${wob}deg)` : ''}`;
+      if (st !== svgT) svg.style.transform = svgT = st;
+      if (kind === 'bath' && (move.t / 0.07 | 0) !== move.note) { // a speck every 70ms
+        move.note = move.t / 0.07 | 0;
+        const d = document.createElement('div');
+        d.className = 'dust';
+        d.style.cssText = `left: ${bx + 24 + Math.random() * 28 - 14}px; --dx: ${Math.random() * 50 - 25}px; --dy: ${-8 - Math.random() * 16}px`;
+        d.addEventListener('animationend', () => d.remove());
+        document.body.append(d);
+      }
+      // Tail flick every 2-6s on the ground or a perch, as catbirds do.
+      if (now > nextFlick) { flickEnd = now + 250; nextFlick = now + 2000 + Math.random() * 4000; }
+      bird.classList.toggle('flick', now < flickEnd && /^(walk|stand)$/.test(bird.dataset.move));
+      bird.classList.toggle('step', bird.dataset.move === 'walk' && (move.t / stride | 0) % 2 === 1);
+      bird.classList.toggle('flap', (move.glide && u < 1 && (u > move.beat || (move.t * 12 | 0) % 2 === 0)) || (ruffle && (move.t * 14 | 0) % 2 === 0));
+    }
+    requestAnimationFrame(frame);
+  };
+  // Pick up: drag it and it dangles flapping from the cursor; let go and it flutters down, carried along by your throw.
+  let grab = null; // { id, x, y, vx, t, held }
+  bird.addEventListener('pointerdown', (e) => {
+    if (e.button) return;
+    e.preventDefault(); // no text selection while dragging
+    bird.setPointerCapture(e.pointerId);
+    dragged = false;
+    grab = { id: e.pointerId, x: e.clientX, y: e.clientY, vx: 0, t: e.timeStamp, held: false };
+  });
+  bird.addEventListener('pointermove', (e) => {
+    const g = grab;
+    if (!g || e.pointerId !== g.id) return;
+    if (!g.held) {
+      if (Math.hypot(e.clientX - g.x, e.clientY - g.y) < 6) return; // still a click
+      g.held = true;
+      bird.classList.add('held');
+      say(pick(['MEW!', 'CHEK CHEK', 'kweee!', '!!']));
+      begin('glide', { dur: Infinity, beat: 2, path: () => [g.x - 24, Math.max(0, innerHeight - g.y - 32)] }); // held by the scruff
+    }
+    const dt = (e.timeStamp - g.t) / 1000;
+    if (dt > 0) g.vx = 0.7 * g.vx + 0.3 * (e.clientX - g.x) / dt;
+    g.x = e.clientX; g.y = e.clientY; g.t = e.timeStamp;
+  });
+  const drop = (e) => {
+    const g = grab;
+    if (!g || e.pointerId !== g.id) return;
+    grab = null;
+    if (!g.held) return;
+    bird.classList.remove('held');
+    hovered = false;
+    dragged = e.type === 'pointerup'; // a click follows the up, not a cancel
+    const vx = e.timeStamp - g.t > 100 ? 0 : Math.max(-1500, Math.min(1500, g.vx)); // held still before letting go: no throw
+    const x0 = g.x - 24, y0 = Math.max(0, innerHeight - g.y - 32), x1 = Math.max(0, Math.min(room(), x0 + vx * 0.4)); // from the hand, not the last frame
+    const feet = innerHeight - y0, onto = [...document.querySelectorAll(PERCHES)].find((el) => { // let go just over a perch: it settles there
+      const r = el.getBoundingClientRect();
+      return g.x > r.left && g.x < r.right && feet > r.top - 40 && feet < r.top + 30;
+    });
+    if (onto) {
+      const r = onto.getBoundingClientRect();
+      sit(onto, Math.max(0, Math.min(r.width - 48, x0 - r.left)), x0, y0, 0.3, 4);
+    } else {
+      if (Math.abs(x1 - x0) > 10) dir = Math.sign(x1 - x0);
+      fly(0.5 + Math.sqrt(y0) / 25, (u) => [x0 + (x1 - x0) * (1 - (1 - u) ** 2), y0 * (1 - u) ** 2], 0.3, null);
+    }
+    if (Math.random() < 0.5) say(pick(['prrt', 'chek', 'mew...', 'tsk']));
+  };
+  bird.addEventListener('pointerup', drop);
+  bird.addEventListener('pointercancel', drop);
+  bird.addEventListener('pointerenter', () => { hovered = true; });
+  bird.addEventListener('pointerleave', () => { hovered = false; });
+  bird.dataset.move = 'stand';
+  requestAnimationFrame(frame);
+  let pokes = [], dragged = false; // click times; 5 within 2.5s and it's had enough
+  bird.addEventListener('click', () => {
+    if (dragged) return void (dragged = false); // the release of a pick-up, not a poke
+    const now = performance.now(), fedUp = (pokes = [...pokes.filter((t) => now - t < 2500), now]).length >= 5 && !move.path;
+    if (fedUp) { pokes = []; flee(); }
+    say(fedUp ? 'SKRAAW!' : bird.classList.contains('zz') ? 'zzz...' : pick(MEWS));
   });
 
   // Poems: one at a time; the arrows step through them, wrapping.
