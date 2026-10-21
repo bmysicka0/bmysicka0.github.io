@@ -26,7 +26,7 @@
     }
     a { font-weight: bold; }
     a:hover { background: #0000EE; color: #FFF; }
-    .huge a { font-size: 32px; font-family: "Comic Sans MS", "Comic Sans", cursive; }
+    .huge a { font-size: clamp(18px, 6vw, 32px); font-family: "Comic Sans MS", "Comic Sans", cursive; }
     .new { position: absolute; margin-left: 6px; color: #F00; } /* out of flow so the link stays centered */
     .welcome { font: bold 30px "Comic Sans MS", "Comic Sans", cursive; text-shadow: 2px 2px 0 #000; }
     .welcome span { display: inline-block; white-space: pre; animation: wave 1.2s ease-in-out infinite; }
@@ -150,6 +150,11 @@
     @media (max-width: 700px) {
       .popup { top: 100%; left: 50%; transform: translateX(-50%); width: calc(100vw - 16px); }
       .popup::before { display: none; }
+      .box :is(tbody, tr, td) { display: block; } /* stack photo above text */
+      .box .prof-cell { width: auto; }
+      .box .prof-cell img { position: static; width: 100%; height: auto; }
+      .gif { margin: 0 3px; } /* let tall gifs push captions down */
+      .new { transform: translate(-100%, -100%); } /* perch on the bird instead of off-screen */
     }
     .birds.deco { pointer-events: none; }
     @keyframes birds { to { transform: translateX(-50%); } }
@@ -157,7 +162,7 @@
     .bird img { border: 3px double #000; }
     marquee { display: block; margin: 0 -8px; font: bold 18px "Courier New", monospace; background: #000; color: #FFF; }
     /* Section dividers drawn as a staff. */
-    .staff { display: flex; align-items: center; justify-content: center; height: 41px; max-width: 600px; margin: 32px auto 16px; font-size: 32px; line-height: 1;
+    .staff { display: flex; align-items: center; justify-content: center; height: 41px; max-width: 600px; margin: 32px auto 16px; font-size: clamp(22px, 6.5vw, 32px); line-height: 1;
              border-left: 2px solid #000; border-right: 6px double #000; background: repeating-linear-gradient(#000 0 1px, transparent 1px 10px); }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IM+Fell+English:ital@0;1&family=Pinyon+Script&family=Pirata+One&family=UnifrakturMaguntia&family=VT323&display=swap">
