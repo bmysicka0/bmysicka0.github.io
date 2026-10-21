@@ -118,7 +118,8 @@
     #keys .w { position: relative; box-sizing: border-box; width: min(32px, calc((100vw - 52px) / 15)); height: 120px;
                display: flex; align-items: flex-end; justify-content: center; background: #FFF; border: 1px solid #000;
                border-radius: 0 0 3px 3px; font: 11px "Courier New", monospace; color: #888; }
-    #keys .b { position: absolute; z-index: 1; top: 0; right: -30%; width: 60%; height: 62%; background: #000; }
+    #keys .b { position: absolute; z-index: 1; top: 0; right: -30%; width: 60%; height: 62%; background: #000;
+               display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; box-sizing: border-box; color: #FFF; }
     #keys :is(.on, .auto) { background: #0000EE; color: #FFF; }
     /* Song of Storms easter egg: right of the 600px column so it covers nothing. */
     #storms { position: absolute; left: calc(50% + 316px); bottom: 0; z-index: 2; border: 6px outset #888; pointer-events: none; }
@@ -1101,10 +1102,11 @@
     for (let b = Math.ceil(pos - HEAD * SPAN * bpm / 60); hx + (b - pos) * pxb < W; b++) g.fillRect(hx + (b - pos) * pxb, 0, 1, H);
     const lit = new Set();
     for (const n of notes) {
-      const x = hx + (n.b - pos) * pxb;
+      let x = hx + (n.b - pos) * pxb;
       if (x > W) break;
-      const w = Math.max(n.l * pxb, 2);
-      if (x + w < KW) continue;
+      let w = Math.max(n.l * pxb, 2);
+      if (x + w <= KW) continue;
+      if (x < KW) { w -= KW - x; x = KW; } // clip at the keyboard: short black keys leave the strip exposed
       const on = n.b <= pos && pos < n.b + n.l, h = Math.max(rh - 1, 1);
       if (on) lit.add(n.m);
       g.fillStyle = on ? '#FF0' : '#2A2';
@@ -1194,8 +1196,9 @@
   for (let m = 60; m <= 84; m++) {
     const k = document.createElement('span');
     k.dataset.m = m;
+    k.textContent = (KEYMAP[m - 60] ?? '').toUpperCase();
     if ((1 << (m % 12)) & BLACK) { k.className = 'b'; white.append(k); }
-    else { k.className = 'w'; k.textContent = (KEYMAP[m - 60] ?? '').toUpperCase(); keys.append(white = k); }
+    else { k.className = 'w'; keys.append(white = k); }
   }
   const keyEl = (m) => keys.querySelector(`[data-m="${m}"]`);
   const down = async (m) => {
