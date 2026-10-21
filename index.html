@@ -192,7 +192,7 @@
     <span>KEY <span id="tr" role="slider" tabindex="0" aria-label="transpose" aria-valuemin="-12" aria-valuemax="12" aria-valuenow="0" title="drag up/down to transpose">0</span></span>
   </div>
   <canvas id="pianoroll" aria-hidden="true"></canvas>
-  <div class="status"><span id="state"></span><span id="time">0:00 / 0:00</span></div>
+  <div class="status"><span>Listen to the music and let it speak to your soul</span><span id="time">0:00 / 0:00</span></div>
 </div>
 
 <!-- ======== ABOUT ======== -->
@@ -1064,13 +1064,11 @@
     const s = SONGS[cur], mine = ++gen;
     clearTimeout(timer);
     song = null;
-    showState();
     try {
       piano ??= loadPiano(ctx); // decoded buffers outlive this context, so they're reused next time
       const [data, bufs] = await Promise.all([s.data ??= fetch(s.file).then(r => r.arrayBuffer()).then(parseMidi), piano]);
       if (mine !== gen || !ctx) return; // switched song or stopped while loading
       start(data, bufs);
-      showState();
     } catch {
       s.data = piano = null;
       if (mine === gen && ctx) { stop(); btn.textContent = 'MIDI broke :( try again'; }
@@ -1115,8 +1113,9 @@
       g.fillRect(x, y(n.m), w, Math.min(2, h));
     }
     for (let m = lo - 1; m <= hi + 1; m++) {
-      g.fillStyle = lit.has(m) ? '#FF0' : isBlack(m) ? '#111' : '#DDD';
-      g.fillRect(0, y(m), isBlack(m) ? KW * 0.6 : KW, Math.max(rh - 0.5, 1));
+      const on = lit.has(m), b = isBlack(m);
+      g.fillStyle = on ? '#FF0' : b ? '#111' : '#DDD';
+      g.fillRect(0, y(m), b && !on ? KW * 0.6 : KW, Math.max(rh - 0.5, 1)); // lit black keys span the whole strip
     }
     g.fillStyle = '#808080';
     g.fillRect(KW, 0, 1, H);
@@ -1143,9 +1142,7 @@
   // Player controls: pause suspends the audio clock, freezing sound and roll together.
   const pp = document.getElementById('pp'), songName = document.getElementById('song');
   const bpmIn = document.getElementById('bpm'), trOut = document.getElementById('tr');
-  const stateEl = document.getElementById('state');
-  const showState = () => { stateEl.textContent = !song ? '⏳ tuning the piano...' : paused ? '❚❚ Paused' : '► Playing'; };
-  const setPaused = (p) => { paused = p; pp.textContent = p ? '►' : '❚❚'; pp.setAttribute('aria-label', p ? 'play' : 'pause'); showState(); };
+  const setPaused = (p) => { paused = p; pp.textContent = p ? '►' : '❚❚'; pp.setAttribute('aria-label', p ? 'play' : 'pause'); };
   document.getElementById('close').addEventListener('click', stop);
   pp.addEventListener('click', () => { setPaused(!paused); paused ? ctx.suspend() : ctx.resume(); });
   const showSong = () => {
