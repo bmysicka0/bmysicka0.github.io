@@ -1,0 +1,20 @@
+# Daily: refresh tracks.json from the Spotify playlist embed, committing only on change.
+name: update tracks
+on:
+  schedule:
+    - cron: "23 9 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  tracks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl -sfL https://open.spotify.com/embed/playlist/0TuQrG6ttGKuI6cAWvabNj | python3 scripts/tracks.py > tracks.json
+      - run: |
+          git diff --quiet tracks.json && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "update tracks" tracks.json
+          git push

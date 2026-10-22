@@ -121,6 +121,41 @@
             background: linear-gradient(135deg, #0000 0 50%, #FFF 50% 58%, #808080 58% 70%, #0000 70% 75%, #FFF 75% 83%, #808080 83% 95%, #0000 95%); }
     #pianoroll { display: block; flex: 1; min-height: 0; box-sizing: border-box; width: 100%; background: #000;
                  border: 2px solid; border-color: #808080 #FFF #FFF #808080; }
+    /* Spotify mini player: a sage-metal disc (orb button, segmented LCD seek ring) with the title orbiting it; draggable, above the catbird.
+       #amp-px snaps it to a 2px grid at reduced colour depth so the dithered metal bands like an old bitmap skin. */
+    #amp { --metal: linear-gradient(#DCEFD8, #B3D6AF 40%, #7DAA80 54%, #A6CCA3 78%, #D2EACE); --edge: 0 0 0 2px #2F5235, inset 0 2px #FFFD, inset 0 -3px #4F7F5599;
+           --lcd: radial-gradient(circle at 45% 35%, #E8F9DE, #AEDDA4 60%, #78B473); --ink: #1F4A22; --dither: repeating-conic-gradient(#0000 0 25%, #FFFFFF1F 0 50%) 0 0 / 4px 4px;
+           position: fixed; left: 0; top: 0; z-index: 99; width: 184px; height: 184px; text-align: left; pointer-events: none; animation: amp-in .45s steps(6) both; }
+    #amp[hidden] { display: none; }
+    @keyframes amp-in { from { transform: translateY(30px) scale(.6) rotate(-20deg); opacity: 0; } }
+    #amp .skin { position: absolute; inset: 0; filter: url(#amp-px); animation: amp-float 4s ease-in-out infinite; }
+    @keyframes amp-float { 50% { translate: 0 -5px; } }
+    #amp .skin > * { position: absolute; pointer-events: auto; cursor: grab; touch-action: none; }
+    #amp.held .skin > * { cursor: grabbing; }
+    #amp .orbit { inset: 0; pointer-events: none; animation: orbit 30s linear infinite; }
+    #amp:not(.on) .orbit { animation-play-state: paused; }
+    @keyframes orbit { to { rotate: -1turn; } }
+    #amp .orbit text { font: 700 12px Orbitron, "Courier New", monospace; fill: var(--ink); }
+    #amp .disc { left: 28px; top: 28px; width: 128px; height: 128px; border-radius: 50%; background: var(--dither), var(--metal); box-shadow: var(--edge), 4px 4px 0 #1F3A24B3; }
+    #amp .disc::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; box-shadow: inset 0 1px #2F523559, 0 1px #FFFB; } /* machined groove */
+    /* Recessed LCD: a dark-to-light bezel border around backlit, scanlined green glass with a curved glare. */
+    #amp .well { position: absolute; inset: 11px; border-radius: 50%; border: 3px solid #0000; transition: filter .6s;
+                 background: repeating-linear-gradient(#0000 0 2px, #1F4A2214 0 4px) padding-box, var(--lcd) padding-box, linear-gradient(#4F7F55, #DDF0DA) border-box;
+                 box-shadow: 0 0 0 2px #2F5235, inset 0 2px 5px #2F523566; }
+    #amp.on .well { filter: brightness(1.07) saturate(1.1); }
+    #amp .well::after { content: ""; position: absolute; inset: 0 0 52%; border-radius: inherit; background: linear-gradient(#FFF5, #FFF0); }
+    /* The whole recess around the orb takes seek clicks; ::before draws the segments masked to a thin annulus. */
+    #amp-ring { position: absolute; inset: 11px; border-radius: 50%; cursor: pointer; touch-action: none; outline: none; }
+    #amp-ring::before { content: ""; position: absolute; inset: 5px; border-radius: 50%;
+                        background: repeating-conic-gradient(#0000 0 8deg, #B5E0AB 0 10deg), conic-gradient(var(--ink) var(--p, 0%), #1F4A2229 0);
+                        mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 calc(100% - 7px)); }
+    #amp-ring:focus-visible::before { background-color: #1F4A2240; }
+    #amp-pp { position: absolute; inset: 30px; padding: 0; border: 4px solid #0000; border-radius: 50%; cursor: pointer;
+              background: var(--dither) padding-box, radial-gradient(circle at 38% 30%, #F6FFF4, #B9DFB5 35%, #73A776 75%, #46784D) padding-box,
+                          conic-gradient(#F4FFF2, #5E8A61, #E6F5E3, #44754B, #F4FFF2, #6F9C72, #F4FFF2) border-box;
+              box-shadow: 0 0 0 2px #2F5235, 0 3px 5px #1F3A2480; color: var(--ink); font: 22px/60px Arial, sans-serif; text-shadow: 0 1px #EAF9E6; }
+    #amp-pp::before { content: ""; position: absolute; left: 20%; right: 20%; top: 7%; height: 36%; border-radius: 50%; background: linear-gradient(#FFF6, #FFF0); pointer-events: none; }
+    #amp-pp:active { filter: brightness(.92); box-shadow: 0 0 0 2px #2F5235, inset 0 3px 6px #1F3A2480; }
     /* Dawn Detune: the plugin's live 3D editor, rendered at half res and upscaled pixelated like the plugin does. */
     /* Dawn Detune: ported from birdsong.nyc/dawn-detune, only the size changed. */
     #dawn { --bevel: inset -1px -1px 0 #b0b0b0, inset 1px 1px 0 #fff; --bevel-in: inset 1px 1px 0 #b0b0b0, inset -1px -1px 0 #fff;
@@ -210,7 +245,7 @@
     .staff { display: flex; align-items: center; justify-content: center; height: 41px; max-width: 600px; margin: 32px auto 16px; font-size: clamp(22px, 6.5vw, 32px); line-height: 1;
              border-left: 2px solid #000; border-right: 6px double #000; background: repeating-linear-gradient(#000 0 1px, transparent 1px 10px); }
   </style>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IM+Fell+English:ital@0;1&family=Pinyon+Script&family=Pirata+One&family=UnifrakturMaguntia&family=VT323&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IM+Fell+English:ital@0;1&family=Pinyon+Script&family=Pirata+One&family=UnifrakturMaguntia&family=VT323&family=Orbitron:wght@700&display=swap">
 </head>
 <body link="#0000EE" vlink="#551A8B" alink="#FF0000">
 <canvas id="roll" aria-hidden="true"></canvas>
@@ -252,6 +287,32 @@
 <h2 class="staff"><span><span class="bounce">♫</span> <img src="resources/music.gif" width="162" height="69" alt="MY MUSIC" style="vertical-align: middle; position: relative; top: -6px"> <span class="bounce">♫</span></span></h2>
 <p><font size="2">music i've contributed to. press play!!!</font></p>
 <div style="max-width:560px"><div id="spotify"></div></div>
+<div id="amp" hidden>
+  <!-- Pixelate: keep one pixel per 2x2 cell, copy it right/down, then cut each channel to 7 levels. -->
+  <svg width="0" height="0" aria-hidden="true">
+    <filter id="amp-px" x="-10%" y="-20%" width="120%" height="140%" color-interpolation-filters="sRGB">
+      <feFlood width="1" height="1"/><feComposite width="2" height="2"/><feTile result="grid"/>
+      <feComposite in="SourceGraphic" in2="grid" operator="in" result="dot"/>
+      <feOffset in="dot" dx="1" result="r"/><feOffset in="dot" dy="1" result="d"/><feOffset in="dot" dx="1" dy="1" result="rd"/>
+      <feMerge><feMergeNode in="dot"/><feMergeNode in="r"/><feMergeNode in="d"/><feMergeNode in="rd"/></feMerge>
+      <feComponentTransfer>
+        <feFuncR type="discrete" tableValues="0 .17 .33 .5 .67 .83 1"/><feFuncG type="discrete" tableValues="0 .17 .33 .5 .67 .83 1"/><feFuncB type="discrete" tableValues="0 .17 .33 .5 .67 .83 1"/>
+      </feComponentTransfer>
+    </filter>
+  </svg>
+  <div class="skin">
+    <!-- The title on a circle around the disc, rotated by CSS. -->
+    <svg class="orbit" width="184" height="184" viewBox="0 0 184 184" aria-hidden="true">
+      <defs><path id="amp-path" d="M92 20A72 72 0 1 1 91.99 20"/></defs>
+      <text><textPath id="amp-title" href="#amp-path" textLength="450" lengthAdjust="spacingAndGlyphs"></textPath></text>
+    </svg>
+    <div class="disc">
+      <div class="well"></div>
+      <div id="amp-ring" role="slider" tabindex="0" aria-label="seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      <button id="amp-pp" type="button" aria-label="play">►</button>
+    </div>
+  </div>
+</div>
 <p class="release"><b class="blink">★ ALBUM OUT NOW ★</b><br><br>
 <a href="https://ffm.to/frau_flutter" target="_blank" rel="noopener"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDpUIkFyAFqfTGuIrPhZN3DjOgbL0rgR7tktYGfjE92R38jESY2zwgdII&amp;s=10" width="200" alt="frau - flutter by cover art" referrerpolicy="no-referrer"></a><br>
 <font size="4"><b>&ldquo;flutter&rdquo;</b> by frau</font><br>
@@ -1253,12 +1314,74 @@
   });
   addEventListener('resize', () => { if (!player.hidden && player.style.left) place(player.offsetLeft, player.offsetTop); });
   pp.addEventListener('click', () => { setPaused(!paused); paused ? ctx.suspend() : ctx.resume(); });
+  // Mini player: pops up on the embed's first play and drives it through the controller.
+  const amp = document.getElementById('amp'), ampPP = document.getElementById('amp-pp'), ampTitle = document.getElementById('amp-title');
+  const ring = document.getElementById('amp-ring'), spWrap = document.getElementById('spotify').parentElement;
+  let spDur = 0, spPos = 0, pos = 0, scrub = false, list = { name: '', tracks: [] }, spIdx = -1;
+  // Repeated to roughly one lap (~55 glyphs); textLength then stretches or squeezes it to close the circle exactly.
+  const setTitle = (t) => { ampTitle.textContent = `${t} * `.toUpperCase().repeat(Math.max(1, Math.round(55 / (t.length + 3)))); };
+  fetch('tracks.json').then(r => r.json()).then(l => { list = l; setTitle(l.name); }).catch(() => {});
+  // The embed reports only the track's length (listed value, then the decoded one ~50ms off), so name the closest playlist match;
+  // equal lengths go to the next track in order, and the decoded follow-up is ignored.
+  const nameTrack = (ms) => {
+    const t = list.tracks, n = t.length, off = (i) => Math.abs(t[i].ms - ms), after = (i) => (i - spIdx - 1 + n) % n;
+    if (t[spIdx] && off(spIdx) < 150) return;
+    const best = t.reduce((b, _, i) => b < 0 || off(i) < off(b) || off(i) === off(b) && after(i) < after(b) ? i : b, -1);
+    if (best >= 0 && off(best) < 150) { spIdx = best; setTitle(t[best].name); }
+  };
+  const showPos = (v) => { pos = v; ring.style.setProperty('--p', `${v / 10}%`); ring.setAttribute('aria-valuenow', v / 10 | 0); };
+  const seekTo = (sec) => spotify.seek(Math.max(1, sec)); // the embed drops seeks under 1s
+  ampPP.addEventListener('click', () => spotify.togglePlay());
+  // Seek ring: the pointer's clockwise angle from 12 o'clock is the position; updates hold while dragging.
+  const ringAt = (e) => {
+    const r = ring.getBoundingClientRect(), a = Math.atan2(e.clientX - r.left - r.width / 2, r.top + r.height / 2 - e.clientY);
+    return (a / Math.PI / 2 + 1) % 1 * 1000;
+  };
+  ring.addEventListener('pointerdown', (e) => { ring.setPointerCapture(e.pointerId); scrub = true; showPos(ringAt(e)); });
+  ring.addEventListener('pointermove', (e) => { if (scrub) showPos(ringAt(e)); });
+  ring.addEventListener('lostpointercapture', () => { scrub = false; seekTo(pos * spDur / 1e6); });
+  ring.addEventListener('keydown', (e) => {
+    const step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+    if (step) { e.preventDefault(); seekTo(spPos / 1000 + step); }
+  });
+  // Floating: dragged by its shell and kept on screen; first shown centred in the gap left of the embed, or below it on narrow screens.
+  const moveAmp = (x, y) => {
+    amp.style.left = `${Math.max(0, Math.min(x, innerWidth - amp.offsetWidth))}px`;
+    amp.style.top = `${Math.max(0, Math.min(y, innerHeight - amp.offsetHeight))}px`;
+  };
+  const showAmp = () => {
+    amp.hidden = false;
+    const r = spWrap.getBoundingClientRect(), w = amp.offsetWidth, h = amp.offsetHeight;
+    if (r.left >= w) moveAmp((r.left - w) / 2, r.top + (r.height - h) / 2);
+    else moveAmp(r.left + (r.width - w) / 2, r.bottom + 16);
+  };
+  amp.addEventListener('pointerdown', (e) => {
+    if (e.button || e.target.closest('button, #amp-ring')) return;
+    const dx = e.clientX - amp.offsetLeft, dy = e.clientY - amp.offsetTop, drag = (e) => moveAmp(e.clientX - dx, e.clientY - dy);
+    amp.setPointerCapture(e.pointerId);
+    amp.classList.add('held');
+    amp.addEventListener('pointermove', drag);
+    amp.addEventListener('lostpointercapture', () => { amp.classList.remove('held'); amp.removeEventListener('pointermove', drag); }, { once: true });
+  });
+  addEventListener('resize', () => { if (!amp.hidden) moveAmp(amp.offsetLeft, amp.offsetTop); });
   window.onSpotifyIframeApiReady = (api) => api.createController(document.getElementById('spotify'),
-    { uri: 'spotify:playlist:0TuQrG6ttGKuI6cAWvabNj', width: '100%', height: 352 },
-    (c) => { spotify = c; c.addListener('playback_update', ({ data }) => {
-      if (spPaused && !data.isPaused && ctx && !paused) { setPaused(true); ctx.suspend(); }
-      spPaused = data.isPaused; // updates stream during playback; act only on the play edge
-    }); });
+    { uri: 'spotify:playlist:0TuQrG6ttGKuI6cAWvabNj', width: '100%', height: 352 }, (c) => {
+    spotify = c;
+    c.addListener('playback_update', ({ data }) => {
+      if (spPaused && !data.isPaused) { // updates stream during playback; act only on the play edge
+        if (ctx && !paused) { setPaused(true); ctx.suspend(); }
+        if (amp.hidden) showAmp();
+      }
+      spPaused = data.isPaused;
+      if (data.duration !== spDur) nameTrack(data.duration);
+      spDur = data.duration;
+      spPos = data.position;
+      amp.classList.toggle('on', !spPaused);
+      ampPP.textContent = spPaused ? '►' : '❚❚';
+      ampPP.setAttribute('aria-label', spPaused ? 'play' : 'pause');
+      if (!scrub) showPos(spDur ? data.position / spDur * 1000 : 0);
+    });
+  });
   document.head.append(Object.assign(document.createElement('script'), { src: 'https://open.spotify.com/embed/iframe-api/v1' }));
   const showSong = () => {
     songName.textContent = `${String(cur + 1).padStart(2, '0')}/${String(SONGS.length).padStart(2, '0')} ▪ ${SONGS[cur].name}`;
