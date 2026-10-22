@@ -187,20 +187,14 @@
     .birds { overflow: hidden; margin: 0 -8px; } /* full bleed past body margin */
     .bird-track { display: flex; width: max-content; animation: birds var(--dur, 400s) linear infinite; }
     .birds:hover .bird-track { animation-play-state: paused; }
-    .pop { position: relative; width: fit-content; margin-inline: auto; }
-    /* Hover popups: right of the link (clear of the widest one), below it on phones. */
-    .popup { display: none; position: absolute; top: 50%; left: calc(50% + 160px); transform: translateY(-50%); z-index: 5;
-             width: min(560px, calc(50vw - 170px)); margin: 0; padding: 6px 0; background: #FFF; border: 3px outset #888; }
-    .popup::before { content: ""; position: absolute; right: 100%; top: 0; bottom: 0; width: 160px; } /* hover bridge from link to popup */
-    .pop:hover .popup { display: block; }
-    /* Left of the link instead while the jukebox sits on the right half of the screen. */
-    @media (min-width: 701px) {
-      .jb-right .popup { left: auto; right: calc(50% + 160px); }
-      .jb-right .popup::before { right: auto; left: 100%; }
-    }
+    /* Photo reels under the contact links: still until the reel or its link is hovered. */
+    .birds.reel { display: block; box-sizing: border-box; width: min(420px, calc(100vw - 16px)); margin: 20px auto 0; /* clears the link gifs' negative margins */ padding: 6px 0;
+                  background: #FFF; border: 3px outset #888; }
+    .pop { margin-block: 28px; }
+    .reel img { vertical-align: top; } /* no baseline gap under the photos */
+    .reel .bird-track { animation-play-state: paused; }
+    :is(.reel:hover, a:hover ~ .reel) .bird-track { animation-play-state: running; }
     @media (max-width: 700px) {
-      .popup { top: 100%; left: 50%; transform: translateX(-50%); width: calc(100vw - 16px); }
-      .popup::before { display: none; }
       .box :is(tbody, tr, td) { display: block; } /* stack photo above text */
       .box .prof-cell { width: auto; }
       .box .prof-cell img { position: static; width: 100%; height: auto; }
@@ -295,7 +289,7 @@
 <h2 class="staff"><span>𝄪 CONTACT 𝄪</span></h2>
 <div class="huge">
   <p><img class="gif" src="resources/email.gif" width="48" height="48" alt=""><a href="mailto:hello@brand0.world?subject=i%20saw%20ur%20website">✉ E-MAIL ME!!! ✉</a><img class="gif" src="resources/email.gif" width="48" height="48" alt=""></p>
-  <p class="pop" id="ig"><img class="gif" src="resources/camera.gif" width="64" height="48" alt=""><a href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a><img class="gif" src="resources/camera.gif" width="64" height="48" alt=""><span class="birds popup"><span class="bird-track">
+  <p class="pop" id="ig"><img class="gif" src="resources/camera.gif" width="64" height="48" alt=""><a href="https://www.instagram.com/brand0music/" target="_blank" rel="noopener">instagram</a><img class="gif" src="resources/camera.gif" width="64" height="48" alt=""><span class="birds reel"><span class="bird-track">
     <span class="bird"><a href="https://www.instagram.com/p/DeR_iFjBIQb/" target="_blank" rel="noopener"><img src="resources/insta/DeR_iFjBIQb.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
     <span class="bird"><a href="https://www.instagram.com/p/DdZb448lcwT/" target="_blank" rel="noopener"><img src="resources/insta/DdZb448lcwT.jpg" width="87" height="113" loading="lazy" alt=""></a></span>
     <span class="bird"><a href="https://www.instagram.com/p/DcbrfJdpD7I/" target="_blank" rel="noopener"><img src="resources/insta/DcbrfJdpD7I.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
@@ -321,8 +315,8 @@
     <span class="bird"><a href="https://www.instagram.com/p/DH_6Y2oyYJe/" target="_blank" rel="noopener"><img src="resources/insta/DH_6Y2oyYJe.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
     <span class="bird"><a href="https://www.instagram.com/reel/DHb2zHPS656/" target="_blank" rel="noopener"><img src="resources/insta/DHb2zHPS656.jpg" width="113" height="113" loading="lazy" alt=""></a></span>
   </span></span></p>
-  <p class="pop" id="lb"><img class="gif" src="resources/movie.gif" width="48" height="48" alt=""><a href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a><img class="gif" src="resources/movie.gif" width="48" height="48" alt=""><span class="birds popup"><span class="bird-track"></span></span></p>
-  <p class="pop" id="eb"><img class="gif fire" src="resources/fire.gif" width="32" height="48" alt=""><a href="https://ebird.org/profile/NTc5NTE5Mw" target="_blank" rel="noopener">ebird</a><img class="gif fire" src="resources/fire.gif" width="32" height="48" alt=""><span class="birds popup"><span class="bird-track">
+  <p class="pop" id="lb"><img class="gif" src="resources/movie.gif" width="48" height="48" alt=""><a href="https://letterboxd.com/brand0m/" target="_blank" rel="noopener">letterboxd</a><img class="gif" src="resources/movie.gif" width="48" height="48" alt=""><span class="birds reel"><span class="bird-track"></span></span></p>
+  <p class="pop" id="eb"><img class="gif fire" src="resources/fire.gif" width="32" height="48" alt=""><a href="https://ebird.org/profile/NTc5NTE5Mw" target="_blank" rel="noopener">ebird</a><img class="gif fire" src="resources/fire.gif" width="32" height="48" alt=""><span class="birds reel"><span class="bird-track">
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Wilsonia_pusilla.jpg" target="_blank" rel="noopener" title="Wilson&#x27;s Warbler — seen 22 Oct 2026 @ McGolrick Park (photo: Michael Woodruff from Spokane, Washington, USA, CC BY 2.0)"><img src="resources/birds/wilson-s-warbler.jpg" width="131" height="100" loading="lazy" alt="Wilson&#x27;s Warbler"></a></span>
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Carpodacus_purpureus_CT3.jpg" target="_blank" rel="noopener" title="Purple Finch — seen 22 Oct 2026 @ McGolrick Park (photo: Cephas, CC BY-SA 3.0)"><img src="resources/birds/purple-finch.jpg" width="149" height="100" loading="lazy" alt="Purple Finch"></a></span>
     <span class="bird"><a href="https://commons.wikimedia.org/wiki/File:Pooecetes_gramineus_-USA-8_(cropped).jpg" target="_blank" rel="noopener" title="Vesper Sparrow — seen 21 Oct 2026 @ McGolrick Park (photo: Tim from Ithaca, CC BY 2.0)"><img src="resources/birds/vesper-sparrow.jpg" width="141" height="100" loading="lazy" alt="Vesper Sparrow"></a></span>
@@ -897,7 +891,7 @@
     }
     track.append(...kids); // re-appending moves them into the new order
   };
-  const footerBirds = document.querySelector('.birds:not(.popup)');
+  const footerBirds = document.querySelector('.birds:not(.reel)');
   shuffle(footerBirds.querySelector('.bird-track'));
   const decoRow = () => {
     const row = footerBirds.cloneNode(true);
@@ -914,6 +908,7 @@
   hero.append(decoRow(), rowB, document.querySelector('.masthead'));
   document.querySelector('marquee').after(hero);
   // Duplicate the track so sliding by half its width loops seamlessly, at ~50px/s.
+  const pace = (track) => track.style.setProperty('--dur', `${track.scrollWidth / 2 / 50}s`);
   const loop = (track) => {
     track.append(...[...track.children].map((n) => {
       const c = n.cloneNode(true);
@@ -922,38 +917,46 @@
       if (a) a.tabIndex = -1;
       return c;
     }));
-    track.style.setProperty('--dur', `${track.scrollWidth / 2 / 50}s`);
+    pace(track);
   };
-  for (const track of document.querySelectorAll('.birds:not(.popup) .bird-track')) loop(track);
+  for (const track of document.querySelectorAll('.bird-track')) if (track.children.length) loop(track);
 
-  // Letterboxd popup, filled on first hover via DOM calls since titles come from an external feed.
-  const lb = document.getElementById('lb');
-  lb.addEventListener('mouseenter', async () => {
+  // Letterboxd reel, built via DOM calls since titles come from an external feed.
+  (async () => {
     try {
       const films = await (await fetch('films.json')).json();
-      const track = lb.querySelector('.bird-track');
+      const track = document.querySelector('#lb .bird-track');
       for (const f of films) {
         const a = document.createElement('a'), img = new Image(75, 113), span = document.createElement('span');
         a.href = f.link; a.target = '_blank'; a.rel = 'noopener';
         a.title = `${f.title} (${f.year}) ${f.stars}`.trim();
-        img.src = f.poster; img.alt = f.title;
+        img.src = f.poster; img.alt = f.title; img.loading = 'lazy';
         span.className = 'bird';
         a.append(img); span.append(a); track.append(span);
       }
       loop(track);
-    } catch { /* no popup if films.json is missing */ }
-  }, { once: true });
-
-  // Static popups: start the loop once laid out, since a hidden track's width can't be measured.
-  for (const id of ['ig', 'eb']) {
-    const pop = document.getElementById(id), track = pop.querySelector('.bird-track');
-    const start = () => requestAnimationFrame(() => {
-      if (!track.offsetWidth) return; // left before it showed; try again next hover
-      loop(track);
-      pop.removeEventListener('mouseenter', start);
-    });
-    pop.addEventListener('mouseenter', start);
-  }
+      fit(track.parentElement);
+    } catch { /* no reel if films.json is missing */ }
+  })();
+  // Scale each reel's photos so a whole number of them exactly spans it at the start (22px = .bird margins + img border).
+  const fit = (reel) => {
+    const imgs = [...reel.querySelectorAll('img')], size = (img, d) => +img.getAttribute(d);
+    let sum = 0, f = 0;
+    for (let k = 0; k < imgs.length / 2; k++) { // first copy only; f shrinks as photos are added
+      sum += size(imgs[k], 'width');
+      const g = (reel.clientWidth - 22 * (k + 1)) / sum;
+      if (Math.abs(g - 1) < Math.abs(f - 1)) f = g;
+      else if (g < 1) break;
+    }
+    for (const img of imgs) {
+      img.style.width = `${size(img, 'width') * f}px`;
+      img.style.height = `${size(img, 'height') * f}px`;
+    }
+    pace(reel.firstElementChild);
+  };
+  const fitAll = () => document.querySelectorAll('.reel').forEach(fit);
+  fitAll();
+  addEventListener('resize', fitAll);
 
   // Mouse notes: moving sheds fading notes, a click bursts some; the frame loop only runs while any are visible.
   {
@@ -1197,7 +1200,6 @@
     ctx.close(); ctx = bus = song = null; // closing drops any notes already scheduled
     cap.textContent = LABEL;
     player.hidden = true;
-    side();
   };
 
   btn.addEventListener('click', () => {
@@ -1208,7 +1210,6 @@
     // Until it's been dragged, open just below the top bird strips, as far as the screen allows.
     const below = document.querySelector('.hero').getBoundingClientRect().bottom + 16;
     if (!player.style.left) player.style.top = `${Math.max(16, Math.min(below, innerHeight - player.offsetHeight - 16))}px`;
-    side();
     setPaused(false);
     roll(ctx);
     load();
@@ -1226,12 +1227,10 @@
   document.getElementById('close').addEventListener('click', stop);
   // Floating window: move by the title bar, resize by the corner grip; the bar always stays on screen.
   const bar = player.querySelector('.bar');
-  const side = () => document.body.classList.toggle('jb-right', !player.hidden && player.offsetLeft + player.offsetWidth / 2 > innerWidth / 2);
   const place = (x, y) => {
     player.style.left = `${Math.max(0, Math.min(x, innerWidth - player.offsetWidth))}px`;
     player.style.top = `${Math.max(0, Math.min(y, innerHeight - bar.offsetHeight))}px`;
     player.style.right = 'auto';
-    side();
   };
   const dragging = (el, start) => el.addEventListener('pointerdown', (e) => {
     if (e.button || e.target.closest('button')) return;
@@ -1501,7 +1500,7 @@
     if (!move.path && !bird.classList.contains('zz') && /^(walk|stand)$/.test(bird.dataset.move)) plan();
   };
   addEventListener('click', (e) => {
-    if (e.button || String(getSelection()) || e.target.closest('a, button, input, select, textarea, label, summary, img, video, iframe, #keys, #player, #catbird, .popup')) return;
+    if (e.button || String(getSelection()) || e.target.closest('a, button, input, select, textarea, label, summary, img, video, iframe, #keys, #player, #catbird, .reel')) return;
     const el = document.createElement('div'), b = { x: e.clientX, el, ripe: false }, fall = innerHeight - e.clientY - 6;
     el.className = 'berry';
     el.style.left = `${b.x - 6}px`;
