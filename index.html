@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>~*~ brand0's homepage ~*~</title>
   <meta name="description" content="music producer and plugin developer" />
-  <meta name="keywords" content="brand0, music, producer, plugins, vst, audio, birdsong, gooper, liminal, sheet music, treble clef, birds, movies, nyc" />
+  <meta name="keywords" content="brand0, music, producer, plugins, vst, audio, birdsong, gooper, liminal, dawn detune, sheet music, treble clef, birds, movies, nyc" />
   <meta property="og:title" content="music producer and plugin developer" />
   <meta property="og:description" content="music producer and plugin developer" />
   <meta property="og:type" content="website" />
@@ -112,6 +112,29 @@
     #player .status #time { flex: none; font-variant-numeric: tabular-nums; }
     #pianoroll { display: block; box-sizing: border-box; width: 100%; height: clamp(280px, 50vh, 480px); background: #000;
                  border: 2px solid; border-color: #808080 #FFF #FFF #808080; }
+    /* Dawn Detune: the plugin's live 3D editor, rendered at half res and upscaled pixelated like the plugin does. */
+    /* Dawn Detune: ported from birdsong.nyc/dawn-detune, only the size changed. */
+    #dawn { --bevel: inset -1px -1px 0 #b0b0b0, inset 1px 1px 0 #fff; --bevel-in: inset 1px 1px 0 #b0b0b0, inset -1px -1px 0 #fff;
+            --win-font: "MS Sans Serif", "Chicago", "Geneva", "Helvetica Neue", Arial, sans-serif; --ease: cubic-bezier(0.22, 0.68, 0.28, 1);
+            display: flex; flex-direction: column; width: 100%; max-width: 436px; margin: 16px auto 0; background: #fff; border: 2px solid #fff;
+            box-shadow: var(--bevel), 0 18px 44px rgba(21, 21, 21, 0.22); font: 12px var(--win-font); color: #000; text-align: left; }
+    #dawn .win-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 22px; padding: 0 4px 0 6px;
+                     background: linear-gradient(90deg, #000080, #1084d0); color: #fff; font-weight: bold; }
+    #dawn .win-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #dawn .win-buttons { display: flex; gap: 2px; flex: 0 0 auto; }
+    #dawn .win-btn { width: 18px; height: 16px; background: #fff; box-shadow: var(--bevel); font: bold 10px/16px Arial, sans-serif; color: #000; text-align: center; }
+    #dawn-stage { position: relative; margin: 0; aspect-ratio: 4 / 3; background: #0a0908; overflow: hidden; }
+    #dawn-stage canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; opacity: 0; transition: opacity 1.1s var(--ease); }
+    #dawn-stage.is-live canvas { opacity: 1; }
+    #dawn-load { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; transition: opacity .45s var(--ease), visibility 0s linear .45s; }
+    #dawn-stage.is-live #dawn-load { opacity: 0; visibility: hidden; }
+    #dawn-load .panel { box-sizing: border-box; width: min(300px, 100%); padding: 13px 14px 14px; background: #f0f0f0; border: 2px solid #f0f0f0; box-shadow: var(--bevel); }
+    #dawn-load .row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 9px; }
+    #dawn-load .pct { font: 10px ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .1em; color: #555; font-variant-numeric: tabular-nums; }
+    #dawn-load .bar { height: 16px; padding: 2px; background: #fff; box-shadow: var(--bevel-in); overflow: hidden; }
+    #dawn-load .bar i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, #000080 0 8px, transparent 8px 11px); transition: width .3s linear; }
+    #dawn-load.is-error :is(.bar, .pct) { display: none; }
+    .shot { display: block; box-sizing: border-box; width: 440px; max-width: 100%; height: auto; margin: 8px auto 0; border: 3px double #000; }
     /* Black keys sit inside the white key to their left, straddling its right edge. */
     #keys { position: relative; display: flex; width: fit-content; margin: 0 auto; padding: 6px 6px 0; background: #000; border: 3px outset #888;
             user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -233,10 +256,27 @@
 <div class="huge">
   <p><img class="gif" src="resources/bird1.gif" width="60" height="48" alt=""><a href="https://www.birdsong.nyc" target="_blank" rel="noopener">&gt;&gt; BIRDSONG &lt;&lt;</a><img class="gif" src="resources/bird2.gif" width="60" height="48" alt=""><b class="blink new">NEW!</b><br>
   <font size="2">new company with nathan blair</font></p>
+  <div id="dawn">
+    <div class="win-bar">
+      <span class="win-title">DAWN_DETUNE.VST3</span>
+      <span class="win-buttons" aria-hidden="true"><span class="win-btn">&#95;</span><span class="win-btn">&#10005;</span></span>
+    </div>
+    <figure id="dawn-stage">
+      <canvas id="dawn-scene" aria-label="Interactive Dawn Detune environment"></canvas>
+      <div id="dawn-load" role="status" aria-live="polite">
+        <div class="panel">
+          <p class="row"><span id="dawn-load-title">Loading scene&hellip;</span><span class="pct" id="dawn-load-pct" aria-hidden="true">0%</span></p>
+          <div class="bar" id="dawn-load-bar" role="progressbar" aria-labelledby="dawn-load-title" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="dawn-load-fill"></i></div>
+        </div>
+      </div>
+    </figure>
+  </div>
   <p><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><a href="https://brand0.gumroad.com/" target="_blank" rel="noopener">&gt;&gt; GUMROAD &lt;&lt;</a><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><br>
-  <font size="2">get gooper here</font></p>
+  <font size="2">get gooper here</font>
+  <img class="shot" src="resources/goop.gif" width="440" height="289" loading="lazy" alt="gooper plugin running in ableton"></p>
   <p><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><a href="https://www.flickswitchaudio.com/product/liminal" target="_blank" rel="noopener">&gt;&gt; LIMINAL &lt;&lt;</a><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><br>
-  <font size="2">built this cool device for FlickSwitch Audio</font></p>
+  <font size="2">built this cool device for FlickSwitch Audio</font>
+  <img class="shot" src="resources/liminal.jpg" width="440" height="329" loading="lazy" alt="liminal plugin interface"></p>
 </div>
 
 <!-- ======== CONTACT ======== -->
@@ -1579,6 +1619,42 @@
     count();
   });
 })();
+</script>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+<script type="module">
+  // Dawn Detune scene: three.js plus a 1.2MB model, so it only loads once it nears the viewport.
+  const canvas = document.getElementById('dawn-scene');
+  const stage = document.getElementById('dawn-stage');
+  const loader = document.getElementById('dawn-load');
+  const title = document.getElementById('dawn-load-title');
+  const pct = document.getElementById('dawn-load-pct');
+  const bar = document.getElementById('dawn-load-bar');
+  const fill = document.getElementById('dawn-load-fill');
+  const fail = (msg) => { loader.classList.add('is-error'); title.textContent = msg; };
+  new IntersectionObserver(async ([e], io) => {
+    if (!e.isIntersecting) return;
+    io.disconnect();
+    try {
+      const { mountDawnScene } = await import('./resources/dawn/dawn-scene.js');
+      const scene = await mountDawnScene(canvas, {
+        onProgress(p) {
+          const whole = Math.round(p * 100);
+          fill.style.width = `${(p * 100).toFixed(1)}%`;
+          pct.textContent = `${whole}%`;
+          bar.setAttribute('aria-valuenow', whole);
+          if (p >= 1) title.textContent = 'Building scene…';
+        },
+      });
+      if (scene) stage.classList.add('is-live');
+      else fail('3D preview needs WebGL');
+    } catch (err) {
+      console.warn('Dawn scene unavailable:', err);
+      fail('3D preview unavailable');
+    }
+  }, { rootMargin: '600px' }).observe(canvas);
 </script>
 </body>
 </html>
