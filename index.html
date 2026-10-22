@@ -120,41 +120,40 @@
             background: linear-gradient(135deg, #0000 0 50%, #FFF 50% 58%, #808080 58% 70%, #0000 70% 75%, #FFF 75% 83%, #808080 83% 95%, #0000 95%); }
     #pianoroll { display: block; flex: 1; min-height: 0; box-sizing: border-box; width: 100%; background: #000;
                  border: 2px solid; border-color: #808080 #FFF #FFF #808080; }
-    /* Spotify mini player: a sage-metal disc (orb button, segmented LCD seek ring) with the title orbiting it; draggable, above the catbird.
-       #amp-px snaps it to a 2px grid at reduced colour depth so the dithered metal bands like an old bitmap skin. */
-    #amp { --metal: linear-gradient(#DCEFD8, #B3D6AF 40%, #7DAA80 54%, #A6CCA3 78%, #D2EACE); --edge: 0 0 0 2px #2F5235, inset 0 2px #FFFD, inset 0 -3px #4F7F5599;
-           --lcd: radial-gradient(circle at 45% 35%, #E8F9DE, #AEDDA4 60%, #78B473); --ink: #1F4A22; --dither: repeating-conic-gradient(#0000 0 25%, #FFFFFF1F 0 50%) 0 0 / 4px 4px;
-           position: fixed; left: 0; top: 0; z-index: 99; width: 184px; height: 184px; text-align: left; pointer-events: none; animation: amp-in .45s steps(6) both; }
+    /* Spotify mini player: a big sage-metal orb overhanging a two-line LCD pill (song scrolling over artist, segmented seek) with a round time bubble;
+       draggable, above the catbird. #amp-px snaps it to a 2px grid at reduced colour depth so the metal bands like an old bitmap skin. */
+    #amp { --line: #2F5235; --ink: #1F4A22; position: fixed; left: 0; top: 0; z-index: 99; width: 320px; height: 120px; text-align: left; pointer-events: none; animation: amp-in .45s steps(6) both; }
     #amp[hidden] { display: none; }
-    @keyframes amp-in { from { transform: translateY(30px) scale(.6) rotate(-20deg); opacity: 0; } }
+    @keyframes amp-in { from { transform: translateY(30px) scale(.6) rotate(-8deg); opacity: 0; } }
     #amp .skin { position: absolute; inset: 0; filter: url(#amp-px); animation: amp-float 4s ease-in-out infinite; }
     @keyframes amp-float { 50% { translate: 0 -5px; } }
-    /* Bitmap look switched off for now; delete this line to restore the pixel grid and dither. */
-    #amp { --dither: none; } #amp .skin { filter: none; }
-    #amp .skin > * { position: absolute; pointer-events: auto; cursor: grab; touch-action: none; }
-    #amp.held .skin > * { cursor: grabbing; }
-    #amp .orbit { inset: 0; pointer-events: none; }
-    #amp .orbit text { font: 700 12px Orbitron, "Courier New", monospace; fill: url(#amp-ink); }
-    #amp .disc { left: 28px; top: 28px; width: 128px; height: 128px; border-radius: 50%; background: var(--dither), var(--metal); box-shadow: var(--edge), 4px 4px 0 #1F3A24B3; }
-    #amp .disc::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; box-shadow: inset 0 1px #2F523559, 0 1px #FFFB; } /* machined groove */
-    /* Recessed LCD: a dark-to-light bezel border around backlit, scanlined green glass with a curved glare. */
-    #amp .well { position: absolute; inset: 11px; border-radius: 50%; border: 3px solid #0000; transition: filter .6s;
-                 background: repeating-linear-gradient(#0000 0 2px, #1F4A2214 0 4px) padding-box, var(--lcd) padding-box, linear-gradient(#4F7F55, #DDF0DA) border-box;
-                 box-shadow: 0 0 0 2px #2F5235, inset 0 2px 5px #2F523566; }
+    /* Bitmap look switched off for now; delete this line to restore the pixel grid. */
+    #amp .skin { filter: none; }
+    #amp svg { position: absolute; overflow: visible; }
+    #amp :is(.body, .well) { pointer-events: auto; cursor: grab; touch-action: none; }
+    #amp.held :is(.body, .well) { cursor: grabbing; }
+    #amp .body { fill: url(#amp-metal); stroke: var(--line); stroke-width: 2; }
+    #amp .shadow { fill: #1F3A24B3; }
+    #amp .hi { fill: none; stroke: #FFF8; }
+    #amp .rim { fill: none; stroke: var(--line); stroke-width: 7; }
+    #amp .well { fill: url(#amp-lcd); stroke: url(#amp-bezel); stroke-width: 3; transition: filter .6s; }
     #amp.on .well { filter: brightness(1.07) saturate(1.1); }
-    #amp .well::after { content: ""; position: absolute; inset: 0 0 52%; border-radius: inherit; background: linear-gradient(#FFF5, #FFF0); }
-    /* The whole recess around the orb takes seek clicks; ::before draws the segments masked to a thin annulus. */
-    #amp-ring { position: absolute; inset: 11px; border-radius: 50%; cursor: pointer; touch-action: none; outline: none; }
-    #amp-ring::before { content: ""; position: absolute; inset: 5px; border-radius: 50%;
-                        background: repeating-conic-gradient(#0000 0 8deg, #B5E0AB 0 10deg), conic-gradient(var(--ink) var(--p, 0%), #1F4A2229 0);
-                        mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 calc(100% - 7px)); }
-    #amp-ring:focus-visible::before { background-color: #1F4A2240; }
-    #amp-pp { position: absolute; inset: 30px; padding: 0; border: 4px solid #0000; border-radius: 50%; cursor: pointer;
-              background: var(--dither) padding-box, radial-gradient(circle at 38% 30%, #F6FFF4, #B9DFB5 35%, #73A776 75%, #46784D) padding-box,
+    #amp .scan { fill: url(#amp-scan); }
+    #amp .glare { fill: url(#amp-glare); }
+    /* Seek: a dark progress line over a faint track, cut into LCD segments by a dash of the glass colour. */
+    #amp .seek { fill: none; stroke-width: 4; }
+    #amp .prog { stroke: var(--ink); stroke-dasharray: 0 100; }
+    #amp .segs { stroke: #B5E0AB; stroke-width: 5; stroke-dasharray: .5 2.3; }
+    #amp text { font: 700 14px Orbitron, "Courier New", monospace; fill: var(--ink); white-space: pre; dominant-baseline: middle; }
+    #amp :is(#amp-artist, #amp-time) { font-size: 9px; }
+    #amp-seek { fill: #0000; pointer-events: auto; cursor: pointer; touch-action: none; outline: none; }
+    #amp-seek:focus-visible { fill: #1F4A2226; }
+    #amp-pp { position: absolute; left: 10px; top: 16px; width: 88px; height: 88px; padding: 0; border: 4px solid #0000; border-radius: 50%; cursor: pointer; pointer-events: auto;
+              background: radial-gradient(circle at 38% 30%, #F6FFF4, #B9DFB5 35%, #73A776 75%, #46784D) padding-box,
                           conic-gradient(#F4FFF2, #5E8A61, #E6F5E3, #44754B, #F4FFF2, #6F9C72, #F4FFF2) border-box;
-              box-shadow: 0 0 0 2px #2F5235, 0 3px 5px #1F3A2480; color: var(--ink); font: 22px/60px Arial, sans-serif; text-shadow: 0 1px #EAF9E6; }
+              box-shadow: 0 0 0 2px var(--line), 0 3px 5px #1F3A2480; color: var(--ink); font: 28px/80px Arial, sans-serif; text-shadow: 0 1px #EAF9E6; }
     #amp-pp::before { content: ""; position: absolute; left: 20%; right: 20%; top: 7%; height: 36%; border-radius: 50%; background: linear-gradient(#FFF6, #FFF0); pointer-events: none; }
-    #amp-pp:active { filter: brightness(.92); box-shadow: 0 0 0 2px #2F5235, inset 0 3px 6px #1F3A2480; }
+    #amp-pp:active { filter: brightness(.92); box-shadow: 0 0 0 2px var(--line), inset 0 3px 6px #1F3A2480; }
     /* Dawn Detune: the plugin's live 3D editor, rendered at half res and upscaled pixelated like the plugin does. */
     /* Dawn Detune: ported from birdsong.nyc/dawn-detune, only the size changed. */
     #dawn { --bevel: inset -1px -1px 0 #b0b0b0, inset 1px 1px 0 #fff; --bevel-in: inset 1px 1px 0 #b0b0b0, inset -1px -1px 0 #fff;
@@ -300,25 +299,29 @@
     </filter>
   </svg>
   <div class="skin">
-    <!-- The title on a circle around the disc in banded metal; the text turns while the gradient counter-turns on the same clock, so the light stays put. -->
-    <svg class="orbit" width="184" height="184" viewBox="0 0 184 184" aria-hidden="true">
+    <svg width="320" height="120" viewBox="0 0 320 120">
       <defs>
-        <path id="amp-path" d="M92 20A72 72 0 1 1 91.99 20"/>
-        <linearGradient id="amp-ink" gradientUnits="userSpaceOnUse" x1="0" y1="8" x2="0" y2="176">
-          <stop offset="0" stop-color="#2F5235"/><stop offset=".4" stop-color="#A6CCA3"/><stop offset=".54" stop-color="#3F6E45"/><stop offset=".8" stop-color="#8FBF8C"/><stop offset="1" stop-color="#2F5235"/>
-          <animateTransform attributeName="gradientTransform" type="rotate" from="0 92 92" to="360 92 92" dur="30s" repeatCount="indefinite"/>
-        </linearGradient>
+        <linearGradient id="amp-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCEFD8"/><stop offset=".4" stop-color="#B3D6AF"/><stop offset=".54" stop-color="#7DAA80"/><stop offset=".78" stop-color="#A6CCA3"/><stop offset="1" stop-color="#D2EACE"/></linearGradient>
+        <radialGradient id="amp-lcd" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#E8F9DE"/><stop offset=".6" stop-color="#AEDDA4"/><stop offset="1" stop-color="#78B473"/></radialGradient>
+        <linearGradient id="amp-bezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4F7F55"/><stop offset="1" stop-color="#DDF0DA"/></linearGradient>
+        <linearGradient id="amp-glare" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF" stop-opacity=".33"/><stop offset=".48" stop-color="#FFF" stop-opacity="0"/></linearGradient>
+        <pattern id="amp-scan" width="4" height="4" patternUnits="userSpaceOnUse"><rect y="2" width="4" height="2" fill="#1F4A2214"/></pattern>
+        <clipPath id="amp-c-song"><path d="M128 36H252A10 10 0 0 1 262 46V50A10 10 0 0 1 252 60H128A10 10 0 0 1 118 50V46A10 10 0 0 1 128 36Z"/></clipPath><clipPath id="amp-c-artist"><path d="M124 59H256A6 6 0 0 1 262 65V67A6 6 0 0 1 256 73H124A6 6 0 0 1 118 67V65A6 6 0 0 1 124 59Z"/></clipPath>
       </defs>
-      <g>
-        <animateTransform attributeName="transform" type="rotate" from="0 92 92" to="-360 92 92" dur="30s" repeatCount="indefinite"/>
-        <text><textPath id="amp-title" href="#amp-path" textLength="450" lengthAdjust="spacingAndGlyphs"></textPath></text>
-      </g>
+      <g transform="translate(4 4)"><path class="shadow" d="M84 26H260A34 34 0 0 1 294 60V60A34 34 0 0 1 260 94H84A34 34 0 0 1 50 60V60A34 34 0 0 1 84 26Z"/><path class="shadow" d="M288 4A20 20 0 1 1 287.99 4Z"/></g>
+      <path class="body" d="M84 26H260A34 34 0 0 1 294 60V60A34 34 0 0 1 260 94H84A34 34 0 0 1 50 60V60A34 34 0 0 1 84 26Z"/><path class="hi" d="M84 26H260A34 34 0 0 1 294 60V60A34 34 0 0 1 260 94H84A34 34 0 0 1 50 60V60A34 34 0 0 1 84 26Z" transform="translate(0 1.5)" opacity=".5"/>
+      <path class="rim" d="M134 32H246A22 22 0 0 1 268 54V66A22 22 0 0 1 246 88H134A22 22 0 0 1 112 66V54A22 22 0 0 1 134 32Z"/><path class="well" d="M134 32H246A22 22 0 0 1 268 54V66A22 22 0 0 1 246 88H134A22 22 0 0 1 112 66V54A22 22 0 0 1 134 32Z"/><path class="scan" d="M134 32H246A22 22 0 0 1 268 54V66A22 22 0 0 1 246 88H134A22 22 0 0 1 112 66V54A22 22 0 0 1 134 32Z"/>
+      <path class="seek" d="M126 79H254" stroke="#1F4A2229"/><path class="seek prog" d="M126 79H254" pathLength="100"/><path class="seek segs" d="M126 79H254" pathLength="100"/>
+      <g clip-path="url(#amp-c-song)"><text id="amp-song" x="124" y="47"></text></g>
+      <g clip-path="url(#amp-c-artist)"><text id="amp-artist" x="124" y="66"></text></g>
+      <path class="glare" d="M134 32H246A22 22 0 0 1 268 54V66A22 22 0 0 1 246 88H134A22 22 0 0 1 112 66V54A22 22 0 0 1 134 32Z"/>
+      <!-- Time bubble: its own little casting perched on the pill's corner, clear of the main glass. -->
+      <path class="body" d="M288 4A20 20 0 1 1 287.99 4Z"/><path class="hi" d="M288 4A20 20 0 1 1 287.99 4Z" transform="translate(0 1.5)" opacity=".5"/><path class="rim" d="M288 9A15 15 0 1 1 287.99 9Z"/><path class="well" d="M288 9A15 15 0 1 1 287.99 9Z"/><path class="scan" d="M288 9A15 15 0 1 1 287.99 9Z"/>
+      <text id="amp-time" x="288" y="25" text-anchor="middle" lengthAdjust="spacingAndGlyphs">0:00</text>
+      <path class="glare" d="M288 9A15 15 0 1 1 287.99 9Z"/>
+      <rect id="amp-seek" x="118" y="71" width="144" height="16" role="slider" tabindex="0" aria-label="seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"/>
     </svg>
-    <div class="disc">
-      <div class="well"></div>
-      <div id="amp-ring" role="slider" tabindex="0" aria-label="seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
-      <button id="amp-pp" type="button" aria-label="play">►</button>
-    </div>
+    <button id="amp-pp" type="button" aria-label="play">►</button>
   </div>
 </div>
 <p class="release"><b class="blink">★ ALBUM OUT NOW ★</b><br><br>
@@ -1328,12 +1331,24 @@
   addEventListener('resize', () => { if (!player.hidden && player.style.left) place(player.offsetLeft, player.offsetTop); });
   pp.addEventListener('click', () => { setPaused(!paused); paused ? ctx.suspend() : ctx.resume(); });
   // Mini player: pops up on the embed's first play and drives it through the controller.
-  const amp = document.getElementById('amp'), ampPP = document.getElementById('amp-pp'), ampTitle = document.getElementById('amp-title');
-  const ring = document.getElementById('amp-ring'), spWrap = document.getElementById('spotify').parentElement, orbit = amp.querySelector('.orbit');
-  orbit.pauseAnimations(); // the title only orbits while playing
-  let spDur = 0, spPos = 0, pos = 0, scrub = false, list = { name: '', tracks: [] }, spIdx = -1;
-  // Repeated to roughly one lap (~55 glyphs); textLength then stretches or squeezes it to close the circle exactly.
-  const setTitle = (t) => { ampTitle.textContent = `${t} * `.toUpperCase().repeat(Math.max(1, Math.round(55 / (t.length + 3)))); };
+  const amp = document.getElementById('amp'), ampPP = document.getElementById('amp-pp'), ampSong = document.getElementById('amp-song');
+  const ampArtist = document.getElementById('amp-artist'), ampTime = document.getElementById('amp-time'), ampProg = amp.querySelector('.prog');
+  const seekBar = document.getElementById('amp-seek'), spWrap = document.getElementById('spotify').parentElement;
+  let spDur = 0, spPos = 0, pos = 0, scrub = false, list = { name: '', tracks: [] }, spIdx = -1, marqX = 0, marqAt = 0;
+  // "artist - song" splits into the two LCD lines; the song line holds two copies of a run wider than the glass so the marquee loops seamlessly.
+  const setTitle = (t) => {
+    const cut = t.indexOf(' - '), song = `${cut < 0 ? t : t.slice(cut + 3)} * `.toUpperCase();
+    ampSong.textContent = song.repeat(2 * Math.ceil(24 / song.length));
+    ampArtist.textContent = cut < 0 ? '' : t.slice(0, cut).toUpperCase();
+    marqX = 0;
+  };
+  const marquee = (t) => {
+    if (spPaused) return;
+    marqX = (marqX + (t - marqAt) * .03) % (ampSong.getComputedTextLength() / 2 || 1); // 30px/s
+    marqAt = t;
+    ampSong.setAttribute('x', 124 - marqX);
+    requestAnimationFrame(marquee);
+  };
   fetch('tracks.json').then(r => r.json()).then(l => { list = l; setTitle(l.name); }).catch(() => {});
   // The embed reports only the track's length (listed value, then the decoded one ~50ms off), so name the closest playlist match;
   // equal lengths go to the next track in order, and the decoded follow-up is ignored.
@@ -1343,18 +1358,25 @@
     const best = t.reduce((b, _, i) => b < 0 || off(i) < off(b) || off(i) === off(b) && after(i) < after(b) ? i : b, -1);
     if (best >= 0 && off(best) < 150) { spIdx = best; setTitle(t[best].name); }
   };
-  const showPos = (v) => { pos = v; ring.style.setProperty('--p', `${v / 10}%`); ring.setAttribute('aria-valuenow', v / 10 | 0); };
+  const showPos = (v) => {
+    pos = v;
+    ampProg.style.strokeDasharray = `${v / 10} 100`;
+    ampTime.textContent = clock(v * spDur / 1e6);
+    ampTime.removeAttribute('textLength');
+    if (ampTime.getComputedTextLength() > 21) ampTime.setAttribute('textLength', 21); // squeeze long times (10:00+) to fit the bubble glass
+    seekBar.setAttribute('aria-valuenow', v / 10 | 0);
+  };
   const seekTo = (sec) => spotify.seek(Math.max(1, sec)); // the embed drops seeks under 1s
   ampPP.addEventListener('click', () => spotify.togglePlay());
-  // Seek ring: the pointer's clockwise angle from 12 o'clock is the position; updates hold while dragging.
-  const ringAt = (e) => {
-    const r = ring.getBoundingClientRect(), a = Math.atan2(e.clientX - r.left - r.width / 2, r.top + r.height / 2 - e.clientY);
-    return (a / Math.PI / 2 + 1) % 1 * 1000;
+  // Seek bar: the pointer's position along the line (inset 8px each side of the hit strip); updates hold while dragging.
+  const barAt = (e) => {
+    const r = seekBar.getBoundingClientRect();
+    return Math.min(Math.max((e.clientX - r.left - 8) / (r.width - 16), 0), 1) * 1000;
   };
-  ring.addEventListener('pointerdown', (e) => { ring.setPointerCapture(e.pointerId); scrub = true; showPos(ringAt(e)); });
-  ring.addEventListener('pointermove', (e) => { if (scrub) showPos(ringAt(e)); });
-  ring.addEventListener('lostpointercapture', () => { scrub = false; seekTo(pos * spDur / 1e6); });
-  ring.addEventListener('keydown', (e) => {
+  seekBar.addEventListener('pointerdown', (e) => { seekBar.setPointerCapture(e.pointerId); scrub = true; showPos(barAt(e)); });
+  seekBar.addEventListener('pointermove', (e) => { if (scrub) showPos(barAt(e)); });
+  seekBar.addEventListener('lostpointercapture', () => { scrub = false; seekTo(pos * spDur / 1e6); });
+  seekBar.addEventListener('keydown', (e) => {
     const step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
     if (step) { e.preventDefault(); seekTo(spPos / 1000 + step); }
   });
@@ -1370,7 +1392,7 @@
     else moveAmp(r.left + (r.width - w) / 2, r.bottom + 16);
   };
   amp.addEventListener('pointerdown', (e) => {
-    if (e.button || e.target.closest('button, #amp-ring')) return;
+    if (e.button || e.target.closest('button, #amp-seek')) return;
     const dx = e.clientX - amp.offsetLeft, dy = e.clientY - amp.offsetTop, drag = (e) => moveAmp(e.clientX - dx, e.clientY - dy);
     amp.setPointerCapture(e.pointerId);
     amp.classList.add('held');
@@ -1385,13 +1407,13 @@
       if (spPaused && !data.isPaused) { // updates stream during playback; act only on the play edge
         if (ctx && !paused) { setPaused(true); ctx.suspend(); }
         if (amp.hidden) showAmp();
+        requestAnimationFrame((t) => { marqAt = t; marquee(t); }); // runs once spPaused has flipped below
       }
       spPaused = data.isPaused;
       if (data.duration !== spDur) nameTrack(data.duration);
       spDur = data.duration;
       spPos = data.position;
       amp.classList.toggle('on', !spPaused);
-      spPaused ? orbit.pauseAnimations() : orbit.unpauseAnimations();
       ampPP.textContent = spPaused ? '►' : '❚❚';
       ampPP.setAttribute('aria-label', spPaused ? 'play' : 'pause');
       if (!scrub) showPos(spDur ? data.position / spDur * 1000 : 0);
