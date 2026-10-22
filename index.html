@@ -28,7 +28,7 @@
     a:hover { background: #0000EE; color: #FFF; }
     .huge a { font-size: clamp(18px, 6vw, 32px); font-family: "Comic Sans MS", "Comic Sans", cursive; }
     .new { position: absolute; margin-left: 6px; color: #F00; } /* out of flow so the link stays centered */
-    .welcome { font: bold 30px "Comic Sans MS", "Comic Sans", cursive; text-shadow: 2px 2px 0 #000; }
+    .welcome { font: bold clamp(18px, 6vw, 30px) "Comic Sans MS", "Comic Sans", cursive; text-shadow: 2px 2px 0 #000; }
     .welcome span { display: inline-block; white-space: pre; animation: wave 1.2s ease-in-out infinite; }
     @keyframes wave { 50% { transform: translateY(-6px); } }
     .blink { animation: blink 1s steps(1) infinite; }
@@ -41,11 +41,10 @@
                 border: 6px double #000; box-shadow: 8px 8px 0 #000; }
     .hero { position: relative; }
     .hero .masthead { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; margin: 0;
-                      width: min(420px, 85vw); box-sizing: border-box; padding: 0 12px 4px; }
+                      width: min(420px, 85vw); box-sizing: border-box; padding: 0 12px; }
     .hero .logo { font-size: clamp(44px, 8vw, 92px); }
-    .hero .welcome { font-size: clamp(13px, 4.6vw, 22px); margin: 8px 0; }
     .birds.rev .bird-track { animation-direction: reverse; }
-    .logo { position: relative; font: 400 clamp(56px, 10vw, 140px) / 0.85 "Times New Roman", Times, serif; letter-spacing: -0.01em; margin-top: 0.25em; transform: translateX(0.04em); text-shadow: 0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF; }
+    .logo { position: relative; font: 400 clamp(56px, 10vw, 140px) / 0.85 "Times New Roman", Times, serif; letter-spacing: -0.01em; margin: 0.25em 0 0.08em; transform: translateX(0.04em); text-shadow: 0 0 20px #FFF, 0 0 12px #FFF, 0 0 6px #FFF, 0 0 3px #FFF; }
     /* Staff behind the wordmark. */
     .logo::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0.06em; height: calc(0.68em + 1px);
                     background: repeating-linear-gradient(#000 0 1px, transparent 1px 0.17em);
@@ -254,9 +253,9 @@
 
 <header class="masthead">
 <div class="logo"><span class="flat">♭</span>rand0</div>
+</header>
 
 <p class="welcome">Welcome to my Website :) </p>
-</header>
 
 <p><button id="midi" type="button" aria-label="MIDI jukebox"><img class="guy" src="resources/guy.gif" width="140" height="140" alt=""><span class="cap blink">♪ click me ♪</span></button></p>
 <div id="player" hidden>
