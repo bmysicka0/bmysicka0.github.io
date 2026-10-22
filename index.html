@@ -111,8 +111,7 @@
     #player .ctl { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; padding: 6px 0 8px; }
     #player .nav { display: flex; flex-basis: 100%; min-width: 0; gap: 6px; }
     #song { flex: 1; min-width: 0; padding: 2px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #bpm { width: 3.2em; padding: 2px 6px; border: 0; }
-    #tr { display: inline-block; min-width: 2em; padding: 2px 6px; cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none; }
+    :is(#bpm, #tr) { display: inline-block; min-width: 2em; padding: 2px 6px; cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none; }
     #player .status { display: flex; gap: 3px; margin-top: 3px; font-size: 13px; }
     #player .status span { flex: 1; padding: 1px 6px; text-align: left; box-shadow: inset 1px 1px #808080, inset -1px -1px #FFF; }
     #player .status #time { flex: none; padding-right: 16px; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -264,7 +263,7 @@
   <div class="ctl">
     <span class="nav"><button type="button" data-song="-1" aria-label="previous song">|◄</button><span id="song"></span><button type="button" data-song="1" aria-label="next song">►|</button></span>
     <button id="pp" type="button"></button>
-    <label>BPM <input id="bpm" type="number" min="20" max="300"></label>
+    <span>BPM <span id="bpm" role="slider" tabindex="0" aria-label="tempo" aria-valuemin="20" aria-valuemax="999" title="drag up/down to change tempo"></span></span>
     <span>KEY <span id="tr" role="slider" tabindex="0" aria-label="transpose" aria-valuemin="-12" aria-valuemax="12" aria-valuenow="0" title="drag up/down to transpose">0</span></span>
   </div>
   <canvas id="pianoroll" aria-hidden="true"></canvas>
@@ -1102,10 +1101,11 @@
     { name: 'Zelda - Hateno Village', title: 'The Legend of Zelda: Breath of the Wild - Hateno Village', file: 'resources/Hateno Village - Legend of Zelda_ Breath of the Wild.mid', bpm: 120 },
     { name: 'Expedition 33 - Lumière', title: 'Clair Obscur: Expedition 33 - Lumière', file: 'resources/Lumière - Clair Obscur_ Expedition 33 (WIP).mid', bpm: 86 },
   ];
-  const newAudio = () => {
+  const newAudio = (makeup = 1) => {
     const c = new (window.AudioContext || window.webkitAudioContext)();
-    const o = c.createDynamicsCompressor(); // keeps dense chords from clipping
-    o.connect(c.destination);
+    const o = c.createDynamicsCompressor(), g = c.createGain(); // compressor keeps dense chords from clipping
+    g.gain.value = makeup;
+    o.connect(g).connect(c.destination);
     return [c, o];
   };
   const btn = document.getElementById('midi'), cap = btn.querySelector('.cap');
@@ -1272,12 +1272,16 @@
 
   btn.addEventListener('click', () => {
     if (ctx) return stop();
-    [ctx, out] = newAudio();
+    [ctx, out] = newAudio(2.5); // makeup gain to sit level with the Spotify embed
     cap.textContent = '♪ playing ♪';
     player.hidden = false;
-    // Undragged, it opens below the top bird strips while still fitting on screen.
+    // Undragged, it opens below the top bird strips, centered between the about box and the window edge.
     const below = document.querySelector('.hero').getBoundingClientRect().bottom + 16;
-    if (!player.style.left) player.style.top = `${Math.max(16, Math.min(below, innerHeight - player.offsetHeight - 16))}px`;
+    const gap = innerWidth - document.querySelector('.box').getBoundingClientRect().right;
+    if (!player.style.left) {
+      player.style.top = `${Math.max(16, Math.min(below, innerHeight - player.offsetHeight - 16))}px`;
+      player.style.right = `${Math.max(16, (gap - player.offsetWidth) / 2)}px`;
+    }
     setPaused(false);
     roll(ctx);
     load();
@@ -1285,7 +1289,7 @@
 
   // Player controls: pause suspends the audio clock, freezing sound and roll together.
   const pp = document.getElementById('pp'), songName = document.getElementById('song');
-  const bpmIn = document.getElementById('bpm'), trOut = document.getElementById('tr');
+  const bpmOut = document.getElementById('bpm'), trOut = document.getElementById('tr');
   // Spotify's iFrame API controls the embed; it and the MIDI player pause each other on play.
   let spotify = null, spPaused = true;
   const setPaused = (p) => {
@@ -1397,34 +1401,39 @@
     songName.title = SONGS[cur].title;
   };
   showSong();
-  bpmIn.value = bpm;
   for (const b of document.querySelectorAll('[data-song]')) b.addEventListener('click', () => {
     cur = (cur + +b.dataset.song + SONGS.length) % SONGS.length;
     showSong();
-    bpmIn.value = bpm = SONGS[cur].bpm;
+    setBpm(SONGS[cur].bpm);
     if (ctx) load();
   });
-  bpmIn.addEventListener('input', () => {
-    const v = +bpmIn.value;
-    if (!(v >= 20 && v <= 300)) return; // ignore partial typing
+  // Dial readouts: drag up/down (`px` per step) or arrow keys.
+  const dial = (el, get, set, px) => {
+    let drag = null; // [pointer y, value] at drag start
+    el.addEventListener('pointerdown', (e) => { el.setPointerCapture(e.pointerId); drag = [e.clientY, get()]; });
+    el.addEventListener('pointermove', (e) => { if (drag) set(drag[1] + Math.round((drag[0] - e.clientY) / px)); });
+    el.addEventListener('pointerup', () => { drag = null; });
+    el.addEventListener('pointercancel', () => { drag = null; });
+    el.addEventListener('keydown', (e) => {
+      const d = { ArrowUp: 1, ArrowDown: -1 }[e.key];
+      if (d) { e.preventDefault(); set(get() + d); }
+    });
+  };
+  const setBpm = (v) => {
     if (ctx) { beat0 = beatAt(ctx.currentTime); at0 = ctx.currentTime; }
-    bpm = v;
-  });
-  // Transpose: drag up/down (12px per semitone) or arrow keys, within an octave either way.
+    bpm = Math.max(20, Math.min(999, v));
+    bpmOut.textContent = bpm;
+    bpmOut.setAttribute('aria-valuenow', bpm);
+  };
+  setBpm(bpm);
+  dial(bpmOut, () => bpm, setBpm, 2);
+  // Transpose within an octave either way.
   const setTr = (v) => {
     tr = Math.max(-12, Math.min(12, v));
     trOut.textContent = tr > 0 ? `+${tr}` : tr;
     trOut.setAttribute('aria-valuenow', tr);
   };
-  let drag = null; // [pointer y, tr] at drag start
-  trOut.addEventListener('pointerdown', (e) => { trOut.setPointerCapture(e.pointerId); drag = [e.clientY, tr]; });
-  trOut.addEventListener('pointermove', (e) => { if (drag) setTr(drag[1] + Math.round((drag[0] - e.clientY) / 12)); });
-  trOut.addEventListener('pointerup', () => { drag = null; });
-  trOut.addEventListener('pointercancel', () => { drag = null; });
-  trOut.addEventListener('keydown', (e) => {
-    const d = { ArrowUp: 1, ArrowDown: -1 }[e.key];
-    if (d) { e.preventDefault(); setTr(tr + d); }
-  });
+  dial(trOut, () => tr, setTr, 12);
 
   // The keyboard's context lives for the page (the MIDI player's closes on stop); made inside a gesture.
   let toy = null, toyOut = null;
