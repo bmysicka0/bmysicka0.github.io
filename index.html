@@ -243,9 +243,7 @@
 <!-- ======== MUSIC ======== -->
 <h2 class="staff"><span><span class="bounce">♫</span> <img src="resources/music.gif" width="162" height="69" alt="MY MUSIC" style="vertical-align: middle; position: relative; top: -6px"> <span class="bounce">♫</span></span></h2>
 <p><font size="2">music i've contributed to. press play!!!</font></p>
-<iframe src="https://open.spotify.com/embed/playlist/0TuQrG6ttGKuI6cAWvabNj?utm_source=generator&amp;theme=0"
-        width="100%" height="352" style="max-width:560px; border:0" loading="lazy"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+<div style="max-width:560px"><div id="spotify"></div></div>
 <p class="release"><b class="blink">★ ALBUM OUT NOW ★</b><br><br>
 <a href="https://ffm.to/frau_flutter" target="_blank" rel="noopener"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDpUIkFyAFqfTGuIrPhZN3DjOgbL0rgR7tktYGfjE92R38jESY2zwgdII&amp;s=10" width="200" alt="frau - flutter by cover art" referrerpolicy="no-referrer"></a><br>
 <font size="4"><b>&ldquo;flutter&rdquo;</b> by frau</font><br>
@@ -1195,9 +1193,21 @@
   // Player controls: pause suspends the audio clock, freezing sound and roll together.
   const pp = document.getElementById('pp'), songName = document.getElementById('song');
   const bpmIn = document.getElementById('bpm'), trOut = document.getElementById('tr');
-  const setPaused = (p) => { paused = p; pp.textContent = p ? '►' : '❚❚'; pp.setAttribute('aria-label', p ? 'play' : 'pause'); };
+  // Spotify's iFrame API controls the embed; it and the MIDI player pause each other on play.
+  let spotify = null, spPaused = true;
+  const setPaused = (p) => {
+    paused = p; pp.textContent = p ? '►' : '❚❚'; pp.setAttribute('aria-label', p ? 'play' : 'pause');
+    if (!p && !spPaused) spotify.pause();
+  };
   document.getElementById('close').addEventListener('click', stop);
   pp.addEventListener('click', () => { setPaused(!paused); paused ? ctx.suspend() : ctx.resume(); });
+  window.onSpotifyIframeApiReady = (api) => api.createController(document.getElementById('spotify'),
+    { uri: 'spotify:playlist:0TuQrG6ttGKuI6cAWvabNj', width: '100%', height: 352 },
+    (c) => { spotify = c; c.addListener('playback_update', ({ data }) => {
+      if (spPaused && !data.isPaused && ctx && !paused) { setPaused(true); ctx.suspend(); }
+      spPaused = data.isPaused; // updates stream during playback; act only on the play edge
+    }); });
+  document.head.append(Object.assign(document.createElement('script'), { src: 'https://open.spotify.com/embed/iframe-api/v1' }));
   const showSong = () => {
     songName.textContent = `${String(cur + 1).padStart(2, '0')}/${String(SONGS.length).padStart(2, '0')} ▪ ${SONGS[cur].name}`;
     songName.title = SONGS[cur].title;
