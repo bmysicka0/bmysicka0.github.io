@@ -132,10 +132,8 @@
     @keyframes amp-float { 50% { translate: 0 -5px; } }
     #amp .skin > * { position: absolute; pointer-events: auto; cursor: grab; touch-action: none; }
     #amp.held .skin > * { cursor: grabbing; }
-    #amp .orbit { inset: 0; pointer-events: none; animation: orbit 30s linear infinite; }
-    #amp:not(.on) .orbit { animation-play-state: paused; }
-    @keyframes orbit { to { rotate: -1turn; } }
-    #amp .orbit text { font: 700 12px Orbitron, "Courier New", monospace; fill: var(--ink); }
+    #amp .orbit { inset: 0; pointer-events: none; }
+    #amp .orbit text { font: 700 12px Orbitron, "Courier New", monospace; fill: url(#amp-ink); }
     #amp .disc { left: 28px; top: 28px; width: 128px; height: 128px; border-radius: 50%; background: var(--dither), var(--metal); box-shadow: var(--edge), 4px 4px 0 #1F3A24B3; }
     #amp .disc::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; box-shadow: inset 0 1px #2F523559, 0 1px #FFFB; } /* machined groove */
     /* Recessed LCD: a dark-to-light bezel border around backlit, scanlined green glass with a curved glare. */
@@ -301,10 +299,19 @@
     </filter>
   </svg>
   <div class="skin">
-    <!-- The title on a circle around the disc, rotated by CSS. -->
+    <!-- The title on a circle around the disc in banded metal; the text turns while the gradient counter-turns on the same clock, so the light stays put. -->
     <svg class="orbit" width="184" height="184" viewBox="0 0 184 184" aria-hidden="true">
-      <defs><path id="amp-path" d="M92 20A72 72 0 1 1 91.99 20"/></defs>
-      <text><textPath id="amp-title" href="#amp-path" textLength="450" lengthAdjust="spacingAndGlyphs"></textPath></text>
+      <defs>
+        <path id="amp-path" d="M92 20A72 72 0 1 1 91.99 20"/>
+        <linearGradient id="amp-ink" gradientUnits="userSpaceOnUse" x1="0" y1="8" x2="0" y2="176">
+          <stop offset="0" stop-color="#2F5235"/><stop offset=".4" stop-color="#A6CCA3"/><stop offset=".54" stop-color="#3F6E45"/><stop offset=".8" stop-color="#8FBF8C"/><stop offset="1" stop-color="#2F5235"/>
+          <animateTransform attributeName="gradientTransform" type="rotate" from="0 92 92" to="360 92 92" dur="30s" repeatCount="indefinite"/>
+        </linearGradient>
+      </defs>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" from="0 92 92" to="-360 92 92" dur="30s" repeatCount="indefinite"/>
+        <text><textPath id="amp-title" href="#amp-path" textLength="450" lengthAdjust="spacingAndGlyphs"></textPath></text>
+      </g>
     </svg>
     <div class="disc">
       <div class="well"></div>
@@ -1316,7 +1323,8 @@
   pp.addEventListener('click', () => { setPaused(!paused); paused ? ctx.suspend() : ctx.resume(); });
   // Mini player: pops up on the embed's first play and drives it through the controller.
   const amp = document.getElementById('amp'), ampPP = document.getElementById('amp-pp'), ampTitle = document.getElementById('amp-title');
-  const ring = document.getElementById('amp-ring'), spWrap = document.getElementById('spotify').parentElement;
+  const ring = document.getElementById('amp-ring'), spWrap = document.getElementById('spotify').parentElement, orbit = amp.querySelector('.orbit');
+  orbit.pauseAnimations(); // the title only orbits while playing
   let spDur = 0, spPos = 0, pos = 0, scrub = false, list = { name: '', tracks: [] }, spIdx = -1;
   // Repeated to roughly one lap (~55 glyphs); textLength then stretches or squeezes it to close the circle exactly.
   const setTitle = (t) => { ampTitle.textContent = `${t} * `.toUpperCase().repeat(Math.max(1, Math.round(55 / (t.length + 3)))); };
@@ -1377,6 +1385,7 @@
       spDur = data.duration;
       spPos = data.position;
       amp.classList.toggle('on', !spPaused);
+      spPaused ? orbit.pauseAnimations() : orbit.unpauseAnimations();
       ampPP.textContent = spPaused ? '►' : '❚❚';
       ampPP.setAttribute('aria-label', spPaused ? 'play' : 'pause');
       if (!scrub) showPos(spDur ? data.position / spDur * 1000 : 0);
