@@ -129,6 +129,8 @@
     @keyframes amp-in { from { transform: translateY(30px) scale(.6) rotate(-20deg); opacity: 0; } }
     #amp .skin { position: absolute; inset: 0; filter: url(#amp-px); animation: amp-float 4s ease-in-out infinite; }
     @keyframes amp-float { 50% { translate: 0 -5px; } }
+    /* Bitmap look switched off for now; delete this line to restore the pixel grid and dither. */
+    #amp { --dither: none; } #amp .skin { filter: none; }
     #amp .skin > * { position: absolute; pointer-events: auto; cursor: grab; touch-action: none; }
     #amp.held .skin > * { cursor: grabbing; }
     #amp .orbit { inset: 0; pointer-events: none; }
