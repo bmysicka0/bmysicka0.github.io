@@ -52,7 +52,7 @@
                     border-left: 2px solid #000; border-right: 6px double #000; }
     .logo .flat { display: inline-block; margin-left: -0.235em; margin-right: -0.215em; transform: translateY(-0.04em); }
     .guy { display: block; mix-blend-mode: multiply; } /* drops the GIF's white background */
-    /* The guy is the jukebox button, captioned under his feet. */
+    /* The guy is the jukebox button. */
     #midi { padding: 0; border: 0; background: none; cursor: pointer; font: bold 16px "Comic Sans MS", "Comic Sans", cursive; }
     #midi:hover .cap { background: #0000EE; color: #FFF; }
     /* Poems: each has its own typographic theme. */
@@ -95,8 +95,8 @@
     #fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
     #roll { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; }
     /* MIDI player as a Win95 window: raised bevels for chrome and buttons, sunken green LCDs for readouts. */
-    #player { position: fixed; top: 72px; right: 16px; z-index: 50; display: flex; flex-direction: column; box-sizing: border-box;
-              width: min(280px, calc(100vw - 32px)); height: 67vh; min-width: 280px; min-height: 220px; padding: 3px; text-align: left; background: #C0C0C0; font: 14px Tahoma, "MS Sans Serif", sans-serif;
+    #player { position: fixed; right: 16px; z-index: 50; display: flex; flex-direction: column; box-sizing: border-box;
+              width: 280px; height: 67vh; min-width: 280px; min-height: 220px; padding: 3px; text-align: left; background: #C0C0C0; font: 14px Tahoma, "MS Sans Serif", sans-serif;
               box-shadow: inset -1px -1px #000, inset 1px 1px #DFDFDF, inset -2px -2px #808080, inset 2px 2px #FFF, 8px 8px 0 #000; }
     #player[hidden] { display: none; }
     #player .bar { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 2px 6px;
@@ -188,8 +188,8 @@
     .bird-track { display: flex; width: max-content; animation: birds var(--dur, 400s) linear infinite; }
     .birds:hover .bird-track { animation-play-state: paused; }
     /* Photo reels under the contact links: still until the reel or its link is hovered. */
-    .birds.reel { display: block; box-sizing: border-box; width: min(420px, calc(100vw - 16px)); margin: 20px auto 0; /* clears the link gifs' negative margins */ padding: 6px 0;
-                  background: #FFF; border: 3px outset #888; }
+    .birds.reel { display: block; box-sizing: border-box; width: min(420px, calc(100vw - 16px)); margin: 20px auto 0; padding: 6px 0;
+                  background: #FFF; border: 3px outset #888; } /* top margin clears the link gifs' negative margins */
     .pop { margin-block: 28px; }
     .reel img { vertical-align: top; } /* no baseline gap under the photos */
     .reel .bird-track { animation-play-state: paused; }
@@ -919,25 +919,8 @@
     }));
     pace(track);
   };
-  for (const track of document.querySelectorAll('.bird-track')) if (track.children.length) loop(track);
+  document.querySelectorAll('.bird-track:not(:empty)').forEach(loop);
 
-  // Letterboxd reel, built via DOM calls since titles come from an external feed.
-  (async () => {
-    try {
-      const films = await (await fetch('films.json')).json();
-      const track = document.querySelector('#lb .bird-track');
-      for (const f of films) {
-        const a = document.createElement('a'), img = new Image(75, 113), span = document.createElement('span');
-        a.href = f.link; a.target = '_blank'; a.rel = 'noopener';
-        a.title = `${f.title} (${f.year}) ${f.stars}`.trim();
-        img.src = f.poster; img.alt = f.title; img.loading = 'lazy';
-        span.className = 'bird';
-        a.append(img); span.append(a); track.append(span);
-      }
-      loop(track);
-      fit(track.parentElement);
-    } catch { /* no reel if films.json is missing */ }
-  })();
   // Scale each reel's photos so a whole number of them exactly spans it at the start (22px = .bird margins + img border).
   const fit = (reel) => {
     const imgs = [...reel.querySelectorAll('img')], size = (img, d) => +img.getAttribute(d);
@@ -957,6 +940,23 @@
   const fitAll = () => document.querySelectorAll('.reel').forEach(fit);
   fitAll();
   addEventListener('resize', fitAll);
+  // Letterboxd reel, built via DOM calls since titles come from an external feed.
+  (async () => {
+    try {
+      const films = await (await fetch('films.json')).json();
+      const track = document.querySelector('#lb .bird-track');
+      for (const f of films) {
+        const a = document.createElement('a'), img = new Image(75, 113), span = document.createElement('span');
+        a.href = f.link; a.target = '_blank'; a.rel = 'noopener';
+        a.title = `${f.title} (${f.year}) ${f.stars}`.trim();
+        img.src = f.poster; img.alt = f.title; img.loading = 'lazy';
+        span.className = 'bird';
+        a.append(img); span.append(a); track.append(span);
+      }
+      loop(track);
+      fit(track.parentElement);
+    } catch { /* no reel if films.json is missing */ }
+  })();
 
   // Mouse notes: moving sheds fading notes, a click bursts some; the frame loop only runs while any are visible.
   {
@@ -1207,7 +1207,7 @@
     [ctx, out] = newAudio();
     cap.textContent = '♪ playing ♪';
     player.hidden = false;
-    // Until it's been dragged, open just below the top bird strips, as far as the screen allows.
+    // Undragged, it opens below the top bird strips while still fitting on screen.
     const below = document.querySelector('.hero').getBoundingClientRect().bottom + 16;
     if (!player.style.left) player.style.top = `${Math.max(16, Math.min(below, innerHeight - player.offsetHeight - 16))}px`;
     setPaused(false);
