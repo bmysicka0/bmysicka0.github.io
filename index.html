@@ -51,7 +51,10 @@
                     background: repeating-linear-gradient(#000 0 1px, transparent 1px 0.17em);
                     border-left: 2px solid #000; border-right: 6px double #000; }
     .logo .flat { display: inline-block; margin-left: -0.235em; margin-right: -0.215em; transform: translateY(-0.04em); }
-    .guy { mix-blend-mode: multiply; } /* drops the GIF's white background */
+    .guy { display: block; mix-blend-mode: multiply; } /* drops the GIF's white background */
+    /* The guy is the jukebox button, captioned under his feet. */
+    #midi { padding: 0; border: 0; background: none; cursor: pointer; font: bold 16px "Comic Sans MS", "Comic Sans", cursive; }
+    #midi:hover .cap { background: #0000EE; color: #FFF; }
     /* Poems: each has its own typographic theme. */
     .crypt { max-width: 600px; }
     .crypt h3 { margin: 0; font: 400 clamp(30px, 7vw, 44px) "UnifrakturMaguntia", "Old English Text MT", serif; }
@@ -92,25 +95,31 @@
     #fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
     #roll { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; }
     /* MIDI player as a Win95 window: raised bevels for chrome and buttons, sunken green LCDs for readouts. */
-    #player { max-width: 600px; margin: 0 auto 16px; padding: 3px; background: #C0C0C0; font: 14px Tahoma, "MS Sans Serif", sans-serif;
+    #player { position: fixed; top: 72px; right: 16px; z-index: 50; display: flex; flex-direction: column; box-sizing: border-box;
+              width: min(280px, calc(100vw - 32px)); height: 67vh; min-width: 280px; min-height: 220px; padding: 3px; text-align: left; background: #C0C0C0; font: 14px Tahoma, "MS Sans Serif", sans-serif;
               box-shadow: inset -1px -1px #000, inset 1px 1px #DFDFDF, inset -2px -2px #808080, inset 2px 2px #FFF, 8px 8px 0 #000; }
+    #player[hidden] { display: none; }
     #player .bar { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 2px 6px;
-                   background: linear-gradient(90deg, #000080, #1084D0); color: #FFF; font-weight: bold; }
+                   background: linear-gradient(90deg, #000080, #1084D0); color: #FFF; font-weight: bold;
+                   cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; }
     #player button { min-width: 28px; padding: 3px 8px; border: 0; background: #C0C0C0; font: bold 14px Tahoma, "MS Sans Serif", sans-serif; cursor: pointer;
                      box-shadow: inset -1px -1px #000, inset 1px 1px #FFF, inset -2px -2px #808080, inset 2px 2px #DFDFDF; }
     #player button:active { box-shadow: inset 1px 1px #000, inset -1px -1px #FFF, inset 2px 2px #808080, inset -2px -2px #DFDFDF; }
     #player .bar button { min-width: 0; padding: 0 5px; line-height: 16px; }
-    #player :is(#song, #bpm, #tr) { background: repeating-linear-gradient(#0000 0 2px, #3F31 2px 3px) #000; color: #3F3; font: 22px/1.1 "VT323", "Courier New", monospace; text-shadow: 0 0 4px #3F3;
+    #player :is(#song, #bpm, #tr) { background: repeating-linear-gradient(#0000 0 2px, #3F31 2px 3px) #000; color: #3F3; font: 18px/1.1 "VT323", "Courier New", monospace; text-shadow: 0 0 4px #3F3;
                                           box-shadow: inset 1px 1px #808080, inset -1px -1px #FFF, inset 2px 2px #000, inset -2px -2px #DFDFDF; }
     #player .ctl { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; padding: 6px 0 8px; }
-    #player .nav { display: flex; flex-basis: 100%; gap: 6px; }
-    #song { flex: 1; padding: 2px 6px; }
+    #player .nav { display: flex; flex-basis: 100%; min-width: 0; gap: 6px; }
+    #song { flex: 1; min-width: 0; padding: 2px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #bpm { width: 3.2em; padding: 2px 6px; border: 0; }
     #tr { display: inline-block; min-width: 2em; padding: 2px 6px; cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none; }
     #player .status { display: flex; gap: 3px; margin-top: 3px; font-size: 13px; }
     #player .status span { flex: 1; padding: 1px 6px; text-align: left; box-shadow: inset 1px 1px #808080, inset -1px -1px #FFF; }
-    #player .status #time { flex: none; font-variant-numeric: tabular-nums; }
-    #pianoroll { display: block; box-sizing: border-box; width: 100%; height: clamp(280px, 50vh, 480px); background: #000;
+    #player .status #time { flex: none; padding-right: 16px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    /* Win95 size grip: two bevelled diagonal ridges in the corner. */
+    #grip { position: absolute; right: 4px; bottom: 4px; width: 12px; height: 12px; cursor: nwse-resize; touch-action: none;
+            background: linear-gradient(135deg, #0000 0 50%, #FFF 50% 58%, #808080 58% 70%, #0000 70% 75%, #FFF 75% 83%, #808080 83% 95%, #0000 95%); }
+    #pianoroll { display: block; flex: 1; min-height: 0; box-sizing: border-box; width: 100%; background: #000;
                  border: 2px solid; border-color: #808080 #FFF #FFF #808080; }
     /* Dawn Detune: the plugin's live 3D editor, rendered at half res and upscaled pixelated like the plugin does. */
     /* Dawn Detune: ported from birdsong.nyc/dawn-detune, only the size changed. */
@@ -184,6 +193,11 @@
              width: min(560px, calc(50vw - 170px)); margin: 0; padding: 6px 0; background: #FFF; border: 3px outset #888; }
     .popup::before { content: ""; position: absolute; right: 100%; top: 0; bottom: 0; width: 160px; } /* hover bridge from link to popup */
     .pop:hover .popup { display: block; }
+    /* Left of the link instead while the jukebox sits on the right half of the screen. */
+    @media (min-width: 701px) {
+      .jb-right .popup { left: auto; right: calc(50% + 160px); }
+      .jb-right .popup::before { right: auto; left: 100%; }
+    }
     @media (max-width: 700px) {
       .popup { top: 100%; left: 50%; transform: translateX(-50%); width: calc(100vw - 16px); }
       .popup::before { display: none; }
@@ -217,10 +231,9 @@
 <p class="welcome">Welcome to my Website :) </p>
 </header>
 
-<p><img class="guy" src="resources/guy.gif" width="140" height="140" alt=""></p>
-<p><button id="midi" type="button">▶ MIDI player ♪</button></p>
+<p><button id="midi" type="button" aria-label="MIDI jukebox"><img class="guy" src="resources/guy.gif" width="140" height="140" alt=""><span class="cap blink">♪ click me ♪</span></button></p>
 <div id="player" hidden>
-  <div class="bar"><span>♫ brand0 MIDI Jukebox</span><button id="close" type="button" aria-label="close player">×</button></div>
+  <div class="bar"><span>♫ MIDI Jukebox</span><button id="close" type="button" aria-label="close player">×</button></div>
   <div class="ctl">
     <span class="nav"><button type="button" data-song="-1" aria-label="previous song">|◄</button><span id="song"></span><button type="button" data-song="1" aria-label="next song">►|</button></span>
     <button id="pp" type="button"></button>
@@ -229,6 +242,7 @@
   </div>
   <canvas id="pianoroll" aria-hidden="true"></canvas>
   <div class="status"><span>Listen to the music and let it speak to your soul</span><span id="time">0:00 / 0:00</span></div>
+  <div id="grip" aria-hidden="true"></div>
 </div>
 
 <!-- ======== ABOUT ======== -->
@@ -1023,8 +1037,8 @@
     o.connect(c.destination);
     return [c, o];
   };
-  const btn = document.getElementById('midi');
-  const LABEL = btn.textContent;
+  const btn = document.getElementById('midi'), cap = btn.querySelector('.cap');
+  const LABEL = cap.textContent;
 
   // Minimal SMF parser -> notes in beats of the opening tempo (so ritardandos survive), first onset at 0, drums skipped.
   const parseMidi = (buf) => {
@@ -1127,7 +1141,7 @@
       start(data, bufs);
     } catch {
       s.data = piano = null;
-      if (mine === gen && ctx) { stop(); btn.textContent = 'MIDI broke :( try again'; }
+      if (mine === gen && ctx) { stop(); cap.textContent = 'MIDI broke :( try again'; }
     }
   };
 
@@ -1181,15 +1195,20 @@
   const stop = () => {
     clearTimeout(timer);
     ctx.close(); ctx = bus = song = null; // closing drops any notes already scheduled
-    btn.textContent = LABEL;
+    cap.textContent = LABEL;
     player.hidden = true;
+    side();
   };
 
   btn.addEventListener('click', () => {
     if (ctx) return stop();
     [ctx, out] = newAudio();
-    btn.textContent = '■ close player';
+    cap.textContent = '♪ playing ♪';
     player.hidden = false;
+    // Until it's been dragged, open just below the top bird strips, as far as the screen allows.
+    const below = document.querySelector('.hero').getBoundingClientRect().bottom + 16;
+    if (!player.style.left) player.style.top = `${Math.max(16, Math.min(below, innerHeight - player.offsetHeight - 16))}px`;
+    side();
     setPaused(false);
     roll(ctx);
     load();
@@ -1205,6 +1224,35 @@
     if (!p && !spPaused) spotify.pause();
   };
   document.getElementById('close').addEventListener('click', stop);
+  // Floating window: move by the title bar, resize by the corner grip; the bar always stays on screen.
+  const bar = player.querySelector('.bar');
+  const side = () => document.body.classList.toggle('jb-right', !player.hidden && player.offsetLeft + player.offsetWidth / 2 > innerWidth / 2);
+  const place = (x, y) => {
+    player.style.left = `${Math.max(0, Math.min(x, innerWidth - player.offsetWidth))}px`;
+    player.style.top = `${Math.max(0, Math.min(y, innerHeight - bar.offsetHeight))}px`;
+    player.style.right = 'auto';
+    side();
+  };
+  const dragging = (el, start) => el.addEventListener('pointerdown', (e) => {
+    if (e.button || e.target.closest('button')) return;
+    const drag = start(e);
+    el.setPointerCapture(e.pointerId);
+    el.addEventListener('pointermove', drag);
+    el.addEventListener('lostpointercapture', () => el.removeEventListener('pointermove', drag), { once: true });
+  });
+  dragging(bar, (e) => {
+    const dx = e.clientX - player.offsetLeft, dy = e.clientY - player.offsetTop;
+    return (e) => place(e.clientX - dx, e.clientY - dy);
+  });
+  dragging(document.getElementById('grip'), (e) => {
+    place(player.offsetLeft, player.offsetTop); // pin the top-left so growing goes right/down
+    const dw = player.offsetWidth - e.clientX, dh = player.offsetHeight - e.clientY;
+    return (e) => {
+      player.style.width = `${Math.min(dw + e.clientX, innerWidth - player.offsetLeft)}px`;
+      player.style.height = `${Math.min(dh + e.clientY, innerHeight - player.offsetTop)}px`;
+    };
+  });
+  addEventListener('resize', () => { if (!player.hidden && player.style.left) place(player.offsetLeft, player.offsetTop); });
   pp.addEventListener('click', () => { setPaused(!paused); paused ? ctx.suspend() : ctx.resume(); });
   window.onSpotifyIframeApiReady = (api) => api.createController(document.getElementById('spotify'),
     { uri: 'spotify:playlist:0TuQrG6ttGKuI6cAWvabNj', width: '100%', height: 352 },
