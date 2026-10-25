@@ -1,5 +1,12 @@
 [
  {
+  "title": "Carrie",
+  "year": "1976",
+  "stars": "★★★★★",
+  "link": "https://letterboxd.com/brand0m/film/carrie-1976/1/",
+  "poster": "https://a.ltrbxd.com/resized/sm/upload/2c/5d/69/bc/uc3OvgmbnYaS5Y0BOjSmC1EmSz1-0-150-0-225-crop.jpg?v=52ac29973c"
+ },
+ {
   "title": "You Can See Everything",
   "year": "2026",
   "stars": "★★★★★",
@@ -271,12 +278,5 @@
   "stars": "",
   "link": "https://letterboxd.com/brand0m/film/lola-versus/",
   "poster": "https://a.ltrbxd.com/resized/film-poster/8/2/0/8/4/82084-lola-versus-0-150-0-225-crop.jpg?v=357dda61e9"
- },
- {
-  "title": "Splash",
-  "year": "1984",
-  "stars": "",
-  "link": "https://letterboxd.com/brand0m/film/splash/",
-  "poster": "https://a.ltrbxd.com/resized/film-poster/5/0/1/8/5/50185-splash-0-150-0-225-crop.jpg?v=b51748fb11"
  }
 ]
