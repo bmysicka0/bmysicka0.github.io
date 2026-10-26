@@ -176,6 +176,7 @@
     #dawn-load .bar i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, #000080 0 8px, transparent 8px 11px); transition: width .3s linear; }
     #dawn-load.is-error :is(.bar, .pct) { display: none; }
     .shot { display: block; box-sizing: border-box; width: 440px; max-width: 100%; height: auto; margin: 8px auto 0; border: 3px double #000; }
+    br + .shot { margin-top: 24px; } /* clear the header gifs' negative margin when there's no caption */
     /* Black keys sit inside the white key to their left, straddling its right edge. */
     #keys { position: relative; display: flex; width: fit-content; margin: 0 auto; padding: 6px 6px 0; background: #000; border: 3px outset #888;
             user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -276,7 +277,7 @@
 <table class="box" border="4" cellpadding="10">
   <tr>
     <td class="prof-cell"><img class="prof" src="resources/prof_480.jpg" alt="portrait of brandon" /></td>
-    <td class="bio"><font size="3">hi i'm brandon. i'm a music producer and songwriter who dabbles in audio plugin development. i also enjoy <b><u>birdwatching</u></b> and <b><u>movies</u></b>. currently based in <b>nyc</b>.</font></td>
+    <td class="bio"><font size="3">hi i'm brandon. i'm a music producer, songwriter, and co-founder of <a href="https://www.birdsong.nyc" target="_blank" rel="noopener"><b><u>birdsong</u></b></a>. i also enjoy <b><u>birdwatching</u></b> and <b><u>movies</u></b>. currently based in <b>nyc</b>.</font></td>
   </tr>
 </table>
 
@@ -331,8 +332,8 @@
 <!-- ======== PLUGINS ======== -->
 <h2 class="staff"><span>♮ PLUGINS ♮</span></h2>
 <div class="huge">
-  <p><img class="gif" src="resources/bird1.gif" width="60" height="48" alt=""><a href="https://www.birdsong.nyc" target="_blank" rel="noopener">&gt;&gt; BIRDSONG &lt;&lt;</a><img class="gif" src="resources/bird2.gif" width="60" height="48" alt=""><b class="blink new">NEW!</b><br>
-  <font size="2">new company with nathan blair</font></p>
+  <p><img class="gif" src="resources/bird1.gif" width="60" height="48" alt=""><a href="https://www.birdsong.nyc/dawn-detune/" target="_blank" rel="noopener">&gt;&gt; DAWN DETUNE &lt;&lt;</a><img class="gif" src="resources/bird2.gif" width="60" height="48" alt=""><b class="blink new">NEW!</b><br>
+  <font size="2">from birdsong, my company with nathan blair</font></p>
   <div id="dawn">
     <div class="win-bar">
       <span class="win-title">DAWN_DETUNE.VST3</span>
@@ -348,12 +349,16 @@
       </div>
     </figure>
   </div>
-  <p><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><a href="https://brand0.gumroad.com/" target="_blank" rel="noopener">&gt;&gt; GUMROAD &lt;&lt;</a><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><br>
-  <font size="2">get gooper here</font>
-  <img class="shot" src="resources/goop.gif" width="440" height="289" loading="lazy" alt="gooper plugin running in ableton"></p>
+  <p><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><a href="https://brand0.gumroad.com/l/gooper" target="_blank" rel="noopener">&gt;&gt; GOOPER (FREE) &lt;&lt;</a><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><br>
+  <img class="shot" src="resources/gooper.gif" width="440" height="255" loading="lazy" alt="gooper plugin interface"></p>
+  <p><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><a href="https://brand0.gumroad.com/" target="_blank" rel="noopener">&gt;&gt; GOOPER MAX &lt;&lt;</a><img class="gif" src="resources/gum.gif" width="50" height="50" alt=""><br>
+  <img class="shot" src="resources/goop.gif" width="440" height="289" loading="lazy" alt="gooper max plugin running in ableton"></p>
   <p><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><a href="https://www.flickswitchaudio.com/product/liminal" target="_blank" rel="noopener">&gt;&gt; LIMINAL &lt;&lt;</a><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><br>
   <font size="2">built this cool device for FlickSwitch Audio</font>
   <img class="shot" src="resources/liminal.jpg" width="440" height="329" loading="lazy" alt="liminal plugin interface"></p>
+  <p><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><a href="https://www.flickswitchaudio.com/product/glacier" target="_blank" rel="noopener">&gt;&gt; GLACIER &lt;&lt;</a><img class="gif" src="resources/flick.gif" width="33" height="64" alt=""><br>
+  <font size="2">another one for FlickSwitch Audio</font>
+  <img class="shot" src="resources/glacier.jpg" width="280" height="362" style="width: 280px" loading="lazy" alt="glacier plugin interface"></p>
 </div>
 
 <!-- ======== CONTACT ======== -->
