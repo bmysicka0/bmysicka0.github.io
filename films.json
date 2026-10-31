@@ -1,5 +1,12 @@
 [
  {
+  "title": "ParaNorman",
+  "year": "2012",
+  "stars": "",
+  "link": "https://letterboxd.com/brand0m/film/paranorman/",
+  "poster": "https://a.ltrbxd.com/resized/film-poster/6/3/6/1/8/63618-paranorman-0-150-0-225-crop.jpg?v=4feb69b2ce"
+ },
+ {
   "title": "Carrie",
   "year": "1976",
   "stars": "★★★★★",
@@ -271,12 +278,5 @@
   "stars": "",
   "link": "https://letterboxd.com/brand0m/film/a-different-man/",
   "poster": "https://a.ltrbxd.com/resized/film-poster/8/9/1/2/9/1/891291-a-different-man-0-150-0-225-crop.jpg?v=f19de2db41"
- },
- {
-  "title": "Lola Versus",
-  "year": "2012",
-  "stars": "",
-  "link": "https://letterboxd.com/brand0m/film/lola-versus/",
-  "poster": "https://a.ltrbxd.com/resized/film-poster/8/2/0/8/4/82084-lola-versus-0-150-0-225-crop.jpg?v=357dda61e9"
  }
 ]
