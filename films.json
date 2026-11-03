@@ -1,5 +1,12 @@
 [
  {
+  "title": "Wicker",
+  "year": "2026",
+  "stars": "★★★★½",
+  "link": "https://letterboxd.com/brand0m/film/wicker/",
+  "poster": "https://a.ltrbxd.com/resized/film-poster/1/0/8/0/8/9/2/1080892-wicker-0-150-0-225-crop.jpg?v=7bc9498e8b"
+ },
+ {
   "title": "The Social Network",
   "year": "2010",
   "stars": "",
@@ -271,12 +278,5 @@
   "stars": "★★½",
   "link": "https://letterboxd.com/brand0m/film/the-odyssey-2026/",
   "poster": "https://a.ltrbxd.com/resized/film-poster/1/2/5/5/3/9/4/1255394-the-odyssey-2026-0-150-0-225-crop.jpg?v=1eed046d0c"
- },
- {
-  "title": "In Bruges",
-  "year": "2008",
-  "stars": "",
-  "link": "https://letterboxd.com/brand0m/film/in-bruges/",
-  "poster": "https://a.ltrbxd.com/resized/film-poster/4/7/8/0/9/47809-in-bruges-0-150-0-225-crop.jpg?v=616745d99a"
  }
 ]
