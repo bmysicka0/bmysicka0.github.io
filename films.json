@@ -1,5 +1,12 @@
 [
  {
+  "title": "Laura",
+  "year": "1944",
+  "stars": "★★★★½",
+  "link": "https://letterboxd.com/brand0m/film/laura/",
+  "poster": "https://a.ltrbxd.com/resized/film-poster/5/0/6/6/9/50669-laura-0-150-0-225-crop.jpg?v=6f306e1a55"
+ },
+ {
   "title": "The Hummingbird Paints Fragrant Songs.",
   "year": "2026",
   "stars": "",
@@ -271,12 +278,5 @@
   "stars": "★★★★★",
   "link": "https://letterboxd.com/brand0m/film/nowhere/",
   "poster": "https://a.ltrbxd.com/resized/sm/upload/1c/re/ju/yk/9CaVnvBRbzsM7mcJoIMncpHSBBN-0-150-0-225-crop.jpg?v=067121cd23"
- },
- {
-  "title": "La La Land",
-  "year": "2016",
-  "stars": "★★★★★",
-  "link": "https://letterboxd.com/brand0m/film/la-la-land/",
-  "poster": "https://a.ltrbxd.com/resized/film-poster/2/4/0/3/4/4/240344-la-la-land-0-150-0-225-crop.jpg?v=053670ff84"
  }
 ]
